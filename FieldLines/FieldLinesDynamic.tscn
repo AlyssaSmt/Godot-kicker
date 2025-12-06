@@ -1,6 +1,6 @@
 [gd_scene load_steps=2 format=3 uid="uid://d0cw6utfkuysq"]
 
-[ext_resource type="Script" uid="uid://1x080tbtf7t0" path="res://FieldLinesDynamic.gd" id="1_tvcyq"]
+[ext_resource type="Script" uid="uid://1x080tbtf7t0" path="res://FieldLines/FieldLinesDynamic.gd" id="1_tvcyq"]
 
 [node name="FieldLinesDynamic" type="MeshInstance3D"]
 script = ExtResource("1_tvcyq")
