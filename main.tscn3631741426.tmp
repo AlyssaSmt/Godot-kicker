@@ -1,0 +1,11 @@
+[gd_scene load_steps=2 format=3 uid="uid://b1phcfq8ugp1"]
+
+[ext_resource type="Script" uid="uid://bs2rvlnxas6f5" path="res://Procedural Generation/TerrainGeneration.gd" id="1_ig7tw"]
+
+[node name="main" type="Node3D"]
+
+[node name="TerrainGeneration" type="Node3D" parent="."]
+script = ExtResource("1_ig7tw")
+
+[node name="Camera3D" type="Camera3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 0.8922866, 0.45146945, 0, -0.45146945, 0.8922866, 0, 6.5316377, 15.835732)

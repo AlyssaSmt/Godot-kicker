@@ -1,0 +1,58 @@
+[gd_scene load_steps=12 format=3 uid="uid://b1phcfq8ugp1"]
+
+[ext_resource type="Script" uid="uid://dyp1c3w3r6ivu" path="res://main.gd" id="1_5vw27"]
+[ext_resource type="Script" uid="uid://bs2rvlnxas6f5" path="res://Procedural Generation/TerrainGeneration.gd" id="1_ig7tw"]
+[ext_resource type="Script" uid="uid://d1fgwrejxjecb" path="res://Procedural Generation/terrain_editor.gd" id="2_h2yge"]
+[ext_resource type="Script" uid="uid://cgk3x2gs044ha" path="res://EditorCamera.gd" id="3_h2yge"]
+[ext_resource type="PackedScene" uid="uid://benb5efkfqsv5" path="res://FieldLines/field_lines_node.tscn" id="3_lquwl"]
+[ext_resource type="PackedScene" uid="uid://cpliy7cur5dlm" path="res://Ball/Ball.tscn" id="4_lquwl"]
+[ext_resource type="PackedScene" uid="uid://7asu2su4qpsh" path="res://Goal/goal_left.tscn" id="5_lquwl"]
+[ext_resource type="PackedScene" uid="uid://dvuyvxo73o3ou" path="res://Goal/GoalDetector.tscn" id="7_272bh"]
+[ext_resource type="PackedScene" uid="uid://bakavvo4k7afb" path="res://Walls.tscn" id="9_kek77"]
+
+[sub_resource type="FastNoiseLite" id="FastNoiseLite_ig7tw"]
+
+[sub_resource type="Environment" id="Environment_ig7tw"]
+background_mode = 1
+background_color = Color(0.43163612, 0.59038633, 0.51166904, 1)
+
+[node name="main" type="Node3D"]
+script = ExtResource("1_5vw27")
+
+[node name="TerrainGeneration" type="Node3D" parent="."]
+script = ExtResource("1_ig7tw")
+noise = SubResource("FastNoiseLite_ig7tw")
+border_height = null
+enable_border = null
+
+[node name="TerrainEditor" type="Node3D" parent="." node_paths=PackedStringArray("terrain")]
+script = ExtResource("2_h2yge")
+terrain = NodePath("../TerrainGeneration")
+
+[node name="FieldLinesNode" parent="." instance=ExtResource("3_lquwl")]
+
+[node name="GoalLeft" parent="." instance=ExtResource("5_lquwl")]
+
+[node name="BallNode" parent="." instance=ExtResource("4_lquwl")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.5, 0)
+
+[node name="GoalDetectorLeft" parent="." instance=ExtResource("7_272bh")]
+team_name = "Team A"
+
+[node name="GoalDetectorRight" parent="." instance=ExtResource("7_272bh")]
+team_name = "Team A"
+
+[node name="Walls" parent="." instance=ExtResource("9_kek77")]
+
+[node name="EditorCameraRoot" type="Node3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 80, 0)
+
+[node name="EditorCamera" type="Camera3D" parent="EditorCameraRoot"]
+transform = Transform3D(1, 0, 0, 0, 0.49999997, 0.86602545, 0, -0.86602545, 0.49999997, 0, 0, 0)
+script = ExtResource("3_h2yge")
+
+[node name="DirectionalLight3D" type="DirectionalLight3D" parent="."]
+transform = Transform3D(-0.9841028, 0, -0.17759995, -0.07713233, 0.9007665, 0.42739958, 0.15997608, 0.4343038, -0.88644683, 0, 14.025137, -42.03899)
+
+[node name="WorldEnvironment" type="WorldEnvironment" parent="."]
+environment = SubResource("Environment_ig7tw")

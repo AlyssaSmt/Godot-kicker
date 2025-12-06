@@ -1,0 +1,6 @@
+[gd_scene load_steps=2 format=3 uid="uid://b4qoyuhmar7oo"]
+
+[ext_resource type="Script" uid="uid://b0d1xphx7joru" path="res://GoalLineDrawer.gd" id="1_0uf2n"]
+
+[node name="GoalLineDrawer" type="MeshInstance3D"]
+script = ExtResource("1_0uf2n")

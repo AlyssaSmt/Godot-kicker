@@ -1,0 +1,8 @@
+[gd_scene load_steps=2 format=3 uid="uid://benb5efkfqsv5"]
+
+[ext_resource type="Script" uid="uid://b1pvh2y53umyo" path="res://FieldLines/FieldLines.gd" id="1_v3oql"]
+
+[node name="FieldLinesNode" type="Node3D"]
+
+[node name="FieldLines" type="MeshInstance3D" parent="."]
+script = ExtResource("1_v3oql")

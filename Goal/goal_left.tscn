@@ -1,0 +1,12 @@
+[gd_scene load_steps=2 format=3 uid="uid://7asu2su4qpsh"]
+
+[ext_resource type="Script" uid="uid://dfje7dlvej4si" path="res://Goal/GoalLeft.gd" id="1_y87y3"]
+
+[node name="GoalLeft" type="Node3D"]
+script = ExtResource("1_y87y3")
+
+[node name="PostLeft" type="MeshInstance3D" parent="."]
+
+[node name="PostRight" type="MeshInstance3D" parent="."]
+
+[node name="Crossbar" type="MeshInstance3D" parent="."]

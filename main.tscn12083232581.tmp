@@ -1,0 +1,35 @@
+[gd_scene load_steps=6 format=3 uid="uid://b1phcfq8ugp1"]
+
+[ext_resource type="Script" uid="uid://bs2rvlnxas6f5" path="res://Procedural Generation/TerrainGeneration.gd" id="1_ig7tw"]
+[ext_resource type="PackedScene" uid="uid://d3s74n0sakxdh" path="res://PlayerController/player.tscn" id="2_0xm2m"]
+[ext_resource type="Script" uid="uid://d1fgwrejxjecb" path="res://terrain_editor.gd" id="2_h2yge"]
+
+[sub_resource type="FastNoiseLite" id="FastNoiseLite_ig7tw"]
+noise_type = 0
+frequency = 0.003
+
+[sub_resource type="Environment" id="Environment_ig7tw"]
+background_mode = 1
+background_color = Color(0.4300033, 0.4760915, 0.56191283, 1)
+
+[node name="main" type="Node3D"]
+
+[node name="TerrainGeneration" type="Node3D" parent="."]
+script = ExtResource("1_ig7tw")
+size_depth = 100
+size_width = 100
+edit_height = null
+noise = SubResource("FastNoiseLite_ig7tw")
+
+[node name="TerrainEditor" type="Node3D" parent="." node_paths=PackedStringArray("terrain")]
+script = ExtResource("2_h2yge")
+terrain = NodePath("../TerrainGeneration")
+
+[node name="DirectionalLight3D" type="DirectionalLight3D" parent="."]
+transform = Transform3D(-0.9841027, 0, -0.17759994, 0, 1, 0, 0.17759994, 0, -0.9841027, 0, 6.534315, -57.8483)
+
+[node name="WorldEnvironment" type="WorldEnvironment" parent="."]
+environment = SubResource("Environment_ig7tw")
+
+[node name="Player" parent="." instance=ExtResource("2_0xm2m")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1.9483966, 0)

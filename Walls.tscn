@@ -1,0 +1,45 @@
+[gd_scene load_steps=4 format=3 uid="uid://bakavvo4k7afb"]
+
+[ext_resource type="Script" uid="uid://k12uqkmvpw85" path="res://Walls.gd" id="1_ndvdd"]
+
+[sub_resource type="BoxShape3D" id="BoxShape3D_sixe3"]
+
+[sub_resource type="BoxMesh" id="BoxMesh_ndvdd"]
+
+[node name="Walls" type="Node3D"]
+script = ExtResource("1_ndvdd")
+
+[node name="NorthWall" type="StaticBody3D" parent="."]
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="NorthWall"]
+shape = SubResource("BoxShape3D_sixe3")
+
+[node name="MeshInstance3D" type="MeshInstance3D" parent="NorthWall"]
+mesh = SubResource("BoxMesh_ndvdd")
+
+[node name="SouthWall" type="StaticBody3D" parent="."]
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="SouthWall"]
+shape = SubResource("BoxShape3D_sixe3")
+
+[node name="MeshInstance3D" type="MeshInstance3D" parent="SouthWall"]
+mesh = SubResource("BoxMesh_ndvdd")
+skeleton = NodePath("../../NorthWall")
+
+[node name="EastWall" type="StaticBody3D" parent="."]
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="EastWall"]
+shape = SubResource("BoxShape3D_sixe3")
+
+[node name="MeshInstance3D" type="MeshInstance3D" parent="EastWall"]
+mesh = SubResource("BoxMesh_ndvdd")
+skeleton = NodePath("../../NorthWall")
+
+[node name="WestWall" type="StaticBody3D" parent="."]
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="WestWall"]
+shape = SubResource("BoxShape3D_sixe3")
+
+[node name="MeshInstance3D" type="MeshInstance3D" parent="WestWall"]
+mesh = SubResource("BoxMesh_ndvdd")
+skeleton = NodePath("../../NorthWall")

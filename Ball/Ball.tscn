@@ -1,0 +1,30 @@
+[gd_scene load_steps=6 format=3 uid="uid://cpliy7cur5dlm"]
+
+[ext_resource type="Script" uid="uid://dnls0srv8mhbs" path="res://Ball/Ball.gd" id="1_lww6v"]
+
+[sub_resource type="PhysicsMaterial" id="PhysicsMaterial_3tj6u"]
+bounce = 0.5
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_pa54t"]
+metallic = 0.05
+metallic_specular = 0.7
+roughness = 0.4
+
+[sub_resource type="SphereMesh" id="SphereMesh_pa54t"]
+material = SubResource("StandardMaterial3D_pa54t")
+radial_segments = 32
+
+[sub_resource type="SphereShape3D" id="SphereShape3D_pa54t"]
+
+[node name="Ball" type="RigidBody3D" groups=["ball"]]
+physics_material_override = SubResource("PhysicsMaterial_3tj6u")
+can_sleep = false
+continuous_cd = true
+script = ExtResource("1_lww6v")
+
+[node name="MeshInstance3D" type="MeshInstance3D" parent="."]
+mesh = SubResource("SphereMesh_pa54t")
+skeleton = NodePath("")
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="."]
+shape = SubResource("SphereShape3D_pa54t")
