@@ -1,4 +1,4 @@
-[gd_scene load_steps=12 format=3 uid="uid://b1phcfq8ugp1"]
+[gd_scene load_steps=14 format=3 uid="uid://b1phcfq8ugp1"]
 
 [ext_resource type="Script" uid="uid://dyp1c3w3r6ivu" path="res://main/main.gd" id="1_0i4oc"]
 [ext_resource type="Script" uid="uid://bs2rvlnxas6f5" path="res://Procedural Generation/TerrainGeneration.gd" id="2_bsumw"]
@@ -6,8 +6,10 @@
 [ext_resource type="PackedScene" uid="uid://cpliy7cur5dlm" path="res://Ball/Ball.tscn" id="5_73k8k"]
 [ext_resource type="PackedScene" uid="uid://dvuyvxo73o3ou" path="res://Goal/GoalDetector.tscn" id="6_5xyti"]
 [ext_resource type="Script" uid="uid://d3pj55mw2jk1k" path="res://main/HockeyGoals.gd" id="8_0i4oc"]
+[ext_resource type="PackedScene" uid="uid://ccvq3f0fbtwcw" path="res://ScoreManager.tscn" id="9_0i4oc"]
 [ext_resource type="PackedScene" uid="uid://d0cw6utfkuysq" path="res://FieldLines/FieldLinesDynamic.tscn" id="9_4hmqs"]
 [ext_resource type="PackedScene" uid="uid://hhgmst8lx8ua" path="res://RinkWalls.tscn" id="9_bsumw"]
+[ext_resource type="Script" uid="uid://q5aau2vkm2be" path="res://main/ScoreLabel.gd" id="10_bsumw"]
 [ext_resource type="Script" uid="uid://cgk3x2gs044ha" path="res://Camera/EditorCamera.gd" id="10_piupu"]
 
 [sub_resource type="FastNoiseLite" id="FastNoiseLite_ig7tw"]
@@ -41,6 +43,7 @@ script = ExtResource("8_0i4oc")
 script = ExtResource("8_0i4oc")
 
 [node name="RinkWalls" parent="." instance=ExtResource("9_bsumw")]
+wall_height = 3.0
 
 [node name="GoalDetectorLeft" parent="." instance=ExtResource("6_5xyti")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1.2, -35.5)
@@ -48,6 +51,13 @@ transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1.2, -35.5)
 [node name="GoalDetectorRight" parent="." instance=ExtResource("6_5xyti")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1.2, 35.5)
 team_name = "Team B"
+
+[node name="ScoreManager" parent="." instance=ExtResource("9_0i4oc")]
+
+[node name="ScoreLabel" type="Label" parent="."]
+offset_right = 40.0
+offset_bottom = 23.0
+script = ExtResource("10_bsumw")
 
 [node name="EditorCameraRoot" type="Node3D" parent="."]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 80, 0)

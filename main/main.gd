@@ -13,24 +13,25 @@ func _ready():
 	left_goal.rotation_degrees.y = 180
 	right_goal.rotation_degrees.y = 0
 
-	# 🔥 GoalDetectors direkt unter main verbinden
+	# Goal detectors verbinden
 	var left_detector := $GoalDetectorLeft
 	var right_detector := $GoalDetectorRight
 
 	left_detector.connect("goal_scored", Callable(self, "_on_goal_scored"))
 	right_detector.connect("goal_scored", Callable(self, "_on_goal_scored"))
 
-	print("Main ready – Tore & GoalDetectors verbunden.")
+	print("Main ready – Tore verbunden.")
 
 
 func _on_goal_scored(team_name: String):
-	print("TOR für: ", team_name)
+
+	var score := $ScoreManager
+	score.add_goal(team_name)
 
 	reset_ball()
 
 	if terrain:
-		await terrain.reset_field()  # wichtig: mit await!
-		print("Terrain reset abgeschlossen")
+		terrain.reset_field()
 
 
 func reset_ball():

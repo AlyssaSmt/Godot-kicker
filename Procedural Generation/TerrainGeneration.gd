@@ -38,8 +38,8 @@ func generate() -> void:
 	# Basismesh
 	var plane := PlaneMesh.new()
 	plane.size = Vector2(size_width, size_depth)
-	plane.subdivide_depth = 22
-	plane.subdivide_width = 14
+	plane.subdivide_depth = 12
+	plane.subdivide_width = 8
 
 	var st := SurfaceTool.new()
 	st.create_from(plane, 0)
@@ -129,7 +129,7 @@ func _apply_quad_deformation(quad_id: int, delta: float) -> void:
 	for vid in unique:
 		var vert := data.get_vertex(vid)
 
-		# ⛔ 16-METER-BEREICH SPERREN
+		# 16-METER-BEREICH SPERREN
 		if _is_in_goal_zone(vert.x, vert.z):
 			continue
 
