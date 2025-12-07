@@ -21,8 +21,6 @@ script = ExtResource("1_0i4oc")
 
 [node name="TerrainGeneration" type="Node3D" parent="."]
 script = ExtResource("2_bsumw")
-size_width = 120
-size_depth = 180
 noise = SubResource("FastNoiseLite_ig7tw")
 
 [node name="TerrainEditor" type="Node3D" parent="." node_paths=PackedStringArray("terrain")]

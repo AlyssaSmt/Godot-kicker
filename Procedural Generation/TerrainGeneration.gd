@@ -38,8 +38,8 @@ func generate() -> void:
 	# Basismesh
 	var plane := PlaneMesh.new()
 	plane.size = Vector2(size_width, size_depth)
-	plane.subdivide_depth = 20
-	plane.subdivide_width = 10
+	plane.subdivide_depth = 22
+	plane.subdivide_width = 14
 
 	var st := SurfaceTool.new()
 	st.create_from(plane, 0)
@@ -127,22 +127,22 @@ func _apply_quad_deformation(quad_id: int, delta: float) -> void:
 			unique.append(v)
 
 	for vid in unique:
-		var vert: Vector3 = data.get_vertex(vid)
+		var vert := data.get_vertex(vid)
 
-		# Bearbeitung nur INNEN im Spielfeld
-		if not _is_inside_field(vert.x, vert.z):
+		# ⛔ 16-METER-BEREICH SPERREN
+		if _is_in_goal_zone(vert.x, vert.z):
 			continue
 
+		# Normale Terrain-Bewegung
 		var base := delta
 		var n := noise.get_noise_2d(vert.x * 0.2, vert.z * 0.2)
 		var offset := n * absf(delta) * 3.0
 
 		vert.y += base + offset
-
-		# Begrenzung der Höhe
 		vert.y = clamp(vert.y, min_height, max_height)
 
 		data.set_vertex(vid, vert)
+
 
 
 
@@ -288,3 +288,19 @@ func reset_field() -> void:
 	emit_signal("terrain_changed")
 
 	print("Spielfeld wurde zurückgesetzt!")
+
+
+func _is_in_goal_zone(x: float, z: float) -> bool:
+	var half_zone_w := 16.0 / 2.0     # 16m Breite
+	var depth := 16.0                 # 16m Tiefe
+	var goal_z := 28.0                # Torlinie in deinem Spiel
+
+	# Obere Seite
+	if x > -half_zone_w and x < half_zone_w and z < -goal_z and z > -goal_z - depth:
+		return true
+
+	# Untere Seite
+	if x > -half_zone_w and x < half_zone_w and z > goal_z and z < goal_z + depth:
+		return true
+
+	return false
