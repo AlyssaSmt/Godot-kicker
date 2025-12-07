@@ -3,7 +3,7 @@
 [ext_resource type="Script" uid="uid://ba6gaxyfxfk3x" path="res://Goal/GoalDetector.gd" id="1_n7hug"]
 
 [sub_resource type="BoxShape3D" id="BoxShape3D_sg1fb"]
-size = Vector3(7.32, 2.4, 0.1)
+size = Vector3(10, 4, 0.1)
 
 [node name="GoalDetector" type="Area3D"]
 script = ExtResource("1_n7hug")

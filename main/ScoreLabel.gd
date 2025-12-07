@@ -1,11 +1,14 @@
 extends Label
 
+@onready var score_manager := get_node("/root/main/ScoreManager")
+
 func _ready():
-	# holt ScoreManager aus der Szene
-	var score_manager := get_tree().get_root().get_node("main/ScoreManager")
-	score_manager.connect("score_changed", Callable(self, "_on_score_changed"))
+	if score_manager == null:
+		push_error("ScoreManager nicht gefunden!")
+		return
 
-	_on_score_changed(0, 0) # Anfangswert
+	score_manager.connect("score_changed", Callable(self, "_update_score"))
+	_update_score(score_manager.score_team_a, score_manager.score_team_b)
 
-func _on_score_changed(a: int, b: int):
+func _update_score(a: int, b: int):
 	text = str(a, " : ", b)

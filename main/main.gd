@@ -3,7 +3,6 @@ extends Node3D
 @onready var terrain := $TerrainGeneration
 
 func _ready():
-	# Tore
 	var left_goal := $HockeyGoalLeft
 	var right_goal := $HockeyGoalRight
 
@@ -14,22 +13,26 @@ func _ready():
 	right_goal.rotation_degrees.y = 0
 
 	# Goal detectors verbinden
-	var left_detector := $GoalDetectorLeft
-	var right_detector := $GoalDetectorRight
-
-	left_detector.connect("goal_scored", Callable(self, "_on_goal_scored"))
-	right_detector.connect("goal_scored", Callable(self, "_on_goal_scored"))
+	$GoalDetectorLeft.connect("goal_scored", Callable(self, "_on_goal_scored"))
+	$GoalDetectorRight.connect("goal_scored", Callable(self, "_on_goal_scored"))
 
 	print("Main ready – Tore verbunden.")
 
 
 func _on_goal_scored(team_name: String):
 
-	var score := $ScoreManager
-	score.add_goal(team_name)
+	# ➤ SCORE ERHÖHEN
+	$ScoreManager.add_goal(team_name)
 
+	# ➤ BALL RESET
 	reset_ball()
 
+	# ➤ KAMERA RESET
+	var cam := $EditorCameraRoot/EditorCamera
+	if cam:
+		cam.reset_camera()
+
+	# ➤ FELD RESET
 	if terrain:
 		terrain.reset_field()
 

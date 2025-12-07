@@ -8,17 +8,43 @@ var rotating := false
 var pitch := 0.0
 var yaw := 0.0
 
+# Speicherung der Starttransforms
+var start_camera_transform: Transform3D
+var start_parent_transform: Transform3D
+
+
 func _ready():
 	current = true
-	
-	# Initiale Orientierung
+
 	var root = get_parent()
+
+	# Startrotation
+	yaw = root.rotation_degrees.y
+	pitch = rotation_degrees.x
+
+	# Start-Transforms merken
+	start_camera_transform = global_transform
+	start_parent_transform = root.global_transform
+
+
+func reset_camera():
+	var root = get_parent()
+
+	# Parent zurücksetzen (Yaw + Position)
+	root.global_transform = start_parent_transform
+
+	# Kamera zurücksetzen (Pitch + Position)
+	global_transform = start_camera_transform
+
+	# Yaw/Pitch aktualisieren
 	yaw = root.rotation_degrees.y
 	pitch = rotation_degrees.x
 
 
+
 func _unhandled_input(event):
-	# Rechte Maustaste gedrückt halten -> Maus einfangen
+
+	# Rechte Maustaste zum Drehen
 	if event is InputEventMouseButton:
 		if event.button_index == MOUSE_BUTTON_RIGHT:
 			rotating = event.pressed
@@ -26,36 +52,37 @@ func _unhandled_input(event):
 				Input.MOUSE_MODE_CAPTURED if rotating else Input.MOUSE_MODE_VISIBLE
 			)
 
-	# Mausbewegung -> Kamera drehen
+	# Rotation mit Maus
 	if event is InputEventMouseMotion and rotating:
 		yaw -= event.relative.x * look_sensitivity * 100
 		pitch -= event.relative.y * look_sensitivity * 100
 
 		pitch = clamp(pitch, -85, 85)
 
-		# Yaw dreht den Parent → horizontale Rotation
+		# Yaw auf Parent
 		get_parent().rotation_degrees.y = yaw
-		# Pitch dreht die Kamera → vertikale Rotation
+		# Pitch auf Kamera
 		rotation_degrees.x = pitch
+
 
 
 func _process(delta):
 	var dir := Vector3.ZERO
 	var root = get_parent()
 
-	# Bewegung relativ zur Root-Orientierung
-	if Input.is_action_pressed("ui_up"):      # W
+	# Bewegung relativ zum Parent
+	if Input.is_action_pressed("ui_up"):
 		dir -= root.transform.basis.z
-	if Input.is_action_pressed("ui_down"):    # S
+	if Input.is_action_pressed("ui_down"):
 		dir += root.transform.basis.z
-	if Input.is_action_pressed("ui_left"):    # A
+	if Input.is_action_pressed("ui_left"):
 		dir -= root.transform.basis.x
-	if Input.is_action_pressed("ui_right"):   # D
+	if Input.is_action_pressed("ui_right"):
 		dir += root.transform.basis.x
 
-	if Input.is_action_pressed("space"):      # Hoch
+	if Input.is_action_pressed("space"):
 		dir.y += 1
-	if Input.is_action_pressed("shift"):      # Runter
+	if Input.is_action_pressed("shift"):
 		dir.y -= 1
 
 	var speed := fast_speed if Input.is_key_pressed(KEY_SHIFT) else move_speed

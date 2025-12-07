@@ -284,7 +284,7 @@ func reset_field() -> void:
 	mesh_instance.create_trimesh_collision()
 	_fix_ball_safely()
 
-	# 🔥 Dieses fehlte!
+
 	emit_signal("terrain_changed")
 
 	print("Spielfeld wurde zurückgesetzt!")

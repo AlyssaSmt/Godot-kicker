@@ -61,35 +61,37 @@ func _create_rink() -> void:
 	_create_corner(Vector3(-w + corner_radius, 0.0, -l + corner_radius), 180.0)
 
 
-func _create_wall_segment(a: Vector3, b: Vector3, extra_rotation_deg: float = 0.0) -> void:
+func _create_wall_segment(a: Vector3, b: Vector3, rotate: bool = true) -> void:
 	var length: float = a.distance_to(b)
 
-	# sichtbares Mesh
 	var wall_mesh := MeshInstance3D.new()
 	var box_mesh := BoxMesh.new()
-
-	var total_height: float = wall_height + wall_depth_below_ground
-	box_mesh.size = Vector3(wall_thickness, total_height, length)
+	box_mesh.size = Vector3(wall_thickness, wall_height, length)
 	wall_mesh.mesh = box_mesh
 
+	# Mitte setzen
 	wall_mesh.position = (a + b) / 2.0
-	wall_mesh.position.y = total_height / 2.0 - wall_depth_below_ground
 
-	var dir: Vector3 = (b - a).normalized()
-	wall_mesh.look_at(wall_mesh.position + dir, Vector3.UP)
-
-	# ⭐ EXTRAROTATION (z. B. 90° drehen)
-	if extra_rotation_deg != 0.0:
-		wall_mesh.rotate_y(deg_to_rad(extra_rotation_deg))
+	# Drehen nur wenn erlaubt
+	if rotate:
+		var dir: Vector3 = (b - a).normalized()
+		wall_mesh.look_at_from_position(
+			wall_mesh.position,
+			wall_mesh.position + dir,
+			Vector3.UP
+		)
+	else:
+		# nicht drehen → standardmäßig entlang Z
+		wall_mesh.rotation = Vector3.ZERO
 
 	add_child(wall_mesh)
 
 	# Physik
 	var body := StaticBody3D.new()
 	var shape := CollisionShape3D.new()
-	var box_shape := BoxShape3D.new()
-	box_shape.size = box_mesh.size
-	shape.shape = box_shape
+	var col := BoxShape3D.new()
+	col.size = box_mesh.size
+	shape.shape = col
 	body.add_child(shape)
 	wall_mesh.add_child(body)
 
