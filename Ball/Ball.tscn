@@ -3,7 +3,6 @@
 [ext_resource type="Script" uid="uid://dnls0srv8mhbs" path="res://Ball/Ball.gd" id="1_lww6v"]
 
 [sub_resource type="PhysicsMaterial" id="PhysicsMaterial_3tj6u"]
-bounce = 0.5
 
 [sub_resource type="StandardMaterial3D" id="StandardMaterial3D_pa54t"]
 metallic = 0.05

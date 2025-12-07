@@ -5,7 +5,7 @@ extends Area3D
 signal goal_scored(team_name: String)
 
 func _ready():
-	connect("body_entered", _on_body_entered)
+	connect("body_entered", Callable(self, "_on_body_entered"))
 	collision_layer = 1
 	collision_mask = 1
 

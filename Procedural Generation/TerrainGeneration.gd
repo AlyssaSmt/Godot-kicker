@@ -262,3 +262,29 @@ func get_height_at_position(x: float, z: float) -> float:
 			height = v.y
 
 	return height
+
+
+func reset_field() -> void:
+	for i in range(data.get_vertex_count()):
+		var v: Vector3 = data.get_vertex(i)
+		v.y = 0.0
+		data.set_vertex(i, v)
+
+	var new_mesh := ArrayMesh.new()
+	data.commit_to_surface(new_mesh)
+	mesh_instance.mesh = new_mesh
+
+	for child in mesh_instance.get_children():
+		if child is StaticBody3D:
+			child.queue_free()
+
+	await get_tree().process_frame
+	await get_tree().process_frame
+
+	mesh_instance.create_trimesh_collision()
+	_fix_ball_safely()
+
+	# 🔥 Dieses fehlte!
+	emit_signal("terrain_changed")
+
+	print("Spielfeld wurde zurückgesetzt!")

@@ -1,22 +1,45 @@
 extends Node3D
 
-# Offizielle Spielfeldgröße (du kannst sie ändern)
-const FIELD_LENGTH := 105.0    # Z-Richtung
-const GOAL_DISTANCE := 35.0    # Abstand der Hockeytore von der Mitte
-
+@onready var terrain := $TerrainGeneration
 
 func _ready():
-	# Referenzen holen
-	var left_goal: Node3D = $HockeyGoalLeft
-	var right_goal: Node3D = $HockeyGoalRight
+	# Tore
+	var left_goal := $HockeyGoalLeft
+	var right_goal := $HockeyGoalRight
 
-	# Positionen setzen
-	left_goal.position = Vector3(0, 0, -GOAL_DISTANCE)
-	right_goal.position = Vector3(0, 0,  GOAL_DISTANCE)
+	left_goal.position = Vector3(0, 0, -35)
+	right_goal.position = Vector3(0, 0, 35)
 
-	# Drehungen korrigieren:
-	# ❗ Rechtes Tor muss gedreht werden, nicht das linke!
-	left_goal.rotation_degrees.y = 180      # zeigt in +Z
-	right_goal.rotation_degrees.y = 0   # zeigt in -Z
+	left_goal.rotation_degrees.y = 180
+	right_goal.rotation_degrees.y = 0
 
-	print("Tore korrekt platziert & ausgerichtet.")
+	# 🔥 GoalDetectors direkt unter main verbinden
+	var left_detector := $GoalDetectorLeft
+	var right_detector := $GoalDetectorRight
+
+	left_detector.connect("goal_scored", Callable(self, "_on_goal_scored"))
+	right_detector.connect("goal_scored", Callable(self, "_on_goal_scored"))
+
+	print("Main ready – Tore & GoalDetectors verbunden.")
+
+
+func _on_goal_scored(team_name: String):
+	print("TOR für: ", team_name)
+
+	reset_ball()
+
+	if terrain:
+		await terrain.reset_field()  # wichtig: mit await!
+		print("Terrain reset abgeschlossen")
+
+
+func reset_ball():
+	var ball := get_tree().get_first_node_in_group("ball")
+	if ball == null:
+		return
+
+	ball.global_transform.origin = Vector3(0, 1, 0)
+
+	if ball is RigidBody3D:
+		ball.linear_velocity = Vector3.ZERO
+		ball.angular_velocity = Vector3.ZERO
