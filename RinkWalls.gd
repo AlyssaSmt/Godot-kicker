@@ -1,0 +1,107 @@
+@tool
+class_name RinkWalls
+extends Node3D
+
+@export var field_width: float = 68.0        # inneres Spielfeld (wie FIELD_W)
+@export var field_length: float = 105.0      # inneres Spielfeld (wie FIELD_L)
+@export var wall_height: float = 3.0         # sichtbare Höhe über Boden
+@export var wall_thickness: float = 0.5
+@export var corner_radius: float = 8.0       # Rundung der Ecken
+@export var segments_per_corner: int = 12    # je höher, desto runder
+@export var wall_depth_below_ground: float = 1.0  # wie tief die Bande ins Terrain ragt
+
+
+func _ready() -> void:
+	# im Editor und im Spiel neu aufbauen
+	_clear_children()
+	_create_rink()
+
+
+func _clear_children() -> void:
+	for child: Node in get_children():
+		child.queue_free()
+
+
+func _create_rink() -> void:
+	var w: float = field_width / 2.0
+	var l: float = field_length / 2.0
+
+	# 1) Gerade Banden oben/unten (bei den Toren)
+	_create_wall_segment(
+		Vector3(-w + corner_radius, 0.0, -l),
+		Vector3( w - corner_radius, 0.0, -l),
+		90.0
+	)
+
+	_create_wall_segment(
+		Vector3(-w + corner_radius, 0.0,  l),
+		Vector3( w - corner_radius, 0.0,  l),
+		90.0
+	)
+
+	# 2) Gerade Banden links/rechts
+	_create_wall_segment(
+		Vector3(-w, 0.0, -l + corner_radius),
+		Vector3(-w, 0.0,  l - corner_radius)
+	)
+
+	_create_wall_segment(
+		Vector3( w, 0.0, -l + corner_radius),
+		Vector3( w, 0.0,  l - corner_radius)
+	)
+
+	# 3) Ecken (Viertelkreise)
+	# Top-Right (oben rechts)
+	_create_corner(Vector3( w - corner_radius, 0.0, -l + corner_radius), 270.0)
+	# Bottom-Right (unten rechts)
+	_create_corner(Vector3( w - corner_radius, 0.0,  l - corner_radius),   0.0)
+	# Bottom-Left (unten links)
+	_create_corner(Vector3(-w + corner_radius, 0.0,  l - corner_radius),  90.0)
+	# Top-Left (oben links)
+	_create_corner(Vector3(-w + corner_radius, 0.0, -l + corner_radius), 180.0)
+
+
+func _create_wall_segment(a: Vector3, b: Vector3, extra_rotation_deg: float = 0.0) -> void:
+	var length: float = a.distance_to(b)
+
+	# sichtbares Mesh
+	var wall_mesh := MeshInstance3D.new()
+	var box_mesh := BoxMesh.new()
+
+	var total_height: float = wall_height + wall_depth_below_ground
+	box_mesh.size = Vector3(wall_thickness, total_height, length)
+	wall_mesh.mesh = box_mesh
+
+	wall_mesh.position = (a + b) / 2.0
+	wall_mesh.position.y = total_height / 2.0 - wall_depth_below_ground
+
+	var dir: Vector3 = (b - a).normalized()
+	wall_mesh.look_at(wall_mesh.position + dir, Vector3.UP)
+
+	# ⭐ EXTRAROTATION (z. B. 90° drehen)
+	if extra_rotation_deg != 0.0:
+		wall_mesh.rotate_y(deg_to_rad(extra_rotation_deg))
+
+	add_child(wall_mesh)
+
+	# Physik
+	var body := StaticBody3D.new()
+	var shape := CollisionShape3D.new()
+	var box_shape := BoxShape3D.new()
+	box_shape.size = box_mesh.size
+	shape.shape = box_shape
+	body.add_child(shape)
+	wall_mesh.add_child(body)
+
+
+func _create_corner(center: Vector3, start_angle_deg: float) -> void:
+	var step: float = 90.0 / float(segments_per_corner)
+
+	for i: int in range(segments_per_corner):
+		var a1: float = deg_to_rad(start_angle_deg + step * float(i))
+		var a2: float = deg_to_rad(start_angle_deg + step * float(i + 1))
+
+		var p1: Vector3 = center + Vector3(cos(a1), 0.0, sin(a1)) * corner_radius
+		var p2: Vector3 = center + Vector3(cos(a2), 0.0, sin(a2)) * corner_radius
+
+		_create_wall_segment(p1, p2)

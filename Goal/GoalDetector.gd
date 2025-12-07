@@ -1,13 +1,16 @@
 extends Area3D
 
-signal goal_scored(team_name: String)
+@export var team_name: String = "Team A"
 
-@export var team_name := "Team A"
+signal goal_scored(team_name: String)
 
 func _ready():
 	connect("body_entered", _on_body_entered)
+	collision_layer = 1
+	collision_mask = 1
 
-func _on_body_entered(body):
+
+func _on_body_entered(body: Node) -> void:
 	if body.is_in_group("ball"):
-		print("⚽ Tor für ", team_name)
+		print("TOR für ", team_name)
 		emit_signal("goal_scored", team_name)

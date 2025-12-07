@@ -1,14 +1,13 @@
-[gd_scene load_steps=13 format=3 uid="uid://b1phcfq8ugp1"]
+[gd_scene load_steps=12 format=3 uid="uid://b1phcfq8ugp1"]
 
 [ext_resource type="Script" uid="uid://dyp1c3w3r6ivu" path="res://main/main.gd" id="1_0i4oc"]
 [ext_resource type="Script" uid="uid://bs2rvlnxas6f5" path="res://Procedural Generation/TerrainGeneration.gd" id="2_bsumw"]
 [ext_resource type="Script" uid="uid://d1fgwrejxjecb" path="res://Procedural Generation/terrain_editor.gd" id="3_fwcvl"]
-[ext_resource type="PackedScene" uid="uid://7asu2su4qpsh" path="res://Goal/goal_left.tscn" id="4_na0o7"]
 [ext_resource type="PackedScene" uid="uid://cpliy7cur5dlm" path="res://Ball/Ball.tscn" id="5_73k8k"]
 [ext_resource type="PackedScene" uid="uid://dvuyvxo73o3ou" path="res://Goal/GoalDetector.tscn" id="6_5xyti"]
-[ext_resource type="PackedScene" uid="uid://bakavvo4k7afb" path="res://FieldLines/Walls.tscn" id="7_n3o0a"]
-[ext_resource type="PackedScene" uid="uid://b4qoyuhmar7oo" path="res://FieldLines/GoalLineDrawer.tscn" id="8_s758e"]
+[ext_resource type="Script" uid="uid://d3pj55mw2jk1k" path="res://main/HockeyGoals.gd" id="8_0i4oc"]
 [ext_resource type="PackedScene" uid="uid://d0cw6utfkuysq" path="res://FieldLines/FieldLinesDynamic.tscn" id="9_4hmqs"]
+[ext_resource type="PackedScene" uid="uid://hhgmst8lx8ua" path="res://RinkWalls.tscn" id="9_bsumw"]
 [ext_resource type="Script" uid="uid://cgk3x2gs044ha" path="res://Camera/EditorCamera.gd" id="10_piupu"]
 
 [sub_resource type="FastNoiseLite" id="FastNoiseLite_ig7tw"]
@@ -30,29 +29,27 @@ noise = SubResource("FastNoiseLite_ig7tw")
 script = ExtResource("3_fwcvl")
 terrain = NodePath("../TerrainGeneration")
 
-[node name="GoalLeft" parent="." instance=ExtResource("4_na0o7")]
-
 [node name="BallNode" parent="." instance=ExtResource("5_73k8k")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.5, 0)
-
-[node name="GoalDetectorLeft" parent="." instance=ExtResource("6_5xyti")]
-team_name = "Team A"
-
-[node name="GoalDetectorRight" parent="." instance=ExtResource("6_5xyti")]
-team_name = "Team A"
-
-[node name="Walls" parent="." node_paths=PackedStringArray("terrain") instance=ExtResource("7_n3o0a")]
-terrain = NodePath("../TerrainGeneration")
-
-[node name="GoalLineTop" parent="." node_paths=PackedStringArray("terrain") instance=ExtResource("8_s758e")]
-terrain = NodePath("../TerrainGeneration")
-
-[node name="GoalLineBottom" parent="." node_paths=PackedStringArray("terrain") instance=ExtResource("8_s758e")]
-terrain = NodePath("../TerrainGeneration")
-z_pos = 52.5
+mass = 0.467
 
 [node name="FieldLinesDynamic" parent="." node_paths=PackedStringArray("terrain") instance=ExtResource("9_4hmqs")]
 terrain = NodePath("../TerrainGeneration")
+
+[node name="HockeyGoalLeft" type="Node3D" parent="."]
+script = ExtResource("8_0i4oc")
+
+[node name="HockeyGoalRight" type="Node3D" parent="."]
+script = ExtResource("8_0i4oc")
+
+[node name="RinkWalls" parent="." instance=ExtResource("9_bsumw")]
+
+[node name="GoalDetectorLeft" parent="." instance=ExtResource("6_5xyti")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1.2, -35.5)
+
+[node name="GoalDetectorRight" parent="." instance=ExtResource("6_5xyti")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1.2, 35.5)
+team_name = "Team B"
 
 [node name="EditorCameraRoot" type="Node3D" parent="."]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 80, 0)
