@@ -31,7 +31,7 @@ func _unhandled_input(event):
 func _select_quad():
 	var cam := get_viewport().get_camera_3d()
 	if cam == null:
-		print("❌ Keine Kamera!")
+		print("Keine Kamera!")
 		return
 
 	var mouse_pos := get_viewport().get_mouse_position()
@@ -48,22 +48,22 @@ func _select_quad():
 
 	var pos: Vector3 = hit["position"]
 
-	# 🚫 Forbidden Zone check
+	# Forbidden Zone check
 	if terrain.is_position_forbidden(pos):
-		print("🚫 Verbotene Zone – kein Terrain-Edit erlaubt")
+		print("Verbotene Zone – kein Terrain-Edit erlaubt")
 		return
 
 	var col: Node = hit["collider"]
 
 	# nur Terrain anvisieren
 	if col != terrain.mesh_instance and col.get_parent() != terrain.mesh_instance:
-		print("❌ Kein Terrain getroffen")
+		print("Kein Terrain getroffen")
 		return
 
 	var face: int = hit["face_index"]
 	last_quad = face / 2
 
-	print("✔ Quad gewählt:", last_quad)
+	print("Quad gewählt:", last_quad)
 
 
 

@@ -38,8 +38,8 @@ func generate() -> void:
 	# Basismesh
 	var plane := PlaneMesh.new()
 	plane.size = Vector2(size_width, size_depth)
-	plane.subdivide_depth = 10
-	plane.subdivide_width = 6
+	plane.subdivide_depth = 20
+	plane.subdivide_width = 10
 
 	var st := SurfaceTool.new()
 	st.create_from(plane, 0)
