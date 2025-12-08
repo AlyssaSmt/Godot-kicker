@@ -17,7 +17,7 @@ Procedurales Hockey-Spielfeld mit editierbarem Terrain, Ball-Physik und Goal-Det
   - Wände und Toore fürs Spielfeld
   - Area3D Nodes überwachen Treffer
 - **Kamera**
-  - Pfeiltasten: Move
+  - WASD: Move
   - Shift: Senken
   - Space: Heben
 
@@ -27,7 +27,7 @@ Procedurales Hockey-Spielfeld mit editierbarem Terrain, Ball-Physik und Goal-Det
 | Quad auswählen                | Linksklick            |
 | Quad erhöhen                  | Q                     |
 | Quad senken                   | E                     |
-| Kamera bewegen                | Pfeiltasten           |
+| Kamera bewegen                | WASD                  |
 | Kamera heben                  | Space                 |
 | Kamera senken                 | Shift                 |
 
