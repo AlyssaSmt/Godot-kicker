@@ -16,8 +16,6 @@ func add_goal(team: String) -> void:
 			push_warning("Unbekanntes Team: %s" % team)
 			return
 
-	print("⚽ TOR für", team, "→", score_team_a, ":", score_team_b)
-
 	emit_signal("score_changed", score_team_a, score_team_b)
 
 
