@@ -2,14 +2,14 @@
 class_name FootballGoal
 extends Node3D
 
-# --- FIFA-Maße ---
+# tormaße
 @export var goal_width: float = 10    # Torbreite
 @export var goal_height: float = 4  # Höhe
 @export var goal_depth: float = 3.00     # Tiefe
 
-# --- Wanddicken ---
+# wanddicken
 @export var post_thickness: float = 0.12     # Pfosten
-@export var bar_thickness: float = 0.12      # Querlatte
+@export var bar_thickness: float = 0.12      # Latte
 @export var wall_thickness: float = 0.10     # Seiten, Dach, Rückwand
 
 
@@ -24,9 +24,9 @@ func _clear():
 		c.queue_free()
 
 
-# ------------------------------------------------------
+
 # Hilfsmethode zum Erstellen einer Wand + Collider
-# ------------------------------------------------------
+
 func _create_box(size: Vector3, pos: Vector3):
 	var mesh := MeshInstance3D.new()
 	var box := BoxMesh.new()
@@ -45,38 +45,37 @@ func _create_box(size: Vector3, pos: Vector3):
 	mesh.add_child(body)
 
 
-# ------------------------------------------------------
+
 # HIER ENTSTEHT DAS GANZE TOR
-# ------------------------------------------------------
+
 func _create_goal():
 
-	# ================================================
-	# 1) LINKER PFOSTEN
-	# ================================================
+
+	# 1) linker Pfosten
+
 	_create_box(
 		Vector3(post_thickness, goal_height, post_thickness),
 		Vector3(-goal_width/2, goal_height/2, 0)
 	)
 
-	# ================================================
-	# 2) RECHTER PFOSTEN
-	# ================================================
+	# 2) rechter pfosten
+
 	_create_box(
 		Vector3(post_thickness, goal_height, post_thickness),
 		Vector3(goal_width/2, goal_height/2, 0)
 	)
 
-	# ================================================
-	# 3) QUERLATTE (vorne)
-	# ================================================
+
+	# 3) latte
+
 	_create_box(
 		Vector3(goal_width, bar_thickness, bar_thickness),
 		Vector3(0, goal_height, 0)
 	)
 
-	# ================================================
-	# 4) SEITENWÄNDE LINKS/RECHTS
-	# ================================================
+
+	# 4) wände rechts/links
+
 	_create_box(
 		Vector3(wall_thickness, goal_height, goal_depth),
 		Vector3(-goal_width/2, goal_height/2, goal_depth/2)
@@ -87,17 +86,17 @@ func _create_goal():
 		Vector3(goal_width/2, goal_height/2, goal_depth/2)
 	)
 
-	# ================================================
-	# 5) DACH DES TORES
-	# ================================================
+
+	# 5) dach
+
 	_create_box(
 		Vector3(goal_width, wall_thickness, goal_depth),
 		Vector3(0, goal_height + wall_thickness/2, goal_depth/2)
 	)
 
-	# ================================================
-	# 6) RÜCKWAND (komplett geschlossen)
-	# ================================================
+
+	# 6) rückwand
+
 	_create_box(
 		Vector3(goal_width, goal_height, wall_thickness),
 		Vector3(0, goal_height/2, goal_depth)

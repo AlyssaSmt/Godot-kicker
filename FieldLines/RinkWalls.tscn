@@ -1,6 +1,6 @@
 [gd_scene load_steps=2 format=3 uid="uid://hhgmst8lx8ua"]
 
-[ext_resource type="Script" uid="uid://42aoc2il03d1" path="res://RinkWalls.gd" id="1_im4mf"]
+[ext_resource type="Script" uid="uid://42aoc2il03d1" path="res://FieldLines/RinkWalls.gd" id="1_im4mf"]
 
 [node name="RinkWalls" type="Node3D"]
 script = ExtResource("1_im4mf")

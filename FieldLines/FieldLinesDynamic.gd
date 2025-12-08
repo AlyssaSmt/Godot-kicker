@@ -20,9 +20,8 @@ func _ready() -> void:
 
 
 
-# -------------------------------------------------
 # TYPISIERTE Hilfsfunktion
-# -------------------------------------------------
+
 func draw_dynamic_line(im: ImmediateMesh, x1: float, z1: float, x2: float, z2: float) -> void:
 	var count: int = resolution - 1
 
@@ -46,9 +45,9 @@ func draw_dynamic_line(im: ImmediateMesh, x1: float, z1: float, x2: float, z2: f
 
 
 
-# -------------------------------------------------
+
 # HAUPTFUNKTION
-# -------------------------------------------------
+
 func redraw_all_lines() -> void:
 	if terrain == null:
 		return
@@ -65,14 +64,12 @@ func redraw_all_lines() -> void:
 
 	var half_w: float = field_width / 2.0
 
-	# -----------------------------------------------------
+
 	# MITTELLINIE
-	# -----------------------------------------------------
 	draw_dynamic_line(im, -half_w, 0.0, half_w, 0.0)
 
-	# -----------------------------------------------------
+
 	# MITTELKREIS
-	# -----------------------------------------------------
 	var radius: float = 9.0
 	var steps: int = 80
 
@@ -92,9 +89,8 @@ func redraw_all_lines() -> void:
 		im.surface_add_vertex(Vector3(x2, y2, z2))
 
 
-	# =====================================================
-	#   TORLINIEN – ÜBER GESAMTE FELDBREITE
-	# =====================================================
+
+	#   TORLINIEN - ÜBER GESAMTE FELDBREITE
 
 	# obere Torlinie
 	draw_dynamic_line(im, -half_w, -goal_z -7, half_w, -goal_z -7)
@@ -103,16 +99,15 @@ func redraw_all_lines() -> void:
 	draw_dynamic_line(im, -half_w,  goal_z +7, half_w,  goal_z+7)
 
 
-	# =====================================================
+
 	#   16-METER-RÄUME UM DIE TORE
-	# =====================================================
 
 	var half_zone_w: float = goal_zone_width / 2.0
 	var depth: float = goal_zone_depth
 
-	# ----------------------------
-	# OBEN (Tor = -goal_z)
-	# ----------------------------
+
+	# OBEN
+	
 	var z_front_top: float = -goal_z
 	var z_back_top: float  = z_front_top - depth
 
@@ -121,9 +116,9 @@ func redraw_all_lines() -> void:
 	draw_dynamic_line(im, -half_zone_w, z_back_top, -half_zone_w, z_front_top)
 	draw_dynamic_line(im,  half_zone_w, z_back_top,  half_zone_w, z_front_top)
 
-	# ----------------------------
-	# UNTEN (Tor = +goal_z)
-	# ----------------------------
+
+	# UNTEN
+
 	var z_front_bottom: float = goal_z
 	var z_back_bottom: float = z_front_bottom + depth
 
@@ -133,8 +128,6 @@ func redraw_all_lines() -> void:
 	draw_dynamic_line(im,  half_zone_w, z_front_bottom,  half_zone_w, z_back_bottom)
 
 
-	# -----------------------------------------------------
 	# FINISH
-	# -----------------------------------------------------
 	im.surface_end()
 	mesh = im

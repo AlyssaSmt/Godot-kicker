@@ -6,9 +6,9 @@
 [ext_resource type="PackedScene" uid="uid://cpliy7cur5dlm" path="res://Ball/Ball.tscn" id="5_73k8k"]
 [ext_resource type="PackedScene" uid="uid://dvuyvxo73o3ou" path="res://Goal/GoalDetector.tscn" id="6_5xyti"]
 [ext_resource type="Script" uid="uid://d3pj55mw2jk1k" path="res://main/HockeyGoals.gd" id="8_0i4oc"]
-[ext_resource type="PackedScene" uid="uid://ccvq3f0fbtwcw" path="res://ScoreManager.tscn" id="9_0i4oc"]
+[ext_resource type="PackedScene" uid="uid://ccvq3f0fbtwcw" path="res://ScoreManager/ScoreManager.tscn" id="9_0i4oc"]
 [ext_resource type="PackedScene" uid="uid://d0cw6utfkuysq" path="res://FieldLines/FieldLinesDynamic.tscn" id="9_4hmqs"]
-[ext_resource type="PackedScene" uid="uid://hhgmst8lx8ua" path="res://RinkWalls.tscn" id="9_bsumw"]
+[ext_resource type="PackedScene" uid="uid://hhgmst8lx8ua" path="res://FieldLines/RinkWalls.tscn" id="9_bsumw"]
 [ext_resource type="Script" uid="uid://q5aau2vkm2be" path="res://main/ScoreLabel.gd" id="10_bsumw"]
 [ext_resource type="Script" uid="uid://cgk3x2gs044ha" path="res://Camera/EditorCamera.gd" id="10_piupu"]
 

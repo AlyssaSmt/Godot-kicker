@@ -7,18 +7,18 @@ func _ready() -> void:
 	continuous_cd = true
 	mass = 0.45
 
-	linear_damp = 0.02       # Weniger Luftwiderstand → schneller
-	angular_damp = 0.01      # Weniger Rotationsbremsung → rollt länger
+	linear_damp = 0.02       # Weniger Luftwiderstand, somit schneller
+	angular_damp = 0.01      # Weniger Rotationsbremsung, rollt länger
 
 	# PhysicsMaterial direkt auf dem Ball
 	var mat := PhysicsMaterial.new()
 	mat.bounce = 0.55         # Leichteres Abprallen
-	mat.friction = 0.05       # Wenig Haftung → viel Speed
+	mat.friction = 0.05       # Wenig Haftung, viel Speed
 	physics_material_override = mat
 
 
 
-# Wenn du die Fallgeschwindigkeit begrenzen willst, mach das hier:
+# Fallgeschwindigkeit begrenzen
 func _integrate_forces(state: PhysicsDirectBodyState3D) -> void:
 	if state.linear_velocity.y < -50.0:
 		state.linear_velocity.y = -10.0

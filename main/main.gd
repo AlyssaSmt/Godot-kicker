@@ -21,18 +21,18 @@ func _ready():
 
 func _on_goal_scored(team_name: String):
 
-	# ➤ SCORE ERHÖHEN
+	# score erhöhen
 	$ScoreManager.add_goal(team_name)
 
-	# ➤ BALL RESET
+	# ball resetten
 	reset_ball()
 
-	# ➤ KAMERA RESET
+	# kamera resetten
 	var cam := $EditorCameraRoot/EditorCamera
 	if cam:
 		cam.reset_camera()
 
-	# ➤ FELD RESET
+	# feld resetten
 	if terrain:
 		terrain.reset_field()
 

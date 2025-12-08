@@ -9,7 +9,7 @@ extends Node3D
 @export var min_height := -4.0
 @export var max_height := 4.0
 
-# Spielfeld-Maße (nicht verändern!)
+# Spielfeld-Maße
 const FIELD_W := 68.0
 const FIELD_L := 105.0
 
@@ -26,9 +26,9 @@ func _ready() -> void:
 	_define_forbidden_zones()
 
 
-###########################################################################
-#                              GENERATE TERRAIN
-###########################################################################
+
+# GENERATE TERRAIN
+
 
 func generate() -> void:
 	if noise == null:
@@ -48,7 +48,7 @@ func generate() -> void:
 	data = MeshDataTool.new()
 	data.create_from_surface(base_mesh, 0)
 
-	# TERRAIN KOMPLETT FLACH
+	# terrain komplett flach machen
 	for i in range(data.get_vertex_count()):
 		var v: Vector3 = data.get_vertex(i)
 		v.y = 0.0
@@ -75,9 +75,9 @@ func generate() -> void:
 
 
 
-###########################################################################
-#                           TERRAIN EDITING
-###########################################################################
+
+#TERRAIN EDITING
+
 
 func edit_quad(quad_id: int, delta: float) -> void:
 	if quad_id < 0:
@@ -95,7 +95,7 @@ func edit_quad(quad_id: int, delta: float) -> void:
 		if child is StaticBody3D:
 			child.queue_free()
 
-	# 2 Frames warten → Physik stabil!
+	# 2 Frames warten, damit Physik stabil!
 	await get_tree().process_frame
 	await get_tree().process_frame
 
@@ -129,7 +129,7 @@ func _apply_quad_deformation(quad_id: int, delta: float) -> void:
 	for vid in unique:
 		var vert := data.get_vertex(vid)
 
-		# 16-METER-BEREICH SPERREN
+		# 16-meter bereich sperren
 		if _is_in_goal_zone(vert.x, vert.z):
 			continue
 
@@ -154,9 +154,8 @@ func _is_inside_field(x: float, z: float) -> bool:
 
 
 
-###########################################################################
-#                               BALL FIXING
-###########################################################################
+#  BALL FIXING
+
 
 func _fix_ball_safely() -> void:
 	var ball := get_tree().get_first_node_in_group("ball")
@@ -181,7 +180,7 @@ func _fix_ball_safely() -> void:
 	var dist: float = pos.y - terrain_y
 
 
-	# Ball hängt fest → hochstoßen
+	# Ball hängt fest, wird hochgepusht
 	if dist <= 0.2:
 		rb.apply_central_impulse(Vector3.UP * 4.0)
 		if rb.linear_velocity.y < 0.0:
@@ -194,9 +193,8 @@ func _fix_ball_safely() -> void:
 
 
 
-###########################################################################
-#                           FORBIDDEN ZONES
-###########################################################################
+# FORBIDDEN ZONES
+
 
 func _define_forbidden_zones() -> void:
 	var fw := FIELD_W
@@ -246,9 +244,7 @@ func is_position_forbidden(pos: Vector3) -> bool:
 
 
 
-###########################################################################
-#                           HEIGHT SAMPLING
-###########################################################################
+# HEIGHT SAMPLING
 
 func get_height_at_position(x: float, z: float) -> float:
 	var closest := INF
