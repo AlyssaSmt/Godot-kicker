@@ -13,7 +13,7 @@ Procedurales Hockey-Spielfeld mit editierbarem Terrain, Ball-Physik und Goal-Det
 - **Ball**
   - Physik: Masse, Dämpfung, Bounce/Friction
   - Begrenzte Fallgeschwindigkeit
-- **Rink / Toore**
+- **Rink / Tore**
   - Wände und Toore fürs Spielfeld
   - Area3D Nodes überwachen Treffer
 - **Kamera**
@@ -35,5 +35,5 @@ Procedurales Hockey-Spielfeld mit editierbarem Terrain, Ball-Physik und Goal-Det
 - Multiplayer Implementierung
 - UI für Steuerung und Tore
 - Undo / Redo / Timer für Terrain-Editing
-- Terrain-Editing beeinflusst Rink und Toore
+- Terrain-Editing beeinflusst Rink und Tore
 - Terrainfarbenveränderung nach Höhe 
