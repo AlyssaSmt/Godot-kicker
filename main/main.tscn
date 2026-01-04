@@ -38,9 +38,15 @@ terrain = NodePath("../TerrainGeneration")
 
 [node name="HockeyGoalLeft" type="Node3D" parent="."]
 script = ExtResource("8_0i4oc")
+goal_width = 10.0
+goal_height = 4.0
+goal_depth = 3.0
 
 [node name="HockeyGoalRight" type="Node3D" parent="."]
 script = ExtResource("8_0i4oc")
+goal_width = 10.0
+goal_height = 4.0
+goal_depth = 3.0
 
 [node name="RinkWalls" parent="." instance=ExtResource("9_bsumw")]
 wall_height = 3.0

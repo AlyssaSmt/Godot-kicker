@@ -3,9 +3,9 @@ class_name FootballGoal
 extends Node3D
 
 # tormaße
-@export var goal_width: float = 10    # Torbreite
-@export var goal_height: float = 4  # Höhe
-@export var goal_depth: float = 3.00     # Tiefe
+@export var goal_width: float = 14    # Torbreite
+@export var goal_height: float = 5  # Höhe
+@export var goal_depth: float = 4    # Tiefe
 
 # wanddicken
 @export var post_thickness: float = 0.12     # Pfosten
