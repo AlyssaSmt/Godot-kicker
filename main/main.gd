@@ -1,8 +1,18 @@
 extends Node3D
 
-@onready var terrain := $TerrainGeneration
+@onready var terrain: TerrainGeneration = $TerrainGeneration
+@onready var pause_menu := get_node("HelpUI/PauseMenu")
 
-func _ready():
+var reset_vote_a: bool = false
+var reset_vote_b: bool = false
+
+func _ready() -> void:
+
+	if pause_menu == null:
+		push_error("❌ PauseMenu NICHT gefunden! Pfad prüfen.")
+		return
+
+
 	var left_goal := $HockeyGoalLeft
 	var right_goal := $HockeyGoalRight
 
@@ -13,14 +23,20 @@ func _ready():
 	right_goal.rotation_degrees.y = 0
 
 	# Goal detectors verbinden
-	$GoalDetectorLeft.connect("goal_scored", Callable(self, "_on_goal_scored"))
-	$GoalDetectorRight.connect("goal_scored", Callable(self, "_on_goal_scored"))
+	$GoalDetectorLeft.goal_scored.connect(_on_goal_scored)
+	$GoalDetectorRight.goal_scored.connect(_on_goal_scored)
+
+	# Help Button
+	$HelpUI/HelpButton.pressed.connect(_on_help_pressed)
+
+	# PauseMenu Signale
+	pause_menu.request_reset.connect(_on_reset_requested)
+	pause_menu.request_forfeit.connect(_on_forfeit_requested)
 
 	print("Main ready – Tore verbunden.")
 
 
-func _on_goal_scored(team_name: String):
-
+func _on_goal_scored(team_name: String) -> void:
 	# score erhöhen
 	$ScoreManager.add_goal(team_name)
 
@@ -37,7 +53,71 @@ func _on_goal_scored(team_name: String):
 		terrain.reset_field()
 
 
-func reset_ball():
+# -------------------------
+# Pause / Hilfe Menü
+# -------------------------
+
+func _on_help_pressed() -> void:
+	# (Optional) hier kannst du team_name_local setzen:
+	# pause_menu.team_name_local = "Team A"  # oder "Team B"
+
+	pause_menu.set_votes(reset_vote_a, reset_vote_b)
+	pause_menu.open_menu()
+
+
+func _on_reset_requested(team_name: String) -> void:
+	# Vote setzen
+	if team_name == "Team A":
+		reset_vote_a = true
+	elif team_name == "Team B":
+		reset_vote_b = true
+
+	pause_menu.set_votes(reset_vote_a, reset_vote_b)
+
+	# Beide haben zugestimmt -> kompletter Reset
+	if reset_vote_a and reset_vote_b:
+		_do_full_reset()
+
+
+func _do_full_reset() -> void:
+	reset_vote_a = false
+	reset_vote_b = false
+	pause_menu.clear_votes()
+
+	# Feld reset
+	if terrain:
+		terrain.reset_field()
+
+	# Ball reset
+	reset_ball()
+
+	# Kamera reset
+	var cam := $EditorCameraRoot/EditorCamera
+	if cam:
+		cam.reset_camera()
+
+	# Menü schließen
+	pause_menu.close_menu()
+
+
+func _on_forfeit_requested(team_name: String) -> void:
+	# Spieler der klickt verliert
+	print("🏳️ Aufgabe von: ", team_name, " -> verliert!")
+
+	# Beispiel: alles resetten (du kannst hier Endscreen machen)
+	if terrain:
+		terrain.reset_field()
+	reset_ball()
+
+	pause_menu.close_menu()
+
+
+
+# -------------------------
+# Ball Reset
+# -------------------------
+
+func reset_ball() -> void:
 	var ball := get_tree().get_first_node_in_group("ball")
 	if ball == null:
 		return
