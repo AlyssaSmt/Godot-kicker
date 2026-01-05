@@ -1,4 +1,4 @@
-[gd_scene load_steps=14 format=3 uid="uid://b1phcfq8ugp1"]
+[gd_scene load_steps=15 format=3 uid="uid://b1phcfq8ugp1"]
 
 [ext_resource type="Script" uid="uid://dyp1c3w3r6ivu" path="res://main/main.gd" id="1_0i4oc"]
 [ext_resource type="Script" uid="uid://bs2rvlnxas6f5" path="res://Procedural Generation/TerrainGeneration.gd" id="2_bsumw"]
@@ -11,6 +11,7 @@
 [ext_resource type="PackedScene" uid="uid://hhgmst8lx8ua" path="res://FieldLines/RinkWalls.tscn" id="9_bsumw"]
 [ext_resource type="Script" uid="uid://q5aau2vkm2be" path="res://main/ScoreLabel.gd" id="10_bsumw"]
 [ext_resource type="Script" uid="uid://cgk3x2gs044ha" path="res://Camera/EditorCamera.gd" id="10_piupu"]
+[ext_resource type="Script" uid="uid://b0u5nbb15qyqn" path="res://main/HelpUI.gd" id="12_fwcvl"]
 
 [sub_resource type="FastNoiseLite" id="FastNoiseLite_ig7tw"]
 
@@ -68,6 +69,8 @@ anchor_right = 1.0
 anchor_bottom = 0.035
 offset_bottom = 0.3199997
 grow_horizontal = 2
+theme_override_font_sizes/font_size = 26
+horizontal_alignment = 1
 script = ExtResource("10_bsumw")
 
 [node name="EditorCameraRoot" type="Node3D" parent="."]
@@ -82,3 +85,50 @@ transform = Transform3D(-0.9841028, 0, -0.17759995, -0.07713233, 0.9007665, 0.42
 
 [node name="WorldEnvironment" type="WorldEnvironment" parent="."]
 environment = SubResource("Environment_ig7tw")
+
+[node name="HelpUI" type="CanvasLayer" parent="."]
+script = ExtResource("12_fwcvl")
+
+[node name="HelpButton" type="Button" parent="HelpUI"]
+anchors_preset = 1
+anchor_left = 1.0
+anchor_right = 1.0
+offset_left = -120.0
+offset_bottom = 40.0
+grow_horizontal = 0
+focus_mode = 0
+text = "Steuerung"
+
+[node name="HelpPanel" type="Panel" parent="HelpUI"]
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -260.0
+offset_top = -160.0
+offset_right = 260.0
+offset_bottom = 160.0
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="HelpLabel" type="Label" parent="HelpUI/HelpPanel"]
+layout_mode = 0
+offset_right = 40.0
+offset_bottom = 23.0
+text = "Steuerung:
+• Rechtsklick halten + Maus: Kamera drehen
+• WASD: bewegen
+• Space: hoch
+• Shift: runter
+• Linksklick: Quad auswählen
+• Q: Terrain hoch
+• E: Terrain runter
+"
+
+[node name="CloseButton" type="Button" parent="HelpUI/HelpPanel"]
+layout_mode = 0
+offset_left = 500.0
+offset_right = 518.0
+offset_bottom = 31.0
+text = "X"

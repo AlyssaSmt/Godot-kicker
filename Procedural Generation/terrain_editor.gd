@@ -50,14 +50,14 @@ func _select_quad():
 
 	# Forbidden Zone check
 	if terrain.is_position_forbidden(pos):
-		print("Verbotene Zone – kein Terrain-Edit erlaubt")
+		print("Forgbidden ZOne - no selection allowed")
 		return
 
 	var col: Node = hit["collider"]
 
 	# nur Terrain anvisieren
 	if col != terrain.mesh_instance and col.get_parent() != terrain.mesh_instance:
-		print("Kein Terrain getroffen")
+		print("Did not hit terrain")
 		return
 
 	var face: int = hit["face_index"]

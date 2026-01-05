@@ -13,7 +13,7 @@ func add_goal(team: String) -> void:
 		"Team B":
 			score_team_b += 1
 		_:
-			push_warning("Unbekanntes Team: %s" % team)
+			push_warning("Unknown Team: %s" % team)
 			return
 
 	emit_signal("score_changed", score_team_a, score_team_b)
