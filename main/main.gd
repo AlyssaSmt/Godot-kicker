@@ -65,12 +65,12 @@ func _on_help_pressed() -> void:
 	pause_menu.open_menu()
 
 
-func _on_reset_requested(team_name: String) -> void:
-	# Vote setzen
+func _on_reset_requested(team_name: String, wants_reset: bool) -> void:
+	# Vote setzen oder zurücknehmen
 	if team_name == "Team A":
-		reset_vote_a = true
+		reset_vote_a = wants_reset
 	elif team_name == "Team B":
-		reset_vote_b = true
+		reset_vote_b = wants_reset
 
 	pause_menu.set_votes(reset_vote_a, reset_vote_b)
 
@@ -101,15 +101,32 @@ func _do_full_reset() -> void:
 
 
 func _on_forfeit_requested(team_name: String) -> void:
-	# Spieler der klickt verliert
 	print("🏳️ Aufgabe von: ", team_name, " -> verliert!")
 
-	# Beispiel: alles resetten (du kannst hier Endscreen machen)
+	# ✅ Score zurücksetzen
+	if $ScoreManager and $ScoreManager.has_method("reset_score"):
+		$ScoreManager.reset_score()
+	elif $ScoreManager and $ScoreManager.has_method("reset"):
+		$ScoreManager.reset()
+	else:
+		push_warning("⚠️ ScoreManager hat keine reset_score()/reset()-Methode.")
+
+	# Votes auch zurücksetzen
+	reset_vote_a = false
+	reset_vote_b = false
+	pause_menu.clear_votes()
+
+	# Feld/Ball/Kamera reset
 	if terrain:
 		terrain.reset_field()
 	reset_ball()
 
+	var cam := $EditorCameraRoot/EditorCamera
+	if cam:
+		cam.reset_camera()
+
 	pause_menu.close_menu()
+
 
 
 

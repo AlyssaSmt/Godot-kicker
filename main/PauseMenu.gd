@@ -4,8 +4,12 @@ class_name PauseMenu
 signal request_reset(team_name: String, wants_reset: bool)
 signal request_forfeit(team_name: String)
 signal request_resume
+signal request_score_reset
+
 
 @export var team_name_local: String = "Team A"
+@export var score_manager_path: NodePath
+
 
 @onready var reset_button: Button = $HelpPanel/VBoxContainer/HBoxContainer/ResetButton
 @onready var forfeit_button: Button = $HelpPanel/VBoxContainer/HBoxContainer/ForfeitButton
@@ -13,6 +17,9 @@ signal request_resume
 @onready var vote_label: Label = $HelpPanel/VBoxContainer/VoteLabel
 
 @onready var forfeit_confirm: ConfirmationDialog = $ForfeitConfirm
+@onready var score_manager := get_node_or_null(score_manager_path)
+
+
 
 var vote_a := false
 var vote_b := false
@@ -27,7 +34,6 @@ func _ready() -> void:
 	forfeit_button.focus_mode = Control.FOCUS_NONE
 	close_button.focus_mode = Control.FOCUS_NONE
 
-	# Button-Events
 	reset_button.pressed.connect(_on_reset_pressed)
 	forfeit_button.pressed.connect(_on_forfeit_pressed)
 	close_button.pressed.connect(_on_close_pressed)
@@ -67,7 +73,7 @@ func clear_votes() -> void:
 
 
 # =========================
-# Voting Helpers
+# Voting Helpers (lokales Team)
 # =========================
 func _get_local_vote() -> bool:
 	return vote_a if team_name_local == "Team A" else vote_b
@@ -86,21 +92,21 @@ func _update_vote_text() -> void:
 	var b_txt := "✅" if vote_b else "❌"
 	vote_label.text = "Reset Zustimmung – Team A: %s | Team B: %s" % [a_txt, b_txt]
 
-	# Reset-Button als Toggle-Text
+	# Reset-Button zeigt immer den passenden Toggle-Text
 	reset_button.text = "Reset-Vote zurücknehmen" if _get_local_vote() else "Reset voten"
 
 
 # =========================
-# Button callbacks
+# Button Callbacks
 # =========================
 func _on_reset_pressed() -> void:
-	# Toggle: nochmal klicken nimmt das Vote zurück
+	# Toggle: nochmal klicken = vote zurücknehmen
 	var wants_reset := !_get_local_vote()
 
-	# UI sofort aktualisieren (optional, aber nice)
+	# UI sofort aktualisieren (fühlt sich direkt an)
 	_set_local_vote(wants_reset)
 
-	# Hauptlogik passiert im Empfänger (z.B. Main/ScoreManager/Netcode)
+	# Empfänger (Main/ScoreManager/Netcode) soll dann Votes sammeln & ggf. resetten
 	emit_signal("request_reset", team_name_local, wants_reset)
 
 
@@ -113,14 +119,31 @@ func _on_close_pressed() -> void:
 
 
 func _on_forfeit_confirmed() -> void:
+	emit_signal("request_score_reset")
 	emit_signal("request_forfeit", team_name_local)
 	close_menu()
 
 
-# Optional, falls du später mal TitleScreen hast:
-func exit_to_menu() -> void:
-	# Später:
-	# get_tree().change_scene_to_file("res://scenes/TitleScreen.tscn")
 
-	# Jetzt:
+# Optional später:
+func exit_to_menu() -> void:
 	get_tree().reload_current_scene()
+
+
+func _reset_score() -> void:
+	# Variante 1: ScoreManager ist im Inspector per NodePath verlinkt
+	if score_manager and score_manager.has_method("reset_score"):
+		score_manager.call("reset_score")
+		return
+	if score_manager and score_manager.has_method("reset"):
+		score_manager.call("reset")
+		return
+
+	# Variante 2: ScoreManager ist ein Autoload (Singleton) /root/ScoreManager
+	var sm := get_node_or_null("/root/ScoreManager")
+	if sm and sm.has_method("reset_score"):
+		sm.call("reset_score")
+	elif sm and sm.has_method("reset"):
+		sm.call("reset")
+	else:
+		print("⚠️ Kein ScoreManager gefunden oder keine reset/reset_score Methode.")
