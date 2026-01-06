@@ -1,16 +1,10 @@
-[gd_scene load_steps=6 format=3 uid="uid://cpliy7cur5dlm"]
+[gd_scene load_steps=5 format=3 uid="uid://cpliy7cur5dlm"]
 
 [ext_resource type="Script" uid="uid://dnls0srv8mhbs" path="res://Ball/Ball.gd" id="1_lww6v"]
 
 [sub_resource type="PhysicsMaterial" id="PhysicsMaterial_3tj6u"]
 
-[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_pa54t"]
-metallic = 0.05
-metallic_specular = 0.7
-roughness = 0.4
-
 [sub_resource type="SphereMesh" id="SphereMesh_pa54t"]
-material = SubResource("StandardMaterial3D_pa54t")
 radius = 1.0
 height = 2.0
 radial_segments = 32

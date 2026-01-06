@@ -1,4 +1,4 @@
-[gd_scene load_steps=17 format=3 uid="uid://b1phcfq8ugp1"]
+[gd_scene load_steps=19 format=3 uid="uid://b1phcfq8ugp1"]
 
 [ext_resource type="Script" uid="uid://dyp1c3w3r6ivu" path="res://main/main.gd" id="1_0i4oc"]
 [ext_resource type="Script" uid="uid://bs2rvlnxas6f5" path="res://Procedural Generation/TerrainGeneration.gd" id="2_bsumw"]
@@ -17,9 +17,17 @@
 
 [sub_resource type="FastNoiseLite" id="FastNoiseLite_ig7tw"]
 
+[sub_resource type="ProceduralSkyMaterial" id="ProceduralSkyMaterial_73k8k"]
+
+[sub_resource type="Sky" id="Sky_5xyti"]
+sky_material = SubResource("ProceduralSkyMaterial_73k8k")
+
 [sub_resource type="Environment" id="Environment_ig7tw"]
-background_mode = 1
-background_color = Color(0.43163612, 0.59038633, 0.51166904, 1)
+background_mode = 2
+sky = SubResource("Sky_5xyti")
+tonemap_mode = 2
+ssao_enabled = true
+glow_enabled = true
 
 [node name="main" type="Node3D"]
 script = ExtResource("1_0i4oc")
@@ -45,6 +53,7 @@ terrain = NodePath("../TerrainGeneration")
 
 [node name="HockeyGoalLeft" type="Node3D" parent="."]
 script = ExtResource("8_0i4oc")
+team = 1
 
 [node name="HockeyGoalRight" type="Node3D" parent="."]
 script = ExtResource("8_0i4oc")
@@ -82,7 +91,7 @@ transform = Transform3D(1, 0, 0, 0, 0.49999997, 0.86602545, 0, -0.86602545, 0.49
 script = ExtResource("10_piupu")
 
 [node name="DirectionalLight3D" type="DirectionalLight3D" parent="."]
-transform = Transform3D(-0.9841028, 0, -0.17759995, -0.07713233, 0.9007665, 0.42739958, 0.15997608, 0.4343038, -0.88644683, 0, 14.025137, -42.03899)
+transform = Transform3D(-0.11453849, 0.41783294, -0.90127504, -0.077132314, 0.90076643, 0.42739955, 0.9904199, 0.11847113, -0.070944026, -90.21393, 20.400438, 2.0428429)
 
 [node name="WorldEnvironment" type="WorldEnvironment" parent="."]
 environment = SubResource("Environment_ig7tw")
