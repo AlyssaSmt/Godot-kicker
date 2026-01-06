@@ -11,9 +11,12 @@ roughness = 0.4
 
 [sub_resource type="SphereMesh" id="SphereMesh_pa54t"]
 material = SubResource("StandardMaterial3D_pa54t")
+radius = 1.0
+height = 2.0
 radial_segments = 32
 
 [sub_resource type="SphereShape3D" id="SphereShape3D_pa54t"]
+radius = 1.0
 
 [node name="Ball" type="RigidBody3D" groups=["ball"]]
 physics_material_override = SubResource("PhysicsMaterial_3tj6u")

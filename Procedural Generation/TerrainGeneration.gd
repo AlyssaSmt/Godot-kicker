@@ -2,21 +2,32 @@
 class_name TerrainGeneration
 extends Node3D
 
-@export var size_width : int = 88      # Gesamtbreite des Terrains
+@export var size_width : int = 110      # Gesamtbreite des Terrains
 @export var size_depth : int = 135     # Gesamtlänge des Terrains
 @export var edit_height : float = 1.5   # Wie stark wird das Terrain pro Bearbeitung verändert
 @export var noise: FastNoiseLite 
 @export var min_height := -4.0
 @export var max_height := 4.0
 
-@export var quads_x: int = 8
+@export var quads_x: int = 10
 @export var quads_z: int = 12
+
+@export var field_width: float = 68.0
+@export var field_length: float = 105.0
+@export var border_extra: float = 2.0  #
+@export var lock_border_rings: int = 1 # 1 = Außenrand + 1 Ring nach innen
+@export var debug_locked_border: bool = false
+
+@export var border_exception_quads: Array[int] = [
+	92,96,20,24
+]
+
 
 
 
 @export var forbidden_quads: Array[int] = [
-	95,94,93,84,85,86,
-	21,22,23,30,31,32
+	105, 104, 103, 116, 115, 114,
+	39,38,37,28,27,26 
 ]
 
 
@@ -68,6 +79,8 @@ func generate() -> void:
 		v.y = 0.0
 		data.set_vertex(i, v)
 
+	_apply_outer_border_height()
+
 	# Neues Mesh
 	var new_mesh := ArrayMesh.new()
 	data.commit_to_surface(new_mesh)
@@ -100,7 +113,21 @@ func edit_quad(quad_id: int, delta: float) -> void:
 	if _is_quad_forbidden(quad_id):
 		return
 
+	# ⛔ Rand + 1 Ring nach innen sperren (mit Ausnahmen)
+	if _is_quad_locked_border(quad_id):
+		if border_exception_quads.has(quad_id):
+			if debug_locked_border:
+				print("✅ Border exception quad erlaubt:", quad_id)
+		else:
+			if debug_locked_border:
+				print("⛔ Border locked quad:", quad_id)
+			return
+
+
+
 	_apply_quad_deformation(quad_id, delta)
+	_apply_outer_border_height()
+
 
 	# Mesh aktualisieren
 	var updated_mesh := ArrayMesh.new()
@@ -233,7 +260,10 @@ func reset_field() -> void:
 	for i in range(data.get_vertex_count()):
 		var v: Vector3 = data.get_vertex(i)
 		v.y = 0.0
+		
 		data.set_vertex(i, v)
+
+	_apply_outer_border_height()
 
 	var new_mesh := ArrayMesh.new()
 	data.commit_to_surface(new_mesh)
@@ -258,3 +288,63 @@ func reset_field() -> void:
 
 func _is_quad_forbidden(quad_id: int) -> bool:
 	return forbidden_quads.has(quad_id)
+
+
+func _get_border_height() -> float:
+	return max_height + border_extra
+
+
+func _apply_outer_border_height() -> void:
+	var hw := field_width * 0.5
+	var hl := field_length * 0.5
+	var h := _get_border_height()
+
+	for i in range(data.get_vertex_count()):
+		var v := data.get_vertex(i)
+
+		# Alles außerhalb der Bande dauerhaft hochsetzen
+		if abs(v.x) > hw or abs(v.z) > hl:
+			v.y = h
+			data.set_vertex(i, v)
+
+func _quad_size() -> float:
+	return float(size_width) / float(quads_x)  # bei quadratischen Quads reicht das
+
+func _is_in_locked_border(pos: Vector3) -> bool:
+	var s := _quad_size()
+	var rings := float(lock_border_rings)
+
+	var hw := field_width * 0.5
+	var hl := field_length * 0.5
+
+	# Grenze der EDITIERBAREN Zone (innen)
+	var inner_hw := hw - rings * s
+	var inner_hl := hl - rings * s
+
+	# Alles außerhalb der inneren Zone ist gesperrt
+	return abs(pos.x) >= inner_hw or abs(pos.z) >= inner_hl
+
+
+func _is_quad_locked_border(quad_id: int) -> bool:
+	var face_a := quad_id * 2
+	var face_b := face_a + 1
+	if face_b >= data.get_face_count():
+		return false
+
+	var ids: Array[int] = []
+	for i in 3:
+		ids.append(data.get_face_vertex(face_a, i))
+	for i in 3:
+		ids.append(data.get_face_vertex(face_b, i))
+
+	var unique: Array[int] = []
+	for id in ids:
+		if not unique.has(id):
+			unique.append(id)
+
+	var center := Vector3.ZERO
+	for id in unique:
+		center += data.get_vertex(id)
+	center /= float(unique.size())
+
+	return _is_in_locked_border(center)

@@ -2,14 +2,14 @@
 class_name RinkWalls
 extends Node3D
 
-@export var field_width: float = 68.0        # inneres Spielfeld (wie FIELD_W)
-@export var field_length: float = 105.0      # inneres Spielfeld (wie FIELD_L)
-@export var wall_height: float = 16.0         # sichtbare Höhe über Boden
+@export var field_width: float = 64.0        # inneres Spielfeld (wie FIELD_W)
+@export var field_length: float = 110.0      # inneres Spielfeld (wie FIELD_L)
+@export var wall_height: float = 6.0         # sichtbare Höhe über Boden
 @export var wall_thickness: float = 0.5
 @export var corner_radius: float = 8.0       # Rundung der Ecken
 @export var segments_per_corner: int = 12    # je höher, desto runder
-@export var wall_depth_below_ground: float = 1.0  # wie tief die Bande ins Terrain ragt
-
+@export var wall_depth_below_ground: float = 2.0  # wie tief die Bande ins Terrain ragt
+@export var wall_base_height: float = 4.0
 
 func _ready() -> void:
 	# im Editor und im Spiel neu aufbauen
@@ -25,6 +25,8 @@ func _clear_children() -> void:
 func _create_rink() -> void:
 	var w: float = field_width / 2.0
 	var l: float = field_length / 2.0
+
+	
 
 	# 1) Gerade Banden oben/unten (bei den Toren)
 	_create_wall_segment(
@@ -71,6 +73,7 @@ func _create_wall_segment(a: Vector3, b: Vector3, rotate: bool = true) -> void:
 
 	# Mitte setzen
 	wall_mesh.position = (a + b) / 2.0
+	wall_mesh.position.y = wall_base_height + wall_height / 2.0
 
 	# Drehen nur wenn erlaubt
 	if rotate:
