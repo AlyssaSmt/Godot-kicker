@@ -1,4 +1,4 @@
-[gd_scene load_steps=16 format=3 uid="uid://b1phcfq8ugp1"]
+[gd_scene load_steps=17 format=3 uid="uid://b1phcfq8ugp1"]
 
 [ext_resource type="Script" uid="uid://dyp1c3w3r6ivu" path="res://main/main.gd" id="1_0i4oc"]
 [ext_resource type="Script" uid="uid://bs2rvlnxas6f5" path="res://Procedural Generation/TerrainGeneration.gd" id="2_bsumw"]
@@ -9,6 +9,7 @@
 [ext_resource type="PackedScene" uid="uid://ccvq3f0fbtwcw" path="res://ScoreManager/ScoreManager.tscn" id="9_0i4oc"]
 [ext_resource type="PackedScene" uid="uid://d0cw6utfkuysq" path="res://FieldLines/FieldLinesDynamic.tscn" id="9_4hmqs"]
 [ext_resource type="PackedScene" uid="uid://hhgmst8lx8ua" path="res://FieldLines/RinkWalls.tscn" id="9_bsumw"]
+[ext_resource type="PackedScene" uid="uid://eyve4dhb0hn7" path="res://GoalOverlay.tscn" id="10_73k8k"]
 [ext_resource type="Script" uid="uid://q5aau2vkm2be" path="res://main/ScoreLabel.gd" id="10_bsumw"]
 [ext_resource type="Script" uid="uid://cgk3x2gs044ha" path="res://Camera/EditorCamera.gd" id="10_piupu"]
 [ext_resource type="Script" uid="uid://b0u5nbb15qyqn" path="res://main/HelpUI.gd" id="12_fwcvl"]
@@ -29,6 +30,7 @@ size_width = 88
 edit_height = 2.0
 noise = SubResource("FastNoiseLite_ig7tw")
 quads_x = 8
+forbidden_quads = Array[int]([105, 104, 103, 116, 115, 114, 39, 38, 37, 28, 27, 26])
 
 [node name="TerrainEditor" type="Node3D" parent="." node_paths=PackedStringArray("terrain")]
 script = ExtResource("3_fwcvl")
@@ -47,7 +49,7 @@ script = ExtResource("8_0i4oc")
 [node name="HockeyGoalRight" type="Node3D" parent="."]
 script = ExtResource("8_0i4oc")
 
-[node name="RinkWalls" parent="." instance=ExtResource("9_bsumw")]
+[node name="RinkWalls" parent="." groups=["walls"] instance=ExtResource("9_bsumw")]
 
 [node name="GoalDetectorLeft" parent="." instance=ExtResource("6_5xyti")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1.2, -35.5)
@@ -57,6 +59,8 @@ transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1.2, 35.5)
 team_name = "Team B"
 
 [node name="ScoreManager" parent="." instance=ExtResource("9_0i4oc")]
+
+[node name="GoalOverlay" parent="." instance=ExtResource("10_73k8k")]
 
 [node name="UI" type="CanvasLayer" parent="."]
 

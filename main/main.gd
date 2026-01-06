@@ -40,6 +40,9 @@ func _on_goal_scored(team_name: String) -> void:
 	# score erhöhen
 	$ScoreManager.add_goal(team_name)
 
+	# GOAL Overlay
+	$GoalOverlay.show_goal(team_name)
+
 	# ball resetten
 	reset_ball()
 
@@ -67,9 +70,9 @@ func _on_help_pressed() -> void:
 
 func _on_reset_requested(team_name: String, wants_reset: bool) -> void:
 	# Vote setzen oder zurücknehmen
-	if team_name == "Team A":
+	if team_name == "TEAM A":
 		reset_vote_a = wants_reset
-	elif team_name == "Team B":
+	elif team_name == "TEAM B":
 		reset_vote_b = wants_reset
 
 	pause_menu.set_votes(reset_vote_a, reset_vote_b)
