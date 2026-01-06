@@ -4,10 +4,24 @@ extends Node3D
 
 @export var size_width : int = 88      # Gesamtbreite des Terrains
 @export var size_depth : int = 135     # Gesamtlänge des Terrains
-@export var edit_height : float = 2.0
-@export var noise: FastNoiseLite
+@export var edit_height : float = 1.5   # Wie stark wird das Terrain pro Bearbeitung verändert
+@export var noise: FastNoiseLite 
 @export var min_height := -4.0
 @export var max_height := 4.0
+
+@export var quads_x: int = 8
+@export var quads_z: int = 12
+
+
+
+@export var forbidden_quads: Array[int] = [
+	95,94,93,84,85,86,
+	21,22,23,30,31,32
+]
+
+
+var forbidden_zones: Array[Rect2] = []
+
 
 # Spielfeld-Maße
 const FIELD_W := 68.0
@@ -18,12 +32,11 @@ signal terrain_changed
 var mesh_instance: MeshInstance3D
 var data := MeshDataTool.new()
 
-var forbidden_zones: Array[Rect2] = []
-
 
 func _ready() -> void:
 	generate()
-	_define_forbidden_zones()
+
+
 
 
 
@@ -38,8 +51,9 @@ func generate() -> void:
 	# Basismesh
 	var plane := PlaneMesh.new()
 	plane.size = Vector2(size_width, size_depth)
-	plane.subdivide_depth = 12
-	plane.subdivide_width = 8
+	plane.subdivide_depth = quads_z
+	plane.subdivide_width = quads_x
+
 
 	var st := SurfaceTool.new()
 	st.create_from(plane, 0)
@@ -83,6 +97,9 @@ func edit_quad(quad_id: int, delta: float) -> void:
 	if quad_id < 0:
 		return
 
+	if _is_quad_forbidden(quad_id):
+		return
+
 	_apply_quad_deformation(quad_id, delta)
 
 	# Mesh aktualisieren
@@ -95,18 +112,17 @@ func edit_quad(quad_id: int, delta: float) -> void:
 		if child is StaticBody3D:
 			child.queue_free()
 
-	# 2 Frames warten, damit Physik stabil!
 	await get_tree().process_frame
 	await get_tree().process_frame
 
 	mesh_instance.create_trimesh_collision()
 	_fix_ball_safely()
 
-	# Linien updaten
 	for node in get_tree().get_nodes_in_group("field_lines"):
 		node.redraw_all_lines()
 
 	emit_signal("terrain_changed")
+
 
 
 
@@ -126,14 +142,15 @@ func _apply_quad_deformation(quad_id: int, delta: float) -> void:
 		if not unique.has(v):
 			unique.append(v)
 
+
 	for vid in unique:
 		var vert := data.get_vertex(vid)
 
-		# 16-meter bereich sperren
-		if _is_in_goal_zone(vert.x, vert.z):
+		if not _is_inside_field(vert.x, vert.z):
 			continue
 
-		# Normale Terrain-Bewegung
+
+		# ✅ Normale Terrain-Bewegung
 		var base := delta
 		var n := noise.get_noise_2d(vert.x * 0.2, vert.z * 0.2)
 		var offset := n * absf(delta) * 3.0
@@ -146,11 +163,13 @@ func _apply_quad_deformation(quad_id: int, delta: float) -> void:
 
 
 
+
 func _is_inside_field(x: float, z: float) -> bool:
 	return (
 		x > -FIELD_W/2.0 and x < FIELD_W/2.0 and
 		z > -FIELD_L/2.0 and z < FIELD_L/2.0
 	)
+
 
 
 
@@ -191,56 +210,6 @@ func _fix_ball_safely() -> void:
 		pos.y = terrain_y + 0.3
 		rb.global_transform.origin = pos
 
-
-
-# FORBIDDEN ZONES
-
-
-func _define_forbidden_zones() -> void:
-	var fw := FIELD_W
-	var fl := FIELD_L
-
-	forbidden_zones.clear()
-
-	var depth := 10.0 # Bereich hinter Toren
-
-	# Hinter Tor oben
-	forbidden_zones.append(Rect2(
-		Vector2(-fw/2.0, -fl/2.0 - depth),
-		Vector2(fw, depth)
-	))
-
-	# Hinter Tor unten
-	forbidden_zones.append(Rect2(
-		Vector2(-fw/2.0, fl/2.0),
-		Vector2(fw, depth)
-	))
-
-	# 5m-Raum
-	var box_w := 18.32
-	var box_d := 7.32
-	var hw := box_w / 2.0
-
-	# oben
-	forbidden_zones.append(Rect2(
-		Vector2(-hw, -fl/2.0),
-		Vector2(box_w, box_d)
-	))
-
-	# unten
-	forbidden_zones.append(Rect2(
-		Vector2(-hw, fl/2.0 - box_d),
-		Vector2(box_w, box_d)
-	))
-
-
-
-func is_position_forbidden(pos: Vector3) -> bool:
-	var p2 := Vector2(pos.x, pos.z)
-	for zone in forbidden_zones:
-		if zone.has_point(p2):
-			return true
-	return false
 
 
 
@@ -285,18 +254,7 @@ func reset_field() -> void:
 
 	print("Spielfeld wurde zurückgesetzt!")
 
+# FORBIDDEN ZONES 
 
-func _is_in_goal_zone(x: float, z: float) -> bool:
-	var half_zone_w := 16.0 / 2.0     # 16m Breite
-	var depth := 16.0                 # 16m Tiefe
-	var goal_z := 28.0                # Torlinie in deinem Spiel
-
-	# Obere Seite
-	if x > -half_zone_w and x < half_zone_w and z < -goal_z and z > -goal_z - depth:
-		return true
-
-	# Untere Seite
-	if x > -half_zone_w and x < half_zone_w and z > goal_z and z < goal_z + depth:
-		return true
-
-	return false
+func _is_quad_forbidden(quad_id: int) -> bool:
+	return forbidden_quads.has(quad_id)

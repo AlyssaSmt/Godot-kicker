@@ -4,7 +4,7 @@ extends Node3D
 
 @export var field_width: float = 68.0        # inneres Spielfeld (wie FIELD_W)
 @export var field_length: float = 105.0      # inneres Spielfeld (wie FIELD_L)
-@export var wall_height: float = 12.0         # sichtbare Höhe über Boden
+@export var wall_height: float = 16.0         # sichtbare Höhe über Boden
 @export var wall_thickness: float = 0.5
 @export var corner_radius: float = 8.0       # Rundung der Ecken
 @export var segments_per_corner: int = 12    # je höher, desto runder

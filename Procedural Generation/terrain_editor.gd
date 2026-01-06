@@ -48,10 +48,6 @@ func _select_quad():
 
 	var pos: Vector3 = hit["position"]
 
-	# Forbidden Zone check
-	if terrain.is_position_forbidden(pos):
-		print("Forgbidden ZOne - no selection allowed")
-		return
 
 	var col: Node = hit["collider"]
 
@@ -61,8 +57,15 @@ func _select_quad():
 		return
 
 	var face: int = hit["face_index"]
-	last_quad = face / 2
+	var quad_id := face / 2
 
+	#  Wenn verboten: nicht auswählen
+	if terrain.has_method("is_quad_forbidden") and terrain.is_quad_forbidden(quad_id):
+		print(" Forbidden Quad:", quad_id, " face:", face)
+		last_quad = -1
+		return
+
+	last_quad = quad_id
 	print("Quad gewählt:", last_quad)
 
 

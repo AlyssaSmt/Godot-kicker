@@ -26,6 +26,7 @@ script = ExtResource("1_0i4oc")
 [node name="TerrainGeneration" type="Node3D" parent="."]
 script = ExtResource("2_bsumw")
 noise = SubResource("FastNoiseLite_ig7tw")
+goal_line_z = null
 
 [node name="TerrainEditor" type="Node3D" parent="." node_paths=PackedStringArray("terrain")]
 script = ExtResource("3_fwcvl")
