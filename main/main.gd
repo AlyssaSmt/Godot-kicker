@@ -50,9 +50,10 @@ func _on_goal_scored(team_name: String) -> void:
 	reset_ball()
 
 	# kamera resetten
-	var cam := $EditorCameraRoot/EditorCamera
-	if cam:
-		cam.reset_camera()
+	var cam_root := $EditorCameraRoot
+	if cam_root and cam_root.has_method("reset_camera"):
+		cam_root.reset_camera()
+
 
 	# feld resetten
 	if terrain:

@@ -1,8 +1,9 @@
-[gd_scene load_steps=22 format=3 uid="uid://b1phcfq8ugp1"]
+[gd_scene load_steps=24 format=3 uid="uid://b1phcfq8ugp1"]
 
 [ext_resource type="Script" uid="uid://dyp1c3w3r6ivu" path="res://main/main.gd" id="1_0i4oc"]
 [ext_resource type="Script" uid="uid://bs2rvlnxas6f5" path="res://Procedural Generation/TerrainGeneration.gd" id="2_bsumw"]
 [ext_resource type="Script" uid="uid://d1fgwrejxjecb" path="res://Procedural Generation/terrain_editor.gd" id="3_fwcvl"]
+[ext_resource type="PackedScene" uid="uid://cwehbugq1vwsc" path="res://ArenaBounds.tscn" id="4_s758e"]
 [ext_resource type="PackedScene" uid="uid://cpliy7cur5dlm" path="res://Ball/Ball.tscn" id="5_73k8k"]
 [ext_resource type="PackedScene" uid="uid://dvuyvxo73o3ou" path="res://Goal/GoalDetector.tscn" id="6_5xyti"]
 [ext_resource type="Script" uid="uid://d3pj55mw2jk1k" path="res://main/HockeyGoals.gd" id="8_0i4oc"]
@@ -11,13 +12,17 @@
 [ext_resource type="PackedScene" uid="uid://hhgmst8lx8ua" path="res://FieldLines/RinkWalls.tscn" id="9_bsumw"]
 [ext_resource type="PackedScene" uid="uid://eyve4dhb0hn7" path="res://GoalOverlay.tscn" id="10_73k8k"]
 [ext_resource type="Script" uid="uid://q5aau2vkm2be" path="res://main/ScoreLabel.gd" id="10_bsumw"]
-[ext_resource type="Script" uid="uid://cgk3x2gs044ha" path="res://Camera/EditorCamera.gd" id="10_piupu"]
 [ext_resource type="Script" uid="uid://b0u5nbb15qyqn" path="res://main/HelpUI.gd" id="12_fwcvl"]
 [ext_resource type="PackedScene" uid="uid://b3ki156fnwd7b" path="res://MatchUI.tscn" id="12_n3o0a"]
 [ext_resource type="Script" uid="uid://u4ritpjdhwlo" path="res://main/PauseMenu.gd" id="13_na0o7"]
 [ext_resource type="PackedScene" uid="uid://doofjcirvchnj" path="res://MatchManager.tscn" id="13_s758e"]
+[ext_resource type="Script" uid="uid://bv55wicwyt1u5" path="res://main/EditorSpectator.gd" id="15_s758e"]
 
 [sub_resource type="FastNoiseLite" id="FastNoiseLite_ig7tw"]
+
+[sub_resource type="CapsuleShape3D" id="CapsuleShape3D_s758e"]
+radius = 0.35
+height = 1.6
 
 [sub_resource type="ProceduralSkyMaterial" id="ProceduralSkyMaterial_73k8k"]
 
@@ -52,6 +57,8 @@ forbidden_quads = Array[int]([105, 104, 103, 116, 115, 114, 39, 38, 37, 28, 27, 
 [node name="TerrainEditor" type="Node3D" parent="." node_paths=PackedStringArray("terrain")]
 script = ExtResource("3_fwcvl")
 terrain = NodePath("../TerrainGeneration")
+
+[node name="ArenaBounds" parent="." instance=ExtResource("4_s758e")]
 
 [node name="BallNode" parent="." instance=ExtResource("5_73k8k")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.5, 0)
@@ -98,12 +105,16 @@ script = ExtResource("10_bsumw")
 score_manager_path = NodePath("../ScoreManager")
 ui_path = NodePath("../MatchUI")
 
-[node name="EditorCameraRoot" type="Node3D" parent="."]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 40, 20)
+[node name="EditorCameraRoot" type="CharacterBody3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 0.90708077, -0.42095664, 0, 0.42095664, 0.90708077, 0, 17.071884, 38.675117)
+collision_layer = 2
+script = ExtResource("15_s758e")
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="EditorCameraRoot"]
+shape = SubResource("CapsuleShape3D_s758e")
 
 [node name="EditorCamera" type="Camera3D" parent="EditorCameraRoot"]
 transform = Transform3D(1, 0, 0, 0, 0.49999997, 0.86602545, 0, -0.86602545, 0.49999997, 0, 0, 0)
-script = ExtResource("10_piupu")
 
 [node name="DirectionalLight3D" type="DirectionalLight3D" parent="."]
 transform = Transform3D(-0.11453849, 0.41783294, -0.90127504, -0.077132314, 0.90076643, 0.42739955, 0.9904199, 0.11847113, -0.070944026, -90.21393, 20.400438, 2.0428429)
