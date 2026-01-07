@@ -2,6 +2,8 @@ extends Node3D
 
 @onready var terrain: TerrainGeneration = $TerrainGeneration
 @onready var pause_menu := get_node("HelpUI/PauseMenu")
+@onready var match_manager: MatchManager = $MatchManager
+
 
 var reset_vote_a: bool = false
 var reset_vote_b: bool = false
@@ -32,6 +34,7 @@ func _ready() -> void:
 	# PauseMenu Signale
 	pause_menu.request_reset.connect(_on_reset_requested)
 	pause_menu.request_forfeit.connect(_on_forfeit_requested)
+	
 
 	print("Main ready – Tore verbunden.")
 
@@ -69,17 +72,20 @@ func _on_help_pressed() -> void:
 
 
 func _on_reset_requested(team_name: String, wants_reset: bool) -> void:
-	# Vote setzen oder zurücknehmen
-	if team_name == "TEAM A":
+	var t := team_name.strip_edges().to_upper()
+
+	if t == "TEAM A":
 		reset_vote_a = wants_reset
-	elif team_name == "TEAM B":
+	elif t == "TEAM B":
 		reset_vote_b = wants_reset
+	else:
+		print("⚠️ Unbekanntes Team:", team_name)
 
 	pause_menu.set_votes(reset_vote_a, reset_vote_b)
 
-	# Beide haben zugestimmt -> kompletter Reset
 	if reset_vote_a and reset_vote_b:
 		_do_full_reset()
+
 
 
 func _do_full_reset() -> void:
@@ -104,31 +110,20 @@ func _do_full_reset() -> void:
 
 
 func _on_forfeit_requested(team_name: String) -> void:
-	print("🏳️ Aufgabe von: ", team_name, " -> verliert!")
+	var t := team_name.strip_edges().to_upper()
+	print("🏳️ Aufgabe von: ", t, " -> verliert!")
 
-	# ✅ Score zurücksetzen
-	if $ScoreManager and $ScoreManager.has_method("reset_score"):
-		$ScoreManager.reset_score()
-	elif $ScoreManager and $ScoreManager.has_method("reset"):
-		$ScoreManager.reset()
-	else:
-		push_warning("⚠️ ScoreManager hat keine reset_score()/reset()-Methode.")
-
-	# Votes auch zurücksetzen
 	reset_vote_a = false
 	reset_vote_b = false
 	pause_menu.clear_votes()
 
-	# Feld/Ball/Kamera reset
-	if terrain:
-		terrain.reset_field()
-	reset_ball()
-
-	var cam := $EditorCameraRoot/EditorCamera
-	if cam:
-		cam.reset_camera()
-
 	pause_menu.close_menu()
+
+	if match_manager:
+		match_manager.forfeit(t)
+	else:
+		push_warning("⚠️ MatchManager nicht gefunden.")
+
 
 
 

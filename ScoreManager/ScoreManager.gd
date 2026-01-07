@@ -23,3 +23,9 @@ func reset_score() -> void:
 	score_team_a = 0
 	score_team_b = 0
 	emit_signal("score_changed", score_team_a, score_team_b)
+
+func get_left_score() -> int:
+	return score_team_a
+
+func get_right_score() -> int:
+	return score_team_b
