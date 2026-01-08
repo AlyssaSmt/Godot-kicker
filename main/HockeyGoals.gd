@@ -2,15 +2,24 @@
 class_name FootballGoal
 extends Node3D
 
-# tormaße
-@export var goal_width: float = 10    # Torbreite
-@export var goal_height: float = 4  # Höhe
-@export var goal_depth: float = 3.00     # Tiefe
+# goal dimensions
+@export var goal_width: float = 14    # Goal width
+@export var goal_height: float = 5  # Height
+@export var goal_depth: float = 4    # Depth
 
-# wanddicken
-@export var post_thickness: float = 0.12     # Pfosten
-@export var bar_thickness: float = 0.12      # Latte
-@export var wall_thickness: float = 0.10     # Seiten, Dach, Rückwand
+# wall thicknesses
+@export var post_thickness: float = 0.12     # Post
+@export var bar_thickness: float = 0.12      # Crossbar
+@export var wall_thickness: float = 0.10     # Sides, top, back
+
+@export var goal_color: Color = Color(1, 1, 1, 1) # Default: white
+@export var goal_roughness: float = 0.6
+@export var goal_metallic: float = 0.0
+
+enum Team { BLUE, RED }
+
+@export var team: Team = Team.BLUE
+
 
 
 func _ready() -> void:
@@ -25,14 +34,24 @@ func _clear():
 
 
 
-# Hilfsmethode zum Erstellen einer Wand + Collider
+# Helper to create a wall + collider
 
 func _create_box(size: Vector3, pos: Vector3):
 	var mesh := MeshInstance3D.new()
+
 	var box := BoxMesh.new()
 	box.size = size
 	mesh.mesh = box
 	mesh.position = pos
+
+	# ✅ set material correctly
+	var mat := StandardMaterial3D.new()
+	mat.albedo_color = _get_team_color()
+	mat.roughness = 0.5
+	mat.metallic = 0.0
+
+	mesh.set_surface_override_material(0, mat)
+
 	add_child(mesh)
 
 	# Collider
@@ -46,19 +65,20 @@ func _create_box(size: Vector3, pos: Vector3):
 
 
 
-# HIER ENTSTEHT DAS GANZE TOR
+
+# GOAL CONSTRUCTION
 
 func _create_goal():
 
 
-	# 1) linker Pfosten
+	# 1) left post
 
 	_create_box(
 		Vector3(post_thickness, goal_height, post_thickness),
 		Vector3(-goal_width/2, goal_height/2, 0)
 	)
 
-	# 2) rechter pfosten
+	# 2) right post
 
 	_create_box(
 		Vector3(post_thickness, goal_height, post_thickness),
@@ -66,7 +86,7 @@ func _create_goal():
 	)
 
 
-	# 3) latte
+	# 3) crossbar
 
 	_create_box(
 		Vector3(goal_width, bar_thickness, bar_thickness),
@@ -74,7 +94,7 @@ func _create_goal():
 	)
 
 
-	# 4) wände rechts/links
+	# 4) walls right/left
 
 	_create_box(
 		Vector3(wall_thickness, goal_height, goal_depth),
@@ -87,7 +107,7 @@ func _create_goal():
 	)
 
 
-	# 5) dach
+	# 5) top
 
 	_create_box(
 		Vector3(goal_width, wall_thickness, goal_depth),
@@ -95,9 +115,20 @@ func _create_goal():
 	)
 
 
-	# 6) rückwand
+	# 6) back wall
 
 	_create_box(
 		Vector3(goal_width, goal_height, wall_thickness),
 		Vector3(0, goal_height/2, goal_depth)
 	)
+
+
+func _get_team_color() -> Color:
+	match team:
+		Team.BLUE:
+			return Color(0.15, 0.35, 0.95)
+		Team.RED:
+			return Color(0.95, 0.20, 0.20)
+	return Color.WHITE
+
+

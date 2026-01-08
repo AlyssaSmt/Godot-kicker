@@ -1,33 +1,64 @@
-[gd_scene load_steps=14 format=3 uid="uid://b1phcfq8ugp1"]
+[gd_scene load_steps=24 format=3 uid="uid://b1phcfq8ugp1"]
 
 [ext_resource type="Script" uid="uid://dyp1c3w3r6ivu" path="res://main/main.gd" id="1_0i4oc"]
 [ext_resource type="Script" uid="uid://bs2rvlnxas6f5" path="res://Procedural Generation/TerrainGeneration.gd" id="2_bsumw"]
 [ext_resource type="Script" uid="uid://d1fgwrejxjecb" path="res://Procedural Generation/terrain_editor.gd" id="3_fwcvl"]
+[ext_resource type="PackedScene" path="res://ArenaBounds.tscn" id="4_s758e"]
 [ext_resource type="PackedScene" uid="uid://cpliy7cur5dlm" path="res://Ball/Ball.tscn" id="5_73k8k"]
 [ext_resource type="PackedScene" uid="uid://dvuyvxo73o3ou" path="res://Goal/GoalDetector.tscn" id="6_5xyti"]
 [ext_resource type="Script" uid="uid://d3pj55mw2jk1k" path="res://main/HockeyGoals.gd" id="8_0i4oc"]
 [ext_resource type="PackedScene" uid="uid://ccvq3f0fbtwcw" path="res://ScoreManager/ScoreManager.tscn" id="9_0i4oc"]
 [ext_resource type="PackedScene" uid="uid://d0cw6utfkuysq" path="res://FieldLines/FieldLinesDynamic.tscn" id="9_4hmqs"]
 [ext_resource type="PackedScene" uid="uid://hhgmst8lx8ua" path="res://FieldLines/RinkWalls.tscn" id="9_bsumw"]
+[ext_resource type="PackedScene" path="res://GoalOverlay.tscn" id="10_73k8k"]
 [ext_resource type="Script" uid="uid://q5aau2vkm2be" path="res://main/ScoreLabel.gd" id="10_bsumw"]
-[ext_resource type="Script" uid="uid://cgk3x2gs044ha" path="res://Camera/EditorCamera.gd" id="10_piupu"]
+[ext_resource type="Script" path="res://main/HelpUI.gd" id="12_fwcvl"]
+[ext_resource type="PackedScene" path="res://MatchUI.tscn" id="12_n3o0a"]
+[ext_resource type="Script" path="res://main/PauseMenu.gd" id="13_na0o7"]
+[ext_resource type="PackedScene" path="res://MatchManager.tscn" id="13_s758e"]
+[ext_resource type="Script" uid="uid://bv55wicwyt1u5" path="res://main/EditorSpectator.gd" id="15_s758e"]
 
 [sub_resource type="FastNoiseLite" id="FastNoiseLite_ig7tw"]
 
+[sub_resource type="CapsuleShape3D" id="CapsuleShape3D_s758e"]
+radius = 0.35
+height = 1.6
+
+[sub_resource type="ProceduralSkyMaterial" id="ProceduralSkyMaterial_73k8k"]
+
+[sub_resource type="Sky" id="Sky_5xyti"]
+sky_material = SubResource("ProceduralSkyMaterial_73k8k")
+
 [sub_resource type="Environment" id="Environment_ig7tw"]
-background_mode = 1
-background_color = Color(0.43163612, 0.59038633, 0.51166904, 1)
+background_mode = 2
+sky = SubResource("Sky_5xyti")
+tonemap_mode = 2
+ssao_enabled = true
+glow_enabled = true
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_n3o0a"]
+bg_color = Color(0.13333334, 0.13333334, 0.13333334, 1)
+corner_radius_top_left = 12
+corner_radius_top_right = 12
+corner_radius_bottom_right = 12
+corner_radius_bottom_left = 12
 
 [node name="main" type="Node3D"]
 script = ExtResource("1_0i4oc")
 
 [node name="TerrainGeneration" type="Node3D" parent="."]
 script = ExtResource("2_bsumw")
+size_width = 88
+edit_height = 2.0
 noise = SubResource("FastNoiseLite_ig7tw")
+quads_x = 8
+forbidden_quads = null
 
 [node name="TerrainEditor" type="Node3D" parent="." node_paths=PackedStringArray("terrain")]
 script = ExtResource("3_fwcvl")
 terrain = NodePath("../TerrainGeneration")
+
+[node name="ArenaBounds" parent="." instance=ExtResource("4_s758e")]
 
 [node name="BallNode" parent="." instance=ExtResource("5_73k8k")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.5, 0)
@@ -38,12 +69,13 @@ terrain = NodePath("../TerrainGeneration")
 
 [node name="HockeyGoalLeft" type="Node3D" parent="."]
 script = ExtResource("8_0i4oc")
+team = 1
 
 [node name="HockeyGoalRight" type="Node3D" parent="."]
 script = ExtResource("8_0i4oc")
 
-[node name="RinkWalls" parent="." instance=ExtResource("9_bsumw")]
-wall_height = 3.0
+[node name="RinkWalls" parent="." groups=["walls"] instance=ExtResource("9_bsumw")]
+visible = false
 
 [node name="GoalDetectorLeft" parent="." instance=ExtResource("6_5xyti")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1.2, -35.5)
@@ -54,6 +86,8 @@ team_name = "Team B"
 
 [node name="ScoreManager" parent="." instance=ExtResource("9_0i4oc")]
 
+[node name="GoalOverlay" parent="." instance=ExtResource("10_73k8k")]
+
 [node name="UI" type="CanvasLayer" parent="."]
 
 [node name="ScoreLabel" type="Label" parent="UI"]
@@ -62,17 +96,145 @@ anchor_right = 1.0
 anchor_bottom = 0.035
 offset_bottom = 0.3199997
 grow_horizontal = 2
+theme_override_font_sizes/font_size = 26
+horizontal_alignment = 1
 script = ExtResource("10_bsumw")
 
-[node name="EditorCameraRoot" type="Node3D" parent="."]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 40, 20)
+[node name="MatchUI" parent="." instance=ExtResource("12_n3o0a")]
+
+[node name="MatchManager" parent="." instance=ExtResource("13_s758e")]
+score_manager_path = NodePath("../ScoreManager")
+ui_path = NodePath("../MatchUI")
+
+[node name="EditorCameraRoot" type="CharacterBody3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 0.90708077, -0.42095664, 0, 0.42095664, 0.90708077, 0, 17.071884, 38.675117)
+collision_layer = 2
+script = ExtResource("15_s758e")
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="EditorCameraRoot"]
+shape = SubResource("CapsuleShape3D_s758e")
 
 [node name="EditorCamera" type="Camera3D" parent="EditorCameraRoot"]
 transform = Transform3D(1, 0, 0, 0, 0.49999997, 0.86602545, 0, -0.86602545, 0.49999997, 0, 0, 0)
-script = ExtResource("10_piupu")
 
 [node name="DirectionalLight3D" type="DirectionalLight3D" parent="."]
-transform = Transform3D(-0.9841028, 0, -0.17759995, -0.07713233, 0.9007665, 0.42739958, 0.15997608, 0.4343038, -0.88644683, 0, 14.025137, -42.03899)
+transform = Transform3D(-0.11453849, 0.41783294, -0.90127504, -0.077132314, 0.90076643, 0.42739955, 0.9904199, 0.11847113, -0.070944026, -90.21393, 20.400438, 2.0428429)
 
 [node name="WorldEnvironment" type="WorldEnvironment" parent="."]
 environment = SubResource("Environment_ig7tw")
+
+[node name="HelpUI" type="CanvasLayer" parent="."]
+script = ExtResource("12_fwcvl")
+
+[node name="HelpButton" type="Button" parent="HelpUI"]
+anchors_preset = 1
+anchor_left = 1.0
+anchor_right = 1.0
+offset_left = -120.0
+offset_bottom = 40.0
+grow_horizontal = 0
+focus_mode = 0
+text = "Pause"
+
+[node name="PauseMenu" type="Control" parent="HelpUI"]
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+script = ExtResource("13_na0o7")
+
+[node name="Dim" type="ColorRect" parent="HelpUI/PauseMenu"]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+color = Color(0, 0, 0, 0.7019608)
+
+[node name="HelpPanel" type="Panel" parent="HelpUI/PauseMenu"]
+layout_mode = 1
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="Card" type="PanelContainer" parent="HelpUI/PauseMenu/HelpPanel"]
+layout_mode = 1
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -159.0
+offset_top = -187.0
+offset_right = 159.0
+offset_bottom = 187.0
+grow_horizontal = 2
+grow_vertical = 2
+theme_override_styles/panel = SubResource("StyleBoxFlat_n3o0a")
+
+[node name="MarginContainer" type="MarginContainer" parent="HelpUI/PauseMenu/HelpPanel/Card"]
+layout_mode = 2
+theme_override_constants/margin_left = 20
+theme_override_constants/margin_top = 20
+theme_override_constants/margin_right = 20
+theme_override_constants/margin_bottom = 20
+
+[node name="VBoxContainer" type="VBoxContainer" parent="HelpUI/PauseMenu/HelpPanel/Card/MarginContainer"]
+layout_mode = 2
+alignment = 1
+
+[node name="CloseButton" type="Button" parent="HelpUI/PauseMenu/HelpPanel/Card/MarginContainer/VBoxContainer"]
+layout_mode = 2
+size_flags_horizontal = 8
+text = "❌"
+alignment = 2
+icon_alignment = 2
+
+[node name="HelpLabel" type="Label" parent="HelpUI/PauseMenu/HelpPanel/Card/MarginContainer/VBoxContainer"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 30
+text = "PAUSE"
+horizontal_alignment = 1
+
+[node name="RichTextLabel" type="Label" parent="HelpUI/PauseMenu/HelpPanel/Card/MarginContainer/VBoxContainer"]
+layout_mode = 2
+text = "Controls:
+• hold right click + mouse: 	Rotate Camera
+• WASD: move
+• Space: fly up
+• Shift: fly down
+• Ctrl: faster
+• Linksklick: Select quad
+• Q: Terrain up
+• E: Terrain down
+"
+horizontal_alignment = 1
+vertical_alignment = 2
+
+[node name="HBoxContainer" type="HBoxContainer" parent="HelpUI/PauseMenu/HelpPanel/Card/MarginContainer/VBoxContainer"]
+layout_mode = 2
+alignment = 1
+
+[node name="ResetButton" type="Button" parent="HelpUI/PauseMenu/HelpPanel/Card/MarginContainer/VBoxContainer/HBoxContainer"]
+layout_mode = 2
+text = "Reset terrain"
+
+[node name="ForfeitButton" type="Button" parent="HelpUI/PauseMenu/HelpPanel/Card/MarginContainer/VBoxContainer/HBoxContainer"]
+layout_mode = 2
+text = "Forfeit"
+
+[node name="VoteLabel" type="Label" parent="HelpUI/PauseMenu/HelpPanel/Card/MarginContainer/VBoxContainer"]
+layout_mode = 2
+
+[node name="ForfeitConfirm" type="ConfirmationDialog" parent="HelpUI/PauseMenu"]
+oversampling_override = 1.0
+size = Vector2i(427, 100)
+ok_button_text = "Forfeit?"
+dialog_text = "Do you really want to Forfeit? You will lose this game."

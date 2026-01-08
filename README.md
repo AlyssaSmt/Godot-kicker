@@ -1,39 +1,39 @@
 # Godot-Kicker
 
-Procedurales Hockey-Spielfeld mit editierbarem Terrain, Ball-Physik und Goal-Detection.
+Procedural hockey rink with editable terrain, ball physics, and goal detection.
 
 ## Features
 - **TerrainGeneration**
-  - Flaches Terrain, Quad-Bearbeitung, Forbidden Zones
-  - Ball-Safe: Ball hängt nicht im Terrain fest
-  - Reset-Funktion
+  - Flat terrain, quad editing, forbidden zones
+  - Ball-safe: ball won't get stuck in the terrain
+  - Reset function
 - **TerrainEditor**
-  - Maus + Q/E zur Höhenbearbeitung
-  - Signal zu bearbeitetem Terrain für Updates
+  - Mouse + Q/E for height editing
+  - Signal emitted when terrain is edited for updates
 - **Ball**
-  - Physik: Masse, Dämpfung, Bounce/Friction
-  - Begrenzte Fallgeschwindigkeit
-- **Rink / Tore**
-  - Wände und Toore fürs Spielfeld
-  - Area3D Nodes überwachen Treffer
-- **Kamera**
+  - Physics: mass, damping, bounce/friction
+  - Limited falling speed
+- **Rink / Goals**
+  - Walls and goals for the field
+  - Area3D nodes monitor goal events
+- **Camera**
   - WASD: Move
-  - Shift: Senken
-  - Space: Heben
+  - Shift: Lower
+  - Space: Raise
 
-## Steuerung
-| Aktion                       | Tastatur / Maus        |
-|-------------------------------|----------------------|
-| Quad auswählen                | Linksklick            |
-| Quad erhöhen                  | Q                     |
-| Quad senken                   | E                     |
-| Kamera bewegen                | WASD                  |
-| Kamera heben                  | Space                 |
-| Kamera senken                 | Shift                 |
+## Controls
+| Action                       | Keyboard / Mouse      |
+|------------------------------|-----------------------|
+| Select quad                  | Left click            |
+| Raise quad                   | Q                     |
+| Lower quad                   | E                     |
+| Move camera                  | WASD                  |
+| Raise camera                 | Space                 |
+| Lower camera                 | Shift                 |
 
-## ToDo / Verbesserungen
-- Multiplayer Implementierung
-- UI für Steuerung und Tore
-- Undo / Redo / Timer für Terrain-Editing
-- Terrain-Editing beeinflusst Rink und Tore
-- Terrainfarbenveränderung nach Höhe 
+## ToDo / Improvements
+- Multiplayer implementation
+- UI for controls and goals
+- Undo / Redo / timer for terrain editing
+- Terrain editing affecting rink and goals
+- Terrain color changes by height

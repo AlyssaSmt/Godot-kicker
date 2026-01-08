@@ -4,16 +4,17 @@
 
 [sub_resource type="PhysicsMaterial" id="PhysicsMaterial_3tj6u"]
 
-[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_pa54t"]
-metallic = 0.05
-metallic_specular = 0.7
-roughness = 0.4
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_cfgdn"]
+albedo_color = Color(7.0610847, 5.7003756, 0, 1)
 
 [sub_resource type="SphereMesh" id="SphereMesh_pa54t"]
-material = SubResource("StandardMaterial3D_pa54t")
+material = SubResource("StandardMaterial3D_cfgdn")
+radius = 1.0
+height = 2.0
 radial_segments = 32
 
 [sub_resource type="SphereShape3D" id="SphereShape3D_pa54t"]
+radius = 1.0
 
 [node name="Ball" type="RigidBody3D" groups=["ball"]]
 physics_material_override = SubResource("PhysicsMaterial_3tj6u")

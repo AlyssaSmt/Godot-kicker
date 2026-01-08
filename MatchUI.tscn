@@ -1,0 +1,91 @@
+[gd_scene load_steps=3 format=3 uid="uid://b3ki156fnwd7b"]
+
+[ext_resource type="Script" uid="uid://5s6b044nsu6a" path="res://MatchUI.gd" id="1_oo2q6"]
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_oo2q6"]
+bg_color = Color(0.11764706, 0.11764706, 0.14117648, 1)
+corner_radius_top_left = 16
+corner_radius_top_right = 16
+corner_radius_bottom_right = 16
+corner_radius_bottom_left = 16
+
+[node name="MatchUI" type="CanvasLayer"]
+script = ExtResource("1_oo2q6")
+
+[node name="HUD" type="Control" parent="."]
+layout_mode = 3
+anchors_preset = 0
+offset_right = 40.0
+offset_bottom = 40.0
+
+[node name="TimerLabel" type="Label" parent="HUD"]
+layout_mode = 0
+offset_right = 40.0
+offset_bottom = 23.0
+
+[node name="ScoreLabel" type="Label" parent="HUD"]
+layout_mode = 0
+offset_right = 40.0
+offset_bottom = 23.0
+
+[node name="EndScreen" type="Control" parent="."]
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="Dim" type="ColorRect" parent="EndScreen"]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+color = Color(0, 0, 0, 0.7019608)
+
+[node name="Card" type="PanelContainer" parent="EndScreen"]
+custom_minimum_size = Vector2(520, 280)
+layout_mode = 1
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -20.0
+offset_top = -31.0
+offset_right = 20.0
+offset_bottom = 31.0
+grow_horizontal = 2
+grow_vertical = 2
+theme_override_styles/panel = SubResource("StyleBoxFlat_oo2q6")
+
+[node name="VBox" type="VBoxContainer" parent="EndScreen/Card"]
+layout_mode = 2
+theme_override_constants/separation = 14
+
+[node name="TitleLabel" type="Label" parent="EndScreen/Card/VBox"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 20
+text = "GAME OVER"
+horizontal_alignment = 1
+
+[node name="ResultLabel" type="Label" parent="EndScreen/Card/VBox"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 20
+horizontal_alignment = 1
+
+[node name="Buttons" type="HBoxContainer" parent="EndScreen/Card/VBox"]
+layout_mode = 2
+size_flags_horizontal = 4
+
+[node name="PlayAgainButton" type="Button" parent="EndScreen/Card/VBox/Buttons"]
+custom_minimum_size = Vector2(200, 48)
+layout_mode = 2
+text = "PLAY AGAIN"
+
+[node name="MainMenuButton" type="Button" parent="EndScreen/Card/VBox/Buttons"]
+custom_minimum_size = Vector2(200, 48)
+layout_mode = 2
+text = "MAIN MENU"

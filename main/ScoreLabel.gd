@@ -4,7 +4,7 @@ extends Label
 
 func _ready():
 	if score_manager == null:
-		push_error("ScoreManager nicht gefunden!")
+		push_error("ScoreManager not found!")
 		return
 
 	score_manager.connect("score_changed", Callable(self, "_update_score"))

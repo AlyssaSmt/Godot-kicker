@@ -7,7 +7,7 @@ var thick := 0.12
 
 
 # ----------------------------------------------------------
-# HILFSFUNKTION 1: Pfosten erzeugen
+# HELPER FUNCTION 1: create post
 # ----------------------------------------------------------
 func make_post(pos: Vector3) -> MeshInstance3D:
 	var post := MeshInstance3D.new()
@@ -22,7 +22,7 @@ func make_post(pos: Vector3) -> MeshInstance3D:
 
 
 # ----------------------------------------------------------
-# HILFSFUNKTION 2: horizontalen Balken erzeugen
+# HELPER FUNCTION 2: create horizontal bar
 # ----------------------------------------------------------
 func make_bar(pos: Vector3, length: float) -> MeshInstance3D:
 	var bar := MeshInstance3D.new()
@@ -36,33 +36,33 @@ func make_bar(pos: Vector3, length: float) -> MeshInstance3D:
 
 
 # ----------------------------------------------------------
-# TOR KONSTRUKTION
+# GOAL CONSTRUCTION
 # ----------------------------------------------------------
-func create_goal(position: Vector3) -> Node3D:
+func create_goal(pos: Vector3) -> Node3D:
 	var goal := Node3D.new()
-	goal.position = position
+	goal.position = pos
 
-	# --- Vordere Pfosten ---
+	# --- Front posts ---
 	goal.add_child(make_post(Vector3(-width/2, height/2, 0)))
 	goal.add_child(make_post(Vector3(width/2, height/2, 0)))
 
-	# --- Vordere Latte ---
+	# --- Front crossbar ---
 	goal.add_child(make_bar(Vector3(0, height, 0), width))
 
-	# --- Hintere Pfosten ---
+	# --- Back posts ---
 	goal.add_child(make_post(Vector3(-width/2, height/2, -depth)))
 	goal.add_child(make_post(Vector3(width/2, height/2, -depth)))
 
-	# --- Hintere Latte ---
+	# --- Back crossbar ---
 	goal.add_child(make_bar(Vector3(0, height, -depth), width))
 
-	# --- Boden vorne ---
+	# --- Front bottom ---
 	goal.add_child(make_bar(Vector3(0, thick/2, 0), width))
 
-	# --- Boden hinten ---
+	# --- Back bottom ---
 	goal.add_child(make_bar(Vector3(0, thick/2, -depth), width))
 
-	# --- Boden-Seiten ---
+	# --- Bottom sides ---
 	goal.add_child(make_bar(Vector3(-width/2, thick/2, -depth/2), thick))
 	goal.add_child(make_bar(Vector3(width/2, thick/2, -depth/2), thick))
 
@@ -70,20 +70,20 @@ func create_goal(position: Vector3) -> Node3D:
 
 func make_material() -> StandardMaterial3D:
 	var m := StandardMaterial3D.new()
-	m.albedo_color = Color(0.95, 0.95, 1.0)  # leicht weißlich
-	m.metallic = 0.05                        # schwach metallisch
-	m.roughness = 0.2                        # etwas glänzend
-	m.specular = 1.0                         # schöner Highlight-Glanz
-	m.clearcoat = 0.3                        # zusätzliche Reflektion
+	m.albedo_color = Color(0.95, 0.95, 1.0)  # slightly whitish
+	m.metallic = 0.05                        # slightly metallic
+	m.roughness = 0.2                        # somewhat glossy
+	m.specular = 1.0                         # nice highlight sheen
+	m.clearcoat = 0.3                        # additional reflection
 	m.clearcoat_gloss = 0.8
 	return m
 
 
 # ----------------------------------------------------------
-# IM SPIEL STARTEN
+# ON START
 # ----------------------------------------------------------
 func _ready():
-	var goal_offset := 2.0   # wie weit die Tore hinter der Linie stehen sollen
+	var goal_offset := 2.0   # how far the goals should sit behind the line
 
-	add_child(create_goal(Vector3(0, 0, -50.5 - goal_offset)))   # hinter linkem Tor
-	add_child(create_goal(Vector3(0, 0,  52.5 + goal_offset)))   # hinter rechtem Tor
+	add_child(create_goal(Vector3(0, 0, -50.5 - goal_offset)))   # behind left goal
+	add_child(create_goal(Vector3(0, 0,  52.5 + goal_offset)))   # behind right goal
