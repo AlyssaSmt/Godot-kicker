@@ -1,6 +1,6 @@
 extends RigidBody3D
 
-@export var wall_kick_strength: float = 2.5
+@export var wall_kick_strength: float = 9.5
 @export var wall_kick_cooldown: float = 0.08
 
 var _kick_timer := 0.0
@@ -8,14 +8,14 @@ var _kick_timer := 0.0
 func _ready() -> void:
 	sleeping = false
 	can_sleep = false
-	gravity_scale = 1.0
-	mass = 0.45
+	gravity_scale = 1.25
+	mass = 0.28
 
 	# ✅ CCD for Godot 4.0 / 4.1
 	continuous_cd = true
 
-	linear_damp = 0.02
-	angular_damp = 0.01
+	linear_damp = 0.0005
+	angular_damp = 0.003
 
 	# Kontakte aktivieren
 	contact_monitor = true
@@ -23,8 +23,8 @@ func _ready() -> void:
 
 	# PhysicsMaterial
 	var mat := PhysicsMaterial.new()
-	mat.bounce = 0.8        # Bounce machen wir manuell
-	mat.friction = 0.05
+	mat.bounce = 0.985
+	mat.friction = 0.01
 	physics_material_override = mat
 
 

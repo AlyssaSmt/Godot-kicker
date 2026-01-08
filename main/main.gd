@@ -14,6 +14,14 @@ func _ready() -> void:
 		push_error("❌ PauseMenu NOT found! Check path.")
 		return
 
+	# --- Multiplayer init ---
+	if multiplayer.multiplayer_peer != null:
+		print("MP active. is_server=", multiplayer.is_server(), " my_id=", multiplayer.get_unique_id())
+
+		# Host setzt Turn-Reihenfolge
+		if has_node("TurnManager") and multiplayer.is_server():
+			$TurnManager.server_rebuild_order()
+
 
 	var left_goal := $HockeyGoalLeft
 	var right_goal := $HockeyGoalRight
@@ -40,24 +48,30 @@ func _ready() -> void:
 
 
 func _on_goal_scored(team_name: String) -> void:
+	# Nur der Server/Host entscheidet und führt aus
+	if multiplayer.multiplayer_peer != null and !multiplayer.is_server():
+		return
+
 	# increment score
 	$ScoreManager.add_goal(team_name)
 
-	# GOAL Overlay
-	$GoalOverlay.show_goal(team_name)
+	# GOAL Overlay lokal auf Host + remote auf alle
+	_rpc_show_goal(team_name)
 
-	# reset ball
+	# reset ball (server)
 	reset_ball()
+	_rpc_reset_ball()
 
-	# reset camera
+	# reset camera (lokal) - optional nur für host
 	var cam_root := $EditorCameraRoot
 	if cam_root and cam_root.has_method("reset_camera"):
 		cam_root.reset_camera()
 
-
-	# feld resetten
+	# feld resetten (server)
 	if terrain:
 		terrain.reset_field()
+	_rpc_reset_field()
+
 
 
 # -------------------------
@@ -85,7 +99,10 @@ func _on_reset_requested(team_name: String, wants_reset: bool) -> void:
 	pause_menu.set_votes(reset_vote_a, reset_vote_b)
 
 	if reset_vote_a and reset_vote_b:
+		if multiplayer.multiplayer_peer != null and !multiplayer.is_server():
+			return
 		_do_full_reset()
+		_rpc_full_reset()
 
 
 
@@ -143,3 +160,21 @@ func reset_ball() -> void:
 	if ball is RigidBody3D:
 		ball.linear_velocity = Vector3.ZERO
 		ball.angular_velocity = Vector3.ZERO
+
+@rpc("authority", "reliable", "call_local")
+func _rpc_show_goal(team_name: String) -> void:
+	if has_node("GoalOverlay"):
+		$GoalOverlay.show_goal(team_name)
+
+@rpc("authority", "reliable", "call_local")
+func _rpc_reset_ball() -> void:
+	reset_ball()
+
+@rpc("authority", "reliable", "call_local")
+func _rpc_reset_field() -> void:
+	if terrain:
+		terrain.reset_field()
+
+@rpc("authority", "reliable", "call_local")
+func _rpc_full_reset() -> void:
+	_do_full_reset()

@@ -3,8 +3,11 @@ extends Node3D
 class_name TerrainEditor
 
 @export var terrain: TerrainGeneration
+@export var quad_edit_controller_path: NodePath
 @export var raise_key := "Q"
 @export var lower_key := "E"
+
+@onready var quad_edit := get_node_or_null(quad_edit_controller_path)
 
 var last_quad: int = -1
 
@@ -20,14 +23,13 @@ func _unhandled_input(event):
 	# Q / E → edit terrain
 	if event is InputEventKey and event.pressed:
 		if event.as_text() == raise_key:
-			_edit(+terrain.edit_height)
+			_request_edit(+terrain.edit_height)
 		elif event.as_text() == lower_key:
-			_edit(-terrain.edit_height)
+			_request_edit(-terrain.edit_height)
 
 func _select_quad() -> void:
 	var cam := get_viewport().get_camera_3d()
 	if cam == null:
-		print("No camera!")
 		return
 
 	var mouse_pos := get_viewport().get_mouse_position()
@@ -44,35 +46,39 @@ func _select_quad() -> void:
 	if hit.is_empty():
 		return
 
-	var col: Object = hit["collider"]
-
 	# Only target terrain
 	if terrain.mesh_instance == null:
 		return
-	if col != terrain.mesh_instance and (col is Node and (col as Node).get_parent() != terrain.mesh_instance):
-		print("Did not hit terrain")
+
+	var col: Object = hit["collider"]
+	if !(col is Node):
+		return
+
+	var n := col as Node
+	if n != terrain.mesh_instance and !terrain.mesh_instance.is_ancestor_of(n):
 		return
 
 	var face: int = int(hit["face_index"])
 	var quad_id := int(face / 2)
 
-	# ✅ blocked? (forbidden OR locked border)
 	var blocked := terrain.is_quad_blocked(quad_id)
 
-	# ✅ show highlight ALWAYS, but red if blocked
 	last_quad = quad_id
+	print("HIGHLIGHT quad=", quad_id, " blocked=", blocked)
 	terrain.show_quad_highlight(quad_id, blocked)
 
 	if blocked:
-		print("⛔ Blocked quad:", quad_id, " face:", face)
 		last_quad = -1
-		return
 
-	print("Quad selected:", last_quad)
-
-func _edit(amount: float) -> void:
+func _request_edit(delta: float) -> void:
 	if last_quad == -1:
 		return
 
-	terrain.edit_quad(last_quad, amount)
+	# Multiplayer: request to host
+	if quad_edit != null:
+		quad_edit.client_try_edit_quad(last_quad, delta)
+		return
+
+	# Singleplayer fallback
+	terrain.edit_quad(last_quad, delta)
 	terrain.show_quad_highlight(last_quad, false)

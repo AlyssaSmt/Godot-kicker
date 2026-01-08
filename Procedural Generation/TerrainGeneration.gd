@@ -75,8 +75,8 @@ var highlight_mesh: MeshInstance3D
 var highlight_mat: StandardMaterial3D
 var highlight_quad_id := -1
 
-const HIGHLIGHT_OK := Color(1, 1, 1, 0.22)         # weiß
-const HIGHLIGHT_FORBID := Color(1, 0.10, 0.10, 0.28) # rot
+const HIGHLIGHT_OK := Color(1, 1, 1, 0.22)
+const HIGHLIGHT_FORBID := Color(1, 0.10, 0.10, 0.28)
 
 func _ready() -> void:
 	generate()
@@ -147,7 +147,6 @@ func generate() -> void:
 
 	_apply_outer_border_height()
 
-	# commit
 	var new_mesh := ArrayMesh.new()
 	data.commit_to_surface(new_mesh)
 
@@ -163,7 +162,39 @@ func generate() -> void:
 
 	_create_highlight()
 
-	print("Terrain generated – first vertex:", data.get_vertex(0))
+
+func reset_field() -> void:
+	# Public API: setze das Feld auf den Ausgangszustand zurück.
+	generate()
+	# Collider neu erstellen
+	if mesh_instance:
+		mesh_instance.create_trimesh_collision()
+
+	# Field lines updaten
+	for node in get_tree().get_nodes_in_group("field_lines"):
+		node.redraw_all_lines()
+
+	# Ball anpassen
+	_fix_ball_safely()
+
+	emit_signal("terrain_changed")
+
+# =========================
+# MULTIPLAYER-FRIENDLY API
+# =========================
+func has_quad(quad_id: int) -> bool:
+	return quad_id >= 0 and quad_id < (quads_x * quads_z)
+
+func is_quad_blocked(quad_id: int) -> bool:
+	if _is_quad_forbidden(quad_id):
+		return true
+	if _is_quad_locked_border(quad_id) and not border_exception_quads.has(quad_id):
+		return true
+	return false
+
+# Das ist die Funktion, die du im Multiplayer aufrufst (Host wendet an, Clients bekommen rpc)
+func apply_quad_delta(quad_id: int, delta: float) -> void:
+	edit_quad(quad_id, delta)
 
 # =========================
 # TERRAIN EDITING
@@ -172,11 +203,9 @@ func edit_quad(quad_id: int, delta: float) -> void:
 	if quad_id < 0:
 		return
 
-	# Forbidden blocken
 	if _is_quad_forbidden(quad_id):
 		return
 
-	# Rand sperren
 	if _is_quad_locked_border(quad_id):
 		if border_exception_quads.has(quad_id):
 			if debug_locked_border:
@@ -205,7 +234,6 @@ func edit_quad(quad_id: int, delta: float) -> void:
 	mesh_instance.create_trimesh_collision()
 	_fix_ball_safely()
 
-	# Highlight rebuild (falls aktiv)
 	if highlight_quad_id == quad_id:
 		show_quad_highlight(quad_id, false)
 
@@ -283,52 +311,10 @@ func _fix_ball_safely() -> void:
 		rb.global_transform.origin = pos
 
 # =========================
-# RESET
+# FORBIDDEN / BORDER
 # =========================
-func reset_field() -> void:
-	for i in range(data.get_vertex_count()):
-		var v: Vector3 = data.get_vertex(i)
-		v.y = 0.0
-		data.set_vertex(i, v)
-
-	_apply_outer_border_height()
-
-	var new_mesh := ArrayMesh.new()
-	data.commit_to_surface(new_mesh)
-	mesh_instance.mesh = new_mesh
-	_apply_field_material()
-
-	for child in mesh_instance.get_children():
-		if child is StaticBody3D:
-			child.queue_free()
-
-	await get_tree().process_frame
-	await get_tree().process_frame
-
-	mesh_instance.create_trimesh_collision()
-	_fix_ball_safely()
-
-	# Highlight neu setzen falls aktiv
-	if highlight_quad_id != -1:
-		show_quad_highlight(highlight_quad_id, is_quad_forbidden(highlight_quad_id))
-
-	emit_signal("terrain_changed")
-
-# =========================
-# FORBIDDEN / BORDER (Public API)
-# =========================
-func is_quad_forbidden(quad_id: int) -> bool:
-	return _is_quad_forbidden(quad_id)
-
 func _is_quad_forbidden(quad_id: int) -> bool:
 	return forbidden_quads.has(quad_id)
-
-func is_quad_blocked(quad_id: int) -> bool:
-	if _is_quad_forbidden(quad_id):
-		return true
-	if _is_quad_locked_border(quad_id) and not border_exception_quads.has(quad_id):
-		return true
-	return false
 
 func _get_border_height() -> float:
 	return max_height + border_extra
@@ -399,10 +385,8 @@ func _create_highlight() -> void:
 	highlight_mat.emission_enabled = true
 	highlight_mat.no_depth_test = true
 
-	# default white
 	highlight_mat.albedo_color = HIGHLIGHT_OK
 	highlight_mat.emission = Color(1, 1, 1)
-	highlight_mat.emission_energy_multiplier = 1.0
 
 	highlight_mesh.material_override = highlight_mat
 	highlight_mesh.visible = false
@@ -411,6 +395,8 @@ func show_quad_highlight(quad_id: int, forbidden := false) -> void:
 	if quad_id < 0 or data == null:
 		hide_quad_highlight()
 		return
+
+	_create_highlight()
 
 	var face_a := quad_id * 2
 	var face_b := face_a + 1
@@ -452,7 +438,7 @@ func show_quad_highlight(quad_id: int, forbidden := false) -> void:
 		return aa < bb
 	)
 
-	# Mesh bauen
+	# Mesh bauen (leicht über dem Boden)
 	var up := Vector3.UP * 0.03
 	var st := SurfaceTool.new()
 	st.begin(Mesh.PRIMITIVE_TRIANGLES)
@@ -467,7 +453,7 @@ func show_quad_highlight(quad_id: int, forbidden := false) -> void:
 
 	highlight_mesh.mesh = st.commit()
 
-	# ✅ Farbe setzen
+	# Farbe setzen
 	if highlight_mat:
 		if forbidden:
 			highlight_mat.albedo_color = HIGHLIGHT_FORBID
@@ -491,6 +477,7 @@ func show_quad_highlight(quad_id: int, forbidden := false) -> void:
 	highlight_mesh.set_meta("hide_tween", t)
 	t.tween_interval(4.0)
 	t.tween_callback(Callable(self, "hide_quad_highlight"))
+
 
 func hide_quad_highlight() -> void:
 	if highlight_mesh:
