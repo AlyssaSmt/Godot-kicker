@@ -2,17 +2,17 @@
 class_name RinkWalls
 extends Node3D
 
-@export var field_width: float = 64.0        # inneres Spielfeld (wie FIELD_W)
-@export var field_length: float = 110.0      # inneres Spielfeld (wie FIELD_L)
-@export var wall_height: float = 10.0         # sichtbare Höhe über Boden
+@export var field_width: float = 64.0        # inner field (like FIELD_W)
+@export var field_length: float = 110.0      # inner field (like FIELD_L)
+@export var wall_height: float = 10.0         # visible height above ground
 @export var wall_thickness: float = 0.5
-@export var corner_radius: float = 8.0       # Rundung der Ecken
-@export var segments_per_corner: int = 12    # je höher, desto runder
-@export var wall_depth_below_ground: float = 2.0  # wie tief die Bande ins Terrain ragt
+@export var corner_radius: float = 8.0       # corner rounding
+@export var segments_per_corner: int = 12    # higher = rounder
+@export var wall_depth_below_ground: float = 2.0  # how deep the wall extends into the terrain
 @export var wall_base_height: float = 4.0
 
 func _ready() -> void:
-	# im Editor und im Spiel neu aufbauen
+	# rebuild in editor and at runtime
 	_clear_children()
 	_create_rink()
 
@@ -28,7 +28,7 @@ func _create_rink() -> void:
 
 	
 
-	# 1) Gerade Banden oben/unten (bei den Toren)
+	# 1) Straight walls top/bottom (by the goals)
 	_create_wall_segment(
 		Vector3(-w + corner_radius, 0.0, -l),
 		Vector3( w - corner_radius, 0.0, -l),
@@ -41,7 +41,7 @@ func _create_rink() -> void:
 		90.0
 	)
 
-	# 2) Gerade Banden links/rechts
+	# 2) Straight walls left/right
 	_create_wall_segment(
 		Vector3(-w, 0.0, -l + corner_radius),
 		Vector3(-w, 0.0,  l - corner_radius)
@@ -52,7 +52,7 @@ func _create_rink() -> void:
 		Vector3( w, 0.0,  l - corner_radius)
 	)
 
-	# 3) Ecken (Viertelkreise)
+	# 3) Corners (quarter circles)
 	# Top-Right (oben rechts)
 	_create_corner(Vector3( w - corner_radius, 0.0, -l + corner_radius), 270.0)
 	# Bottom-Right (unten rechts)
@@ -71,11 +71,11 @@ func _create_wall_segment(a: Vector3, b: Vector3, rotate: bool = true) -> void:
 	box_mesh.size = Vector3(wall_thickness, wall_height, length)
 	wall_mesh.mesh = box_mesh
 
-	# Mitte setzen
+	# Set center
 	wall_mesh.position = (a + b) / 2.0
 	wall_mesh.position.y = wall_base_height + wall_height / 2.0
 
-	# Drehen nur wenn erlaubt
+	# Rotate only when allowed
 	if rotate:
 		var dir: Vector3 = (b - a).normalized()
 		wall_mesh.look_at_from_position(
@@ -84,7 +84,7 @@ func _create_wall_segment(a: Vector3, b: Vector3, rotate: bool = true) -> void:
 			Vector3.UP
 		)
 	else:
-		# nicht drehen → standardmäßig entlang Z
+		# don't rotate -> default along Z
 		wall_mesh.rotation = Vector3.ZERO
 
 	add_child(wall_mesh)

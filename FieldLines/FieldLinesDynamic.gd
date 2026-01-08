@@ -5,10 +5,10 @@ extends MeshInstance3D
 @export var resolution: int = 150
 @export var line_height_offset: float = 0.05
 
-# Torpositionen
+# Goal positions
 @export var goal_z: float = 28.0
 
-# 16-Meter-Raum Werte
+# 16-meter box values
 @export var goal_zone_width: float = 16.0
 @export var goal_zone_depth: float = 16.0
 
@@ -18,9 +18,7 @@ func _ready() -> void:
 		terrain.connect("terrain_changed", Callable(self, "redraw_all_lines"))
 	redraw_all_lines()
 
-
-
-# TYPISIERTE Hilfsfunktion
+# TYPED helper function
 
 func draw_dynamic_line(im: ImmediateMesh, x1: float, z1: float, x2: float, z2: float) -> void:
 	var count: int = resolution - 1
@@ -44,9 +42,7 @@ func draw_dynamic_line(im: ImmediateMesh, x1: float, z1: float, x2: float, z2: f
 		im.surface_add_vertex(Vector3(pb.x, yb, pb.z))
 
 
-
-
-# HAUPTFUNKTION
+# MAIN FUNCTION
 
 func redraw_all_lines() -> void:
 	if terrain == null:
@@ -65,11 +61,11 @@ func redraw_all_lines() -> void:
 	var half_w: float = field_width / 2.0
 
 
-	# MITTELLINIE
+	# CENTER LINE
 	draw_dynamic_line(im, -half_w, 0.0, half_w, 0.0)
 
 
-	# MITTELKREIS
+	# CENTER CIRCLE
 	var radius: float = 9.0
 	var steps: int = 80
 
@@ -90,23 +86,23 @@ func redraw_all_lines() -> void:
 
 
 
-	#   TORLINIEN - ÜBER GESAMTE FELDBREITE
+	# GOAL LINES - ACROSS FULL FIELD WIDTH
 
-	# obere Torlinie
+	# top goal line
 	draw_dynamic_line(im, -half_w, -goal_z -7, half_w, -goal_z -7)
 
-	# untere Torlinie
+	# bottom goal line
 	draw_dynamic_line(im, -half_w,  goal_z +7, half_w,  goal_z+7)
 
 
 
-	#   16-METER-RÄUME UM DIE TORE
+	# 16-METER AREAS AROUND THE GOALS
 
 	var half_zone_w: float = goal_zone_width / 2.0
 	var depth: float = goal_zone_depth
 
 
-	# OBEN
+	# TOP
 	
 	var z_front_top: float = -goal_z
 	var z_back_top: float  = z_front_top - depth
@@ -117,7 +113,7 @@ func redraw_all_lines() -> void:
 	draw_dynamic_line(im,  half_zone_w, z_back_top,  half_zone_w, z_front_top)
 
 
-	# UNTEN
+	# BOTTOM
 
 	var z_front_bottom: float = goal_z
 	var z_back_bottom: float = z_front_bottom + depth

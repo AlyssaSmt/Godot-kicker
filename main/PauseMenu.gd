@@ -10,7 +10,7 @@ signal request_score_reset
 @export var score_manager_path: NodePath
 
 
-# ✅ Root zu deiner VBox (du hast: HelpPanel/Card/MarginContainer)
+# ✅ Root to your VBox (you have: HelpPanel/Card/MarginContainer)
 @export var ui_root_path: NodePath = NodePath("HelpPanel/Card/MarginContainer")
 
 @onready var ui_root: Node = get_node_or_null(ui_root_path)
@@ -31,7 +31,7 @@ func _ready() -> void:
 	visible = false
 
 	if ui_root == null:
-		push_error("PauseMenu: ui_root_path falsch: " + str(ui_root_path))
+		push_error("PauseMenu: ui_root_path incorrect: " + str(ui_root_path))
 		return
 
 	_disable_focus(reset_button)
@@ -60,7 +60,7 @@ func _disable_focus(c: Control) -> void:
 
 func _connect_button(btn: Button, cb: Callable, name_for_debug: String) -> void:
 	if btn == null:
-		push_warning("PauseMenu: Button fehlt: " + name_for_debug + " (prüfe ui_root_path)")
+		push_warning("PauseMenu: Button missing: " + name_for_debug + " (check ui_root_path)")
 		return
 	btn.pressed.connect(cb)
 
@@ -103,10 +103,10 @@ func _update_vote_text() -> void:
 	if vote_label:
 		var a_txt := "✅" if vote_a else "❌"
 		var b_txt := "✅" if vote_b else "❌"
-		vote_label.text = "Reset Zustimmung – Team A: %s | Team B: %s" % [a_txt, b_txt]
+		vote_label.text = "Reset votes – Team A: %s | Team B: %s" % [a_txt, b_txt]
 
 	if reset_button:
-		reset_button.text = "Reset-Vote zurücknehmen" if _get_local_vote() else "Reset voten"
+		reset_button.text = "Retract reset vote" if _get_local_vote() else "Vote reset"
 
 # =========================
 # Callbacks

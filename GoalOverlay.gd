@@ -14,24 +14,24 @@ func _ready() -> void:
 func show_goal(team_name: String) -> void:
 	label.text = "GOAL FOR %s!" % team_name
 
-	# Reset (wichtig, falls vorheriger Tween lief)
+	# Reset (important if a previous tween was running)
 	label.modulate.a = 0.0
 	visible = true
 
-	# Alten Tween abbrechen, falls vorhanden
+	# Cancel old tween if present
 	if current_tween:
 		current_tween.kill()
 
 	current_tween = create_tween()
 	var tween := current_tween
 
-	# Einblenden
+	# Fade in
 	tween.tween_property(label, "modulate:a", 1.0, 0.25)
 
-	# Stehen lassen
+	# Hold
 	tween.tween_interval(show_time)
 
-	# Ausblenden
+	# Fade out
 	tween.tween_property(label, "modulate:a", 0.0, 0.35)
 
 	tween.finished.connect(func():

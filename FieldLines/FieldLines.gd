@@ -21,7 +21,7 @@ func _ready() -> void:
 	var l := FIELD_LENGTH / 2.0
 
 	# -----------------------
-	# Außenlinien
+	# Outer lines
 	# -----------------------
 	line(Vector3(-w, 0.05, -l), Vector3(w, 0.05, -l))
 	line(Vector3(w, 0.05, -l), Vector3(w, 0.05, l))
@@ -29,12 +29,12 @@ func _ready() -> void:
 	line(Vector3(-w, 0.05, l), Vector3(-w, 0.05, -l))
 
 	# -----------------------
-	# Mittellinie
+	# Center line
 	# -----------------------
 	line(Vector3(-w, 0.05, 0.0), Vector3(w, 0.05, 0.0))
 
 	# -----------------------
-	# Mittelkreis
+	# Center circle
 	# -----------------------
 	var radius := 9.15
 	var steps := 64
@@ -68,7 +68,7 @@ func _ready() -> void:
 
 
 # ======================================================
-# Hilfsfunktion (NICHT in _ready! → sonst Lambda-Fehler)
+# Helper function (NOT in _ready! -> otherwise lambda error)
 # ======================================================
 func line(a: Vector3, b: Vector3) -> void:
 	im.surface_add_vertex(a)

@@ -4,13 +4,13 @@ class_name ArenaBounds
 
 @export var width: float = 80.0
 @export var length: float = 120.0
-@export var height: float = 20.0
+@export var height: float = 50.0
 @export var wall_thickness: float = 1.0
 
 @export var visible_walls := false
 @export var wall_material: Material
 
-# ✅ Neu: Collision Layer/Mask für die Wände
+# ✅ New: Collision Layer/Mask for the walls
 @export_flags_3d_physics var wall_collision_layer: int = 1
 @export_flags_3d_physics var wall_collision_mask: int = 0
 
@@ -54,7 +54,7 @@ func _create_wall(size: Vector3, pos: Vector3) -> void:
 	add_child(body)
 	body.position = pos
 
-	# ✅ Wichtig: Layer/Mask setzen (sonst kollidiert ggf. nichts)
+	# ✅ Important: set Layer/Mask (otherwise collisions may not work)
 	body.collision_layer = wall_collision_layer
 	body.collision_mask = wall_collision_mask
 

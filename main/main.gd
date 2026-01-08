@@ -11,7 +11,7 @@ var reset_vote_b: bool = false
 func _ready() -> void:
 
 	if pause_menu == null:
-		push_error("❌ PauseMenu NICHT gefunden! Pfad prüfen.")
+		push_error("❌ PauseMenu NOT found! Check path.")
 		return
 
 
@@ -24,7 +24,7 @@ func _ready() -> void:
 	left_goal.rotation_degrees.y = 180
 	right_goal.rotation_degrees.y = 0
 
-	# Goal detectors verbinden
+	# Connect goal detectors
 	$GoalDetectorLeft.goal_scored.connect(_on_goal_scored)
 	$GoalDetectorRight.goal_scored.connect(_on_goal_scored)
 
@@ -36,20 +36,20 @@ func _ready() -> void:
 	pause_menu.request_forfeit.connect(_on_forfeit_requested)
 	
 
-	print("Main ready – Tore verbunden.")
+	print("Main ready – goals connected.")
 
 
 func _on_goal_scored(team_name: String) -> void:
-	# score erhöhen
+	# increment score
 	$ScoreManager.add_goal(team_name)
 
 	# GOAL Overlay
 	$GoalOverlay.show_goal(team_name)
 
-	# ball resetten
+	# reset ball
 	reset_ball()
 
-	# kamera resetten
+	# reset camera
 	var cam_root := $EditorCameraRoot
 	if cam_root and cam_root.has_method("reset_camera"):
 		cam_root.reset_camera()
@@ -61,12 +61,12 @@ func _on_goal_scored(team_name: String) -> void:
 
 
 # -------------------------
-# Pause / Hilfe Menü
+# Pause / Help Menu
 # -------------------------
 
 func _on_help_pressed() -> void:
-	# (Optional) hier kannst du team_name_local setzen:
-	# pause_menu.team_name_local = "Team A"  # oder "Team B"
+	# (Optional) here you can set team_name_local:
+	# pause_menu.team_name_local = "Team A"  # or "Team B"
 
 	pause_menu.set_votes(reset_vote_a, reset_vote_b)
 	pause_menu.open_menu()
@@ -80,7 +80,7 @@ func _on_reset_requested(team_name: String, wants_reset: bool) -> void:
 	elif t == "TEAM B":
 		reset_vote_b = wants_reset
 	else:
-		print("⚠️ Unbekanntes Team:", team_name)
+		print("⚠️ Unknown team:", team_name)
 
 	pause_menu.set_votes(reset_vote_a, reset_vote_b)
 
@@ -94,25 +94,25 @@ func _do_full_reset() -> void:
 	reset_vote_b = false
 	pause_menu.clear_votes()
 
-	# Feld reset
+	# Reset field
 	if terrain:
 		terrain.reset_field()
 
 	# Ball reset
 	reset_ball()
 
-	# Kamera reset
+	# Reset camera
 	var cam := $EditorCameraRoot/EditorCamera
 	if cam:
 		cam.reset_camera()
 
-	# Menü schließen
+	# Close menu
 	pause_menu.close_menu()
 
 
 func _on_forfeit_requested(team_name: String) -> void:
 	var t := team_name.strip_edges().to_upper()
-	print("🏳️ Aufgabe von: ", t, " -> verliert!")
+	print("🏳️ Forfeit by:", t, " -> they lose!")
 
 	reset_vote_a = false
 	reset_vote_b = false
@@ -123,7 +123,7 @@ func _on_forfeit_requested(team_name: String) -> void:
 	if match_manager:
 		match_manager.forfeit(t)
 	else:
-		push_warning("⚠️ MatchManager nicht gefunden.")
+			push_warning("⚠️ MatchManager not found.")
 
 
 

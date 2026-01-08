@@ -8,7 +8,7 @@ var rotating := false
 var pitch := 0.0
 var yaw := 0.0
 
-# Speicherung der Starttransforms
+# Store start transforms
 var start_camera_transform: Transform3D
 var start_parent_transform: Transform3D
 
@@ -18,11 +18,11 @@ func _ready():
 
 	var root = get_parent()
 
-	# Startrotation
+	# Start rotation
 	yaw = root.rotation_degrees.y
 	pitch = rotation_degrees.x
 
-	# Start-Transforms merken
+	# Remember start transforms
 	start_camera_transform = global_transform
 	start_parent_transform = root.global_transform
 
@@ -30,13 +30,13 @@ func _ready():
 func reset_camera():
 	var root = get_parent()
 
-	# Parent zurücksetzen (Yaw + Position)
+	# Reset parent (Yaw + Position)
 	root.global_transform = start_parent_transform
 
-	# Kamera zurücksetzen (Pitch + Position)
+	# Reset camera (Pitch + Position)
 	global_transform = start_camera_transform
 
-	# Yaw/Pitch aktualisieren
+	# Update Yaw/Pitch
 	yaw = root.rotation_degrees.y
 	pitch = rotation_degrees.x
 
@@ -44,7 +44,7 @@ func reset_camera():
 
 func _unhandled_input(event):
 
-	# Rechte Maustaste zum Drehen
+	# Right mouse button to rotate
 	if event is InputEventMouseButton:
 		if event.button_index == MOUSE_BUTTON_RIGHT:
 			rotating = event.pressed
@@ -52,16 +52,16 @@ func _unhandled_input(event):
 				Input.MOUSE_MODE_CAPTURED if rotating else Input.MOUSE_MODE_VISIBLE
 			)
 
-	# Rotation mit Maus
+	# Rotate with mouse
 	if event is InputEventMouseMotion and rotating:
 		yaw -= event.relative.x * look_sensitivity * 100
 		pitch -= event.relative.y * look_sensitivity * 100
 
 		pitch = clamp(pitch, -85, 85)
 
-		# Yaw auf Parent
+		# Apply Yaw to parent
 		get_parent().rotation_degrees.y = yaw
-		# Pitch auf Kamera
+		# Apply Pitch to camera
 		rotation_degrees.x = pitch
 
 
@@ -70,7 +70,7 @@ func _process(delta):
 	var dir := Vector3.ZERO
 	var root = get_parent()
 
-	# Bewegung relativ zum Parent
+	# Movement relative to parent
 	if Input.is_action_pressed("ui_up"):
 		dir -= root.transform.basis.z
 	if Input.is_action_pressed("ui_down"):

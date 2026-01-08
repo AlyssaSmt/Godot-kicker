@@ -1,7 +1,7 @@
 extends Node
 class_name MatchManager
 
-@export var round_seconds: int = 5 * 5
+@export var round_seconds: int = 5 * 60
 
 @export var score_manager_path: NodePath
 @export var ui_path: NodePath
@@ -24,7 +24,7 @@ func start_round() -> void:
 	_update_ui_time()
 
 func reset_round() -> void:
-	# Timer + UI zurücksetzen (z.B. bei Forfeit oder "Nochmal spielen" ohne Scene reload)
+	# Reset timer + UI (e.g. for forfeit or "Play again" without scene reload)
 	get_tree().paused = false
 	time_left = round_seconds
 	running = true
@@ -34,11 +34,11 @@ func reset_round() -> void:
 	if ui and ui.has_method("hide_end_screen"):
 		ui.hide_end_screen()
 
-	# optional: Score resetten, falls vorhanden
+	# optional: reset score if available
 	if score_manager and score_manager.has_method("reset_score"):
 		score_manager.reset_score()
 
-	# optional: HUD Score zurücksetzen
+	# optional: reset HUD score
 	if ui and ui.has_method("set_score"):
 		ui.set_score(0, 0)
 
@@ -67,11 +67,11 @@ func end_round() -> void:
 	var left_score := scores[0]
 	var right_score := scores[1]
 
-	var winner := "Unentschieden!"
+	var winner := "Draw!"
 	if left_score > right_score:
-		winner = "Team Blau gewinnt!"
+		winner = "Team Blue wins!"
 	elif right_score > left_score:
-		winner = "Team Rot gewinnt!"
+		winner = "Team Red wins!"
 
 	if ui and ui.has_method("show_end_screen"):
 		ui.show_end_screen(left_score, right_score, winner)
@@ -84,15 +84,15 @@ func forfeit(loser_team_name: String) -> void:
 	var left_score := scores[0]
 	var right_score := scores[1]
 
-	var winner_text := "Unentschieden!"
-	# WICHTIG: Passe die Teamnamen an DEIN Spiel an
-	# Hier: Team A = Blau, Team B = Rot
+	var winner_text := "Draw!"
+	# IMPORTANT: Adjust team names to YOUR game if needed
+	# Here: Team A = Blue, Team B = Red
 	if loser_team_name == "Team A":
-		winner_text = "Team Rot gewinnt! (Forfeit)"
+		winner_text = "Team Red wins! (Forfeit)"
 	elif loser_team_name == "Team B":
-		winner_text = "Team Blau gewinnt! (Forfeit)"
+		winner_text = "Team Blue wins! (Forfeit)"
 	else:
-		winner_text = "Gegner gewinnt! (Forfeit)"
+		winner_text = "Opponent wins! (Forfeit)"
 
 	if ui and ui.has_method("show_end_screen"):
 		ui.show_end_screen(left_score, right_score, winner_text)
@@ -104,8 +104,8 @@ func _update_ui_time() -> void:
 
 # ------------------------------------------------------------
 # Robust score fetch:
-# 1) Getter-Methoden (empfohlen)
-# 2) Fallback: bekannte Variablennamen via get_indexed()
+# 1) Getter methods (recommended)
+# 2) Fallback: known variable names via get_indexed()
 # ------------------------------------------------------------
 func _get_scores() -> Array[int]:
 	var left_score := 0
@@ -120,9 +120,9 @@ func _get_scores() -> Array[int]:
 	if score_manager.has_method("get_right_score"):
 		right_score = int(score_manager.call("get_right_score"))
 
-	# 2) Fallback: Variablen (ohne has_variable/has_property)
-	# get_indexed("prop") gibt einen Fehler, wenn es nicht existiert,
-	# daher try/catch per "has_method" geht hier nicht. Wir nutzen safe helper:
+	# 2) Fallback: Variables (without has_variable/has_property)
+	# get_indexed("prop") raises an error if it doesn't exist,
+	# therefore try/catch via "has_method" won't work here. We use a safe helper:
 	if left_score == 0:
 		left_score = _try_get_int(score_manager, ["score_left", "left_score", "blue_score", "score_blue"])
 	if right_score == 0:
@@ -131,10 +131,10 @@ func _get_scores() -> Array[int]:
 	return [left_score, right_score]
 
 func _try_get_int(obj: Object, names: Array[String]) -> int:
-	# Versucht mehrere Property-Namen; wenn keiner existiert -> 0
+	# Tries several property names; if none exist -> 0
 	for n in names:
-		# Object.get() existiert, aber ohne default. Wenn Property nicht existiert,
-		# liefert es null.
+		# Object.get() exists but without default. If property doesn't exist,
+		# it returns null.
 		var v = obj.get(n)
 		if v != null:
 			return int(v)

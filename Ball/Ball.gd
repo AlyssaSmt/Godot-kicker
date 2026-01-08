@@ -11,7 +11,7 @@ func _ready() -> void:
 	gravity_scale = 1.0
 	mass = 0.45
 
-	# ✅ CCD für Godot 4.0 / 4.1
+	# ✅ CCD for Godot 4.0 / 4.1
 	continuous_cd = true
 
 	linear_damp = 0.02
@@ -38,13 +38,13 @@ func _integrate_forces(state: PhysicsDirectBodyState3D) -> void:
 	if _kick_timer > 0.0:
 		return
 
-	# Kontakte prüfen
+	# Check contacts
 	for i in range(state.get_contact_count()):
 		var collider := state.get_contact_collider_object(i)
 		if collider == null:
 			continue
 
-		# Nur Wände
+		# Only walls
 		if not collider.is_in_group("walls"):
 			continue
 

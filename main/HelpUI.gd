@@ -13,7 +13,7 @@ func _ready() -> void:
 	help_panel.process_mode = Node.PROCESS_MODE_ALWAYS
 	dim.process_mode = Node.PROCESS_MODE_ALWAYS
 
-	# Startzustand
+	# Initial state
 	pause_menu.visible = false
 	dim.visible = false
 	help_panel.visible = false
@@ -23,7 +23,7 @@ func _ready() -> void:
 	help_button.pressed.connect(_on_help_pressed)
 	close_button.pressed.connect(_on_close_pressed)
 
-	# Optional: Klick auf den dunklen Hintergrund schließt
+	# Optional: clicking the dark background closes
 	dim.mouse_filter = Control.MOUSE_FILTER_STOP
 	dim.gui_input.connect(_on_dim_input)
 
