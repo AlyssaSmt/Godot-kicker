@@ -3,19 +3,19 @@
 [ext_resource type="Script" uid="uid://dyp1c3w3r6ivu" path="res://main/main.gd" id="1_0i4oc"]
 [ext_resource type="Script" uid="uid://bs2rvlnxas6f5" path="res://Procedural Generation/TerrainGeneration.gd" id="2_bsumw"]
 [ext_resource type="Script" uid="uid://d1fgwrejxjecb" path="res://Procedural Generation/terrain_editor.gd" id="3_fwcvl"]
-[ext_resource type="PackedScene" uid="uid://cwehbugq1vwsc" path="res://ArenaBounds.tscn" id="4_s758e"]
+[ext_resource type="PackedScene" path="res://ArenaBounds.tscn" id="4_s758e"]
 [ext_resource type="PackedScene" uid="uid://cpliy7cur5dlm" path="res://Ball/Ball.tscn" id="5_73k8k"]
 [ext_resource type="PackedScene" uid="uid://dvuyvxo73o3ou" path="res://Goal/GoalDetector.tscn" id="6_5xyti"]
 [ext_resource type="Script" uid="uid://d3pj55mw2jk1k" path="res://main/HockeyGoals.gd" id="8_0i4oc"]
 [ext_resource type="PackedScene" uid="uid://ccvq3f0fbtwcw" path="res://ScoreManager/ScoreManager.tscn" id="9_0i4oc"]
 [ext_resource type="PackedScene" uid="uid://d0cw6utfkuysq" path="res://FieldLines/FieldLinesDynamic.tscn" id="9_4hmqs"]
 [ext_resource type="PackedScene" uid="uid://hhgmst8lx8ua" path="res://FieldLines/RinkWalls.tscn" id="9_bsumw"]
-[ext_resource type="PackedScene" uid="uid://eyve4dhb0hn7" path="res://GoalOverlay.tscn" id="10_73k8k"]
+[ext_resource type="PackedScene" path="res://GoalOverlay.tscn" id="10_73k8k"]
 [ext_resource type="Script" uid="uid://q5aau2vkm2be" path="res://main/ScoreLabel.gd" id="10_bsumw"]
-[ext_resource type="Script" uid="uid://b0u5nbb15qyqn" path="res://main/HelpUI.gd" id="12_fwcvl"]
-[ext_resource type="PackedScene" uid="uid://b3ki156fnwd7b" path="res://MatchUI.tscn" id="12_n3o0a"]
-[ext_resource type="Script" uid="uid://u4ritpjdhwlo" path="res://main/PauseMenu.gd" id="13_na0o7"]
-[ext_resource type="PackedScene" uid="uid://doofjcirvchnj" path="res://MatchManager.tscn" id="13_s758e"]
+[ext_resource type="Script" path="res://main/HelpUI.gd" id="12_fwcvl"]
+[ext_resource type="PackedScene" path="res://MatchUI.tscn" id="12_n3o0a"]
+[ext_resource type="Script" path="res://main/PauseMenu.gd" id="13_na0o7"]
+[ext_resource type="PackedScene" path="res://MatchManager.tscn" id="13_s758e"]
 [ext_resource type="Script" uid="uid://bv55wicwyt1u5" path="res://main/EditorSpectator.gd" id="15_s758e"]
 
 [sub_resource type="FastNoiseLite" id="FastNoiseLite_ig7tw"]
@@ -52,14 +52,13 @@ size_width = 88
 edit_height = 2.0
 noise = SubResource("FastNoiseLite_ig7tw")
 quads_x = 8
-forbidden_quads = Array[int]([105, 104, 103, 116, 115, 114, 39, 38, 37, 28, 27, 26])
+forbidden_quads = null
 
 [node name="TerrainEditor" type="Node3D" parent="." node_paths=PackedStringArray("terrain")]
 script = ExtResource("3_fwcvl")
 terrain = NodePath("../TerrainGeneration")
 
 [node name="ArenaBounds" parent="." instance=ExtResource("4_s758e")]
-height = 20.0
 
 [node name="BallNode" parent="." instance=ExtResource("5_73k8k")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.5, 0)
@@ -211,6 +210,7 @@ text = "Controls:
 • WASD: move
 • Space: fly up
 • Shift: fly down
+• Ctrl: faster
 • Linksklick: Select quad
 • Q: Terrain up
 • E: Terrain down

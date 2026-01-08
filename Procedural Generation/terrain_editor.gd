@@ -1,3 +1,4 @@
+@tool
 extends Node3D
 class_name TerrainEditor
 
@@ -12,11 +13,11 @@ func _unhandled_input(event):
 		push_error("TerrainEditor: terrain not set!")
 		return
 
-	# Left-click → Select quad
+	# Left-click → select quad
 	if event is InputEventMouseButton and event.pressed and event.button_index == MOUSE_BUTTON_LEFT:
 		_select_quad()
 
-	# Q / E → Edit terrain
+	# Q / E → edit terrain
 	if event is InputEventKey and event.pressed:
 		if event.as_text() == raise_key:
 			_edit(+terrain.edit_height)
@@ -45,7 +46,7 @@ func _select_quad() -> void:
 
 	var col: Object = hit["collider"]
 
-	# Only target terrain (MeshInstance or its collider child)
+	# Only target terrain
 	if terrain.mesh_instance == null:
 		return
 	if col != terrain.mesh_instance and (col is Node and (col as Node).get_parent() != terrain.mesh_instance):
@@ -53,23 +54,25 @@ func _select_quad() -> void:
 		return
 
 	var face: int = int(hit["face_index"])
-	var quad_id := int(face / 2.0)
+	var quad_id := int(face / 2)
 
-	# If forbidden: don't select
-	if terrain.is_quad_forbidden(quad_id):
-		print("Forbidden Quad:", quad_id, " face:", face)
+	# ✅ blocked? (forbidden OR locked border)
+	var blocked := terrain.is_quad_blocked(quad_id)
+
+	# ✅ show highlight ALWAYS, but red if blocked
+	last_quad = quad_id
+	terrain.show_quad_highlight(quad_id, blocked)
+
+	if blocked:
+		print("⛔ Blocked quad:", quad_id, " face:", face)
 		last_quad = -1
-		terrain.hide_quad_highlight()
 		return
 
-	last_quad = quad_id
 	print("Quad selected:", last_quad)
-
-	terrain.show_quad_highlight(last_quad)
-
 
 func _edit(amount: float) -> void:
 	if last_quad == -1:
 		return
+
 	terrain.edit_quad(last_quad, amount)
-	terrain.show_quad_highlight(last_quad) # reapply after edit
+	terrain.show_quad_highlight(last_quad, false)

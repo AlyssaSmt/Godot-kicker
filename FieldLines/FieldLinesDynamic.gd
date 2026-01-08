@@ -127,3 +127,5 @@ func redraw_all_lines() -> void:
 	# FINISH
 	im.surface_end()
 	mesh = im
+
+

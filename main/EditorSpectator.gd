@@ -84,7 +84,7 @@ func _physics_process(delta):
 	if Input.is_action_pressed("shift"):
 		vy -= 1.0
 
-	var speed := fast_speed if Input.is_key_pressed(KEY_SHIFT) else move_speed
+	var speed := fast_speed if Input.is_key_pressed(KEY_CTRL) else move_speed
 
 	var target_v := Vector3.ZERO
 	if dir != Vector3.ZERO:
