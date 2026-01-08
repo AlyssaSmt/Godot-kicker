@@ -1,4 +1,4 @@
-[gd_scene load_steps=27 format=3 uid="uid://b1phcfq8ugp1"]
+[gd_scene load_steps=28 format=3 uid="uid://bdlnu0wb8bc8m"]
 
 [ext_resource type="Script" uid="uid://dyp1c3w3r6ivu" path="res://main/main.gd" id="1_yu8fu"]
 [ext_resource type="Script" uid="uid://bs2rvlnxas6f5" path="res://Procedural Generation/TerrainGeneration.gd" id="2_kpj3s"]
@@ -18,8 +18,9 @@
 [ext_resource type="Script" uid="uid://b0u5nbb15qyqn" path="res://main/HelpUI.gd" id="16_jqkc0"]
 [ext_resource type="Script" uid="uid://u4ritpjdhwlo" path="res://main/PauseMenu.gd" id="17_er0nc"]
 [ext_resource type="Script" uid="uid://48vyr7do5nxi" path="res://net/NetworkManager.gd" id="18_xfm3h"]
-[ext_resource type="Script" uid="uid://0iaeq7n4op5y" path="res://main/TurnManager.gd" id="19_mnj0e"]
+[ext_resource type="Script" path="res://main/TurnManager.gd" id="19_mnj0e"]
 [ext_resource type="Script" uid="uid://ds5p8cuw6okmg" path="res://net/QuadEditController.gd" id="20_175s1"]
+[ext_resource type="PackedScene" uid="uid://bu18toot6v8df" path="res://MainMenu/MultiplayerMenu.tscn" id="21_yu8fu"]
 
 [sub_resource type="FastNoiseLite" id="FastNoiseLite_ig7tw"]
 
@@ -253,3 +254,6 @@ script = ExtResource("19_mnj0e")
 [node name="QuadEditController" type="Node" parent="."]
 script = ExtResource("20_175s1")
 terrain_path = NodePath("../TerrainGeneration")
+
+[node name="MultiplayerMenu" parent="." instance=ExtResource("21_yu8fu")]
+visible = false
