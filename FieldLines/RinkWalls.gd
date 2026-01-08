@@ -63,7 +63,7 @@ func _create_rink() -> void:
 	_create_corner(Vector3(-w + corner_radius, 0.0, -l + corner_radius), 180.0)
 
 
-func _create_wall_segment(a: Vector3, b: Vector3, rotate: bool = true) -> void:
+func _create_wall_segment(a: Vector3, b: Vector3, do_rotate: bool = true) -> void:
 	var length: float = a.distance_to(b)
 
 	var wall_mesh := MeshInstance3D.new()
@@ -76,7 +76,7 @@ func _create_wall_segment(a: Vector3, b: Vector3, rotate: bool = true) -> void:
 	wall_mesh.position.y = wall_base_height + wall_height / 2.0
 
 	# Rotate only when allowed
-	if rotate:
+	if do_rotate:
 		var dir: Vector3 = (b - a).normalized()
 		wall_mesh.look_at_from_position(
 			wall_mesh.position,

@@ -99,6 +99,6 @@ func _on_main_menu() -> void:
 	# get_tree().change_scene_to_file("res://scenes/MainMenu.tscn")
 
 func _format_time(total_seconds: int) -> String:
-	var m := total_seconds / 60
+	var m := int(total_seconds / 60.0)
 	var s := total_seconds % 60
 	return "%02d:%02d" % [m, s]

@@ -28,7 +28,7 @@ func update_wall_positions():
 
 	var desired_length = terrain.size_width / 2.0  # half field width
 
-	north.position = Vector3(0, wall_height/2, -(l/2 + wall_thickness/2))
+	north.position = Vector3(0, wall_height/2.0, -(l/2.0 + wall_thickness/2.0))
 	north.rotation.y = deg_to_rad(90)
 
 	# CORRECT:
@@ -46,7 +46,7 @@ func update_wall_positions():
 	var s_col: BoxShape3D = south.get_node("CollisionShape3D").shape
 	var s_mesh: BoxMesh = south.get_node("MeshInstance3D").mesh
 
-	south.position = Vector3(0, wall_height/2, +(l/2 + wall_thickness/2))
+	south.position = Vector3(0, wall_height/2.0, +(l/2.0 + wall_thickness/2.0))
 	south.rotation.y = deg_to_rad(90)
 
 	s_col.size = Vector3(wall_thickness, wall_height, desired_length)
@@ -62,7 +62,7 @@ func update_wall_positions():
 	var e_col: BoxShape3D = east.get_node("CollisionShape3D").shape
 	var e_mesh: BoxMesh = east.get_node("MeshInstance3D").mesh
 
-	east.position = Vector3((w/2 + wall_thickness/2), wall_height/2, 0)
+	east.position = Vector3((w/2.0 + wall_thickness/2.0), wall_height/2.0, 0)
 
 	e_col.size = Vector3(wall_thickness, wall_height, l)
 	e_mesh.size = Vector3(wall_thickness, wall_height, l)
@@ -74,7 +74,7 @@ func update_wall_positions():
 	var w_col: BoxShape3D = west.get_node("CollisionShape3D").shape
 	var w_mesh: BoxMesh = west.get_node("MeshInstance3D").mesh
 
-	west.position = Vector3(-(w/2 + wall_thickness/2), wall_height/2, 0)
+	west.position = Vector3(-(w/2.0 + wall_thickness/2.0), wall_height/2.0, 0)
 
 	w_col.size = Vector3(wall_thickness, wall_height, l)
 	w_mesh.size = Vector3(wall_thickness, wall_height, l)

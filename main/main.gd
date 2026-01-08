@@ -2,7 +2,7 @@ extends Node3D
 
 @onready var terrain: TerrainGeneration = $TerrainGeneration
 @onready var pause_menu := get_node("HelpUI/PauseMenu")
-@onready var match_manager: MatchManager = $MatchManager
+@onready var match_manager = $MatchManager
 
 
 var reset_vote_a: bool = false

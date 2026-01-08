@@ -53,7 +53,7 @@ func _select_quad() -> void:
 		return
 
 	var face: int = int(hit["face_index"])
-	var quad_id := face / 2
+	var quad_id := int(face / 2.0)
 
 	# If forbidden: don't select
 	if terrain.is_quad_forbidden(quad_id):

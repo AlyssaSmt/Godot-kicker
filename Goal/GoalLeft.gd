@@ -38,9 +38,9 @@ func make_bar(pos: Vector3, length: float) -> MeshInstance3D:
 # ----------------------------------------------------------
 # GOAL CONSTRUCTION
 # ----------------------------------------------------------
-func create_goal(position: Vector3) -> Node3D:
+func create_goal(pos: Vector3) -> Node3D:
 	var goal := Node3D.new()
-	goal.position = position
+	goal.position = pos
 
 	# --- Front posts ---
 	goal.add_child(make_post(Vector3(-width/2, height/2, 0)))
@@ -85,5 +85,5 @@ func make_material() -> StandardMaterial3D:
 func _ready():
 	var goal_offset := 2.0   # how far the goals should sit behind the line
 
-	add_child(create_goal(Vector3(0, 0, -50.5 - goal_offset)))   # hinter linkem Tor
-	add_child(create_goal(Vector3(0, 0,  52.5 + goal_offset)))   # hinter rechtem Tor
+	add_child(create_goal(Vector3(0, 0, -50.5 - goal_offset)))   # behind left goal
+	add_child(create_goal(Vector3(0, 0,  52.5 + goal_offset)))   # behind right goal
