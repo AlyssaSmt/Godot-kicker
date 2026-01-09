@@ -15,7 +15,8 @@ var _yaw: float = 0.0
 var _pitch: float = 0.0
 
 func _ready() -> void:
-	Input.set_mouse_mode(Input.MOUSE_MODE_CAPTURED)
+	# Start with visible mouse so users can interact with UI immediately
+	Input.set_mouse_mode(Input.MOUSE_MODE_VISIBLE)
 	_yaw = rotation.y
 	_pitch = cam.rotation.x
 

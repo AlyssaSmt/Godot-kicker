@@ -10,7 +10,8 @@ var look_rotation_x: float = 0.0
 
 func _ready():
 	camera = $Camera3D
-	Input.set_mouse_mode(Input.MOUSE_MODE_CAPTURED)
+	# Keep mouse visible at start; user can capture it later
+	Input.set_mouse_mode(Input.MOUSE_MODE_VISIBLE)
 
 func _input(event):
 	if event is InputEventMouseMotion:

@@ -30,11 +30,28 @@ func _start_game() -> void:
 	set_process(false)
 	set_physics_process(false)
 
-	# optional: Maus freigeben
-	Input.set_mouse_mode(Input.MOUSE_MODE_CAPTURED)
+	# optional: Maus freigeben — standardmäßig sichtbar, Nutzer kann später fangen
+	Input.set_mouse_mode(Input.MOUSE_MODE_VISIBLE)
 
 	# Game informieren (falls du was aktivieren willst)
 	var game := get_tree().current_scene
+	# If the menu is running as the current scene (standalone), change to the game scene.
+	if game == self:
+		var err := get_tree().change_scene_to_file(GAME_SCENE)
+		if err != OK:
+			status_label.text = "Game scene not found."
+			push_error("multiplayer_menu: Could not load game scene: %s" % GAME_SCENE)
+			return
+		# If the scene changed successfully, wait one frame and inform the newly loaded game scene
+		if get_tree() == null:
+			return
+		await get_tree().process_frame
+		var new_game := get_tree().current_scene
+		if new_game and new_game.has_method("on_multiplayer_menu_closed"):
+			new_game.call_deferred("on_multiplayer_menu_closed")
+		return
+
+	# Otherwise, we're embedded in the running game scene -> notify it
 	if game and game.has_method("on_multiplayer_menu_closed"):
 		game.on_multiplayer_menu_closed()
 

@@ -56,6 +56,8 @@ func set_score(left_score: int, right_score: int) -> void:
 
 func show_end_screen(left_score: int, right_score: int, winner_text: String) -> void:
 	end_screen.visible = true
+	# Ensure the mouse is visible when the end screen appears
+	Input.set_mouse_mode(Input.MOUSE_MODE_VISIBLE)
 	# Make sure the Main Menu button on the end screen is clickable
 	if main_menu_btn:
 		main_menu_btn.disabled = false
