@@ -18,18 +18,14 @@ class_name MatchUI
 @onready var play_again_btn: Button = $EndScreen/Card/VBox/Buttons/PlayAgainButton
 @onready var main_menu_btn: Button = $EndScreen/Card/VBox/Buttons/MainMenuButton
 
+var match_started := false
+
 # Optional: if you don't have a MainMenu yet
 @export var disable_main_menu_button: bool = true
 
 func _ready() -> void:
-	# UI should also work when the game is paused
 	process_mode = Node.PROCESS_MODE_ALWAYS
-
-	# Clicks should NOT pass through the EndScreen into the game
 	end_screen.mouse_filter = Control.MOUSE_FILTER_STOP
-
-	# Optional: keep HUD visible or hide when the end screen appears
-	# hud.visible = true
 
 	# Buttons verbinden
 	play_again_btn.pressed.connect(_on_play_again)
@@ -39,16 +35,31 @@ func _ready() -> void:
 		main_menu_btn.disabled = true
 		main_menu_btn.tooltip_text = "Main menu coming soon"
 
+	# START-ZUSTAND: noch nicht gestartet
+	match_started = false
+	hud.visible = false
 	hide_end_screen()
 
+
 func set_time_left(seconds_left: int) -> void:
+	if !match_started:
+		return
 	timer_label.text = _format_time(seconds_left)
+	print("TIMER UI:", timer_label.text, " visible=", timer_label.visible, " hud=", hud.visible)
+
 
 func set_score(left_score: int, right_score: int) -> void:
+	if !match_started:
+		return
 	score_label.text = "%d : %d" % [left_score, right_score]
+
 
 func show_end_screen(left_score: int, right_score: int, winner_text: String) -> void:
 	end_screen.visible = true
+	# Make sure the Main Menu button on the end screen is clickable
+	if main_menu_btn:
+		main_menu_btn.disabled = false
+		main_menu_btn.tooltip_text = ""
 
 	# Text setzen
 	title_label.text = "Game Over"
@@ -94,11 +105,26 @@ func _on_play_again() -> void:
 
 func _on_main_menu() -> void:
 	get_tree().paused = false
-	print("Main menu does not exist yet.")
-	# later:
-	# get_tree().change_scene_to_file("res://scenes/MainMenu.tscn")
+	Input.set_mouse_mode(Input.MOUSE_MODE_VISIBLE)
+	var err := get_tree().change_scene_to_file("res://MainMenu/MultiplayerMenu.tscn")
+	if err != OK:
+		push_error("MatchUI: Could not open MultiplayerMenu.tscn: %s" % err)
 
 func _format_time(total_seconds: int) -> String:
 	var m := int(total_seconds / 60.0)
 	var s := total_seconds % 60
 	return "%02d:%02d" % [m, s]
+
+
+func start_match_ui() -> void:
+	match_started = true
+	hud.visible = true
+
+	# sofort sichtbar initialisieren
+	if timer_label.text.strip_edges() == "":
+		timer_label.text = "00:00"
+
+
+func stop_match_ui() -> void:
+	match_started = false
+	hud.visible = false

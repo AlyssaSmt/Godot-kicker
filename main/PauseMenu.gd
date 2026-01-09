@@ -42,6 +42,8 @@ func _ready() -> void:
 	_connect_button(forfeit_button, _on_forfeit_pressed, "ForfeitButton")
 	_connect_button(close_button, _on_close_pressed, "CloseButton")
 
+	# (MainMenuButton optional removal: no automatic connection)
+
 	if forfeit_confirm:
 		forfeit_confirm.confirmed.connect(_on_forfeit_confirmed)
 		forfeit_confirm.ok_button_text = "Yes, forfeit"
@@ -127,3 +129,6 @@ func _on_forfeit_confirmed() -> void:
 	emit_signal("request_score_reset")
 	emit_signal("request_forfeit", team_name_local)
 	close_menu()
+
+
+# (No built-in main-menu handler in PauseMenu anymore)

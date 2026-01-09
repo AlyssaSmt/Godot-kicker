@@ -29,18 +29,17 @@ anchors_preset = 14
 anchor_top = 0.5
 anchor_right = 1.0
 anchor_bottom = 0.5
-offset_top = -257.0
-offset_bottom = 257.0
+offset_top = -360.0
+offset_bottom = 360.0
 grow_horizontal = 2
 grow_vertical = 2
-theme_override_constants/separation = 50
 alignment = 1
 
 [node name="Title" type="Label" parent="MainContainer"]
 layout_mode = 2
 size_flags_horizontal = 6
 theme_override_font_sizes/font_size = 70
-text = "Multiplayer"
+text = "Godot-Kicker"
 
 [node name="Menu" type="VBoxContainer" parent="MainContainer"]
 layout_direction = 1

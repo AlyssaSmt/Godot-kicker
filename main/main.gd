@@ -5,10 +5,25 @@ extends Node3D
 @onready var match_manager = $MatchManager
 
 
+@onready var timer_label: Label = $UI/MatchUI/HUD/TimerLabel
+@onready var hud_score_label: Label = $UI/MatchUI/HUD/ScoreLabel
+@onready var ui_score_label := $UI/ScoreLabel
+@onready var pause_button := $HelpUI/HelpButton
+@onready var match_ui := $UI/MatchUI
+@onready var hud := $UI/MatchUI/HUD
+
+var match_running: bool = false
+
+
+
+
 var reset_vote_a: bool = false
 var reset_vote_b: bool = false
 
 func _ready() -> void:
+
+	_set_hud_visible(false)
+	_pause_match(true)
 
 	if pause_menu == null:
 		push_error("❌ PauseMenu NOT found! Check path.")
@@ -43,6 +58,11 @@ func _ready() -> void:
 	pause_menu.request_reset.connect(_on_reset_requested)
 	pause_menu.request_forfeit.connect(_on_forfeit_requested)
 	
+	match_running = false
+
+	if match_ui and match_ui.has_method("stop_match_ui"):
+		match_ui.stop_match_ui()
+
 
 	print("Main ready – goals connected.")
 
@@ -178,3 +198,46 @@ func _rpc_reset_field() -> void:
 @rpc("authority", "reliable", "call_local")
 func _rpc_full_reset() -> void:
 	_do_full_reset()
+
+
+func _set_hud_visible(v: bool) -> void:
+	# HUD Block (Timer + HUD Score)
+	if hud:
+		hud.visible = v
+
+	if timer_label:
+		timer_label.visible = v
+
+	if hud_score_label:
+		hud_score_label.visible = v
+
+	# Dein extra ScoreLabel unter UI (falls du das weiterhin nutzt)
+	if ui_score_label:
+		ui_score_label.visible = v
+
+	# Pause Button
+	if pause_button:
+		pause_button.visible = v
+
+
+func _pause_match(pause: bool) -> void:
+	if match_manager == null:
+		return
+
+	if pause:
+		match_manager.stop_match()
+	else:
+		match_manager.start_match()
+
+
+
+
+
+func on_multiplayer_menu_closed() -> void:
+	_set_hud_visible(true)
+
+	if match_ui and match_ui.has_method("start_match_ui"):
+		match_ui.start_match_ui()
+
+	_pause_match(false)
+	print("Game started → HUD visible + Timer started ✅")

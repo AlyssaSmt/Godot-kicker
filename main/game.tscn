@@ -18,7 +18,7 @@
 [ext_resource type="Script" uid="uid://b0u5nbb15qyqn" path="res://main/HelpUI.gd" id="16_jqkc0"]
 [ext_resource type="Script" uid="uid://u4ritpjdhwlo" path="res://main/PauseMenu.gd" id="17_er0nc"]
 [ext_resource type="Script" uid="uid://48vyr7do5nxi" path="res://net/NetworkManager.gd" id="18_xfm3h"]
-[ext_resource type="Script" path="res://main/TurnManager.gd" id="19_mnj0e"]
+[ext_resource type="Script" uid="uid://0iaeq7n4op5y" path="res://main/TurnManager.gd" id="19_mnj0e"]
 [ext_resource type="Script" uid="uid://ds5p8cuw6okmg" path="res://net/QuadEditController.gd" id="20_175s1"]
 [ext_resource type="PackedScene" uid="uid://bu18toot6v8df" path="res://MainMenu/MultiplayerMenu.tscn" id="21_yu8fu"]
 
@@ -236,6 +236,7 @@ text = "Reset terrain"
 layout_mode = 2
 text = "Forfeit"
 
+
 [node name="VoteLabel" type="Label" parent="HelpUI/PauseMenu/HelpPanel/Card/MarginContainer/VBoxContainer"]
 layout_mode = 2
 
@@ -256,4 +257,3 @@ script = ExtResource("20_175s1")
 terrain_path = NodePath("../TerrainGeneration")
 
 [node name="MultiplayerMenu" parent="." instance=ExtResource("21_yu8fu")]
-visible = false

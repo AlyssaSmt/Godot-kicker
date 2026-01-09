@@ -14,13 +14,21 @@ var _accum := 0.0
 @onready var ui: Node = get_node(ui_path)
 
 func _ready() -> void:
-	start_round()
+	# NICHT automatisch starten – wartet auf Menü-Start
+	running = false
+	_accum = 0.0
+	time_left = round_seconds
+	_update_ui_time() # setzt 05:00 (oder was du willst) – wird von MatchUI ignoriert bis start_match_ui()
+
 
 func start_round() -> void:
 	get_tree().paused = false
 	time_left = round_seconds
 	running = true
 	_accum = 0.0
+	# Ensure the UI is in "match started" state so it accepts time updates
+	if ui and ui.has_method("start_match_ui"):
+		ui.start_match_ui()
 	_update_ui_time()
 
 func reset_round() -> void:
@@ -29,6 +37,9 @@ func reset_round() -> void:
 	time_left = round_seconds
 	running = true
 	_accum = 0.0
+	# Make sure HUD is visible and will accept updates
+	if ui and ui.has_method("start_match_ui"):
+		ui.start_match_ui()
 	_update_ui_time()
 
 	if ui and ui.has_method("hide_end_screen"):
@@ -139,3 +150,13 @@ func _try_get_int(obj: Object, names: Array[String]) -> int:
 		if v != null:
 			return int(v)
 	return 0
+
+
+func start_match() -> void:
+	# startet eine neue Runde nur wenn gerade nicht läuft
+	if running:
+		return
+	start_round()
+
+func stop_match() -> void:
+	running = false
