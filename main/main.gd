@@ -4,13 +4,14 @@ extends Node3D
 @onready var pause_menu := get_node_or_null("HelpUI/PauseMenu")
 @onready var match_manager = $MatchManager
 
+@onready var ui_score_label := get_node_or_null("UI/ScoreLabel")
+@onready var pause_button := get_node_or_null("HelpUI/HelpButton")
 
-@onready var timer_label: Label = $UI/MatchUI/HUD/TimerLabel
-@onready var hud_score_label: Label = $UI/MatchUI/HUD/ScoreLabel
-@onready var ui_score_label := $UI/ScoreLabel
-@onready var pause_button := $HelpUI/HelpButton
-@onready var match_ui := $UI/MatchUI
-@onready var hud := $UI/MatchUI/HUD
+@onready var match_ui := get_node_or_null("UI/MatchUI")
+@onready var hud := get_node_or_null("UI/MatchUI/HUD")
+@onready var timer_label := get_node_or_null("UI/MatchUI/HUD/TimerLabel")
+@onready var hud_score_label := get_node_or_null("UI/MatchUI/HUD/ScoreLabel")
+
 
 var match_running: bool = false
 
@@ -72,25 +73,15 @@ func _on_goal_scored(team_name: String) -> void:
 	if multiplayer.multiplayer_peer != null and !multiplayer.is_server():
 		return
 
-	# increment score
+	# Score nur auf Host ändern (dein ScoreManager syncst du später separat)
 	$ScoreManager.add_goal(team_name)
 
-	# GOAL Overlay lokal auf Host + remote auf alle
-	_rpc_show_goal(team_name)
+	# ✅ ALLES an alle replizieren (inkl. Host via call_local)
+	rpc("_rpc_show_goal", team_name)
+	rpc("_rpc_reset_ball")
+	rpc("_rpc_reset_field")
+	rpc("_rpc_reset_camera")
 
-	# reset ball (server)
-	reset_ball()
-	_rpc_reset_ball()
-
-	# reset camera (lokal) - optional nur für host
-	var cam_root := $EditorCameraRoot
-	if cam_root and cam_root.has_method("reset_camera"):
-		cam_root.reset_camera()
-
-	# feld resetten (server)
-	if terrain:
-		terrain.reset_field()
-	_rpc_reset_field()
 
 
 
@@ -173,13 +164,20 @@ func _on_forfeit_requested(team_name: String) -> void:
 func reset_ball() -> void:
 	var ball := get_tree().get_first_node_in_group("ball")
 	if ball == null:
+		push_warning("reset_ball: no node in group 'ball'")
 		return
 
-	ball.global_transform.origin = Vector3(0, 1, 0)
+	# ✅ Position setzen (Godot 4)
+	ball.global_position = Vector3(0, 1, 0)
 
+	# ✅ Velocity reset
 	if ball is RigidBody3D:
-		ball.linear_velocity = Vector3.ZERO
-		ball.angular_velocity = Vector3.ZERO
+		var rb := ball as RigidBody3D
+		rb.linear_velocity = Vector3.ZERO
+		rb.angular_velocity = Vector3.ZERO
+		rb.sleeping = false
+
+	# ✅ wenn dein Ball auf Clients freeze=true ist: reset ist trotzdem ok (pos wird gesetzt)
 
 @rpc("authority", "reliable", "call_local")
 func _rpc_show_goal(team_name: String) -> void:
@@ -236,8 +234,52 @@ func _pause_match(pause: bool) -> void:
 func on_multiplayer_menu_closed() -> void:
 	_set_hud_visible(true)
 
+	# UI freischalten
 	if match_ui and match_ui.has_method("start_match_ui"):
 		match_ui.start_match_ui()
 
+	# Match nur lokal starten (Host und Client jeweils lokal)
 	_pause_match(false)
-	print("Game started → HUD visible + Timer started ✅")
+
+	# Kamera je nach Team setzen
+	_apply_team_camera()
+
+	print("Game started ✅")
+
+
+func _apply_team_camera() -> void:
+	# Team vom Net-System holen
+	var my_id := multiplayer.get_unique_id()
+	var my_team := "A"
+	if has_node("/root/Net") and Net.players.has(my_id):
+		my_team = str(Net.players[my_id].get("team", "A")).to_upper()
+
+	# Deine Kamera (EditorCameraRoot/EditorCamera) anpassen
+	var cam_root := $EditorCameraRoot
+	if cam_root == null:
+		return
+
+	# Du hast: Tore bei z=-35 und z=+35 -> Feld ist entlang Z
+	# Team A schaut von "links" (z.B. von -Z Richtung +Z)
+	# Team B schaut von "rechts" (von +Z Richtung -Z)
+	if my_team == "A":
+		cam_root.global_position = Vector3(0, 18, -60)
+		cam_root.look_at(Vector3(0, 0, 0), Vector3.UP)
+	else:
+		cam_root.global_position = Vector3(0, 18, 60)
+		cam_root.look_at(Vector3(0, 0, 0), Vector3.UP)
+
+	print("Camera set for team:", my_team)
+
+
+@rpc("authority", "reliable", "call_local")
+func _rpc_reset_camera() -> void:
+	# robust: such den Node der reset_camera hat
+	var cam_root := get_node_or_null("EditorCameraRoot")
+	if cam_root and cam_root.has_method("reset_camera"):
+		cam_root.reset_camera()
+		return
+
+	var cam := get_node_or_null("EditorCameraRoot/EditorCamera")
+	if cam and cam.has_method("reset_camera"):
+		cam.reset_camera()

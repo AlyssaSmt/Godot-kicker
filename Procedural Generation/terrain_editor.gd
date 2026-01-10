@@ -77,8 +77,9 @@ func _request_edit(delta: float) -> void:
 	# Multiplayer: request to host
 	if quad_edit != null:
 		quad_edit.client_try_edit_quad(last_quad, delta)
-		return
-
+	else:
+		terrain.edit_quad(last_quad, delta)
+		
 	# Singleplayer fallback
 	terrain.edit_quad(last_quad, delta)
 	terrain.show_quad_highlight(last_quad, false)

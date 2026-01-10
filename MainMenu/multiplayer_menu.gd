@@ -141,10 +141,17 @@ func _on_start_game_pressed():
 	Net.request_start_game()
 
 func _enter_game():
-	# Menü ausblenden und main.gd starten lassen
 	visible = false
-	if get_tree().current_scene and get_tree().current_scene.has_method("on_multiplayer_menu_closed"):
-		get_tree().current_scene.on_multiplayer_menu_closed()
+	set_process(false)
+	set_physics_process(false)
+
+	# wenn Menü als Overlay im Game liegt:
+	var root := get_tree().current_scene
+	if root and root.has_method("on_multiplayer_menu_closed"):
+		root.call_deferred("on_multiplayer_menu_closed")
+
+	# falls du irgendwann Menü als eigene Scene nutzt:
+	# get_tree().change_scene_to_file("res://main/game.tscn")
 
 
 func _on_back_pressed():

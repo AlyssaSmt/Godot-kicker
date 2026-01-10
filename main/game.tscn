@@ -254,5 +254,6 @@ script = ExtResource("19_mnj0e")
 [node name="QuadEditController" type="Node" parent="."]
 script = ExtResource("20_175s1")
 terrain_path = NodePath("../TerrainGeneration")
+turn_manager_path = NodePath("../TurnManager")
 
 [node name="MultiplayerMenu" parent="." instance=ExtResource("21_yu8fu")]

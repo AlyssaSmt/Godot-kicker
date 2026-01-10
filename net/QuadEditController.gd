@@ -2,57 +2,67 @@ extends Node
 class_name QuadEditController
 
 @export var terrain_path: NodePath
-@onready var terrain := get_node(terrain_path)
-@onready var turn: TurnManager = get_parent().get_node("TurnManager")
+@export var turn_manager_path: NodePath  # optional, falls du TurnManager hast
 
-# Optional: nur 1 Edit pro Turn
-var turn_action_used := false
+@onready var terrain: TerrainGeneration = get_node(terrain_path)
+@onready var turn_manager: Node = get_node_or_null(turn_manager_path)
 
-func _ready():
-	turn.turn_changed.connect(_on_turn_changed)
-
-func _on_turn_changed(_active: int):
-	turn_action_used = false
-
+# Client ruft das auf (aus TerrainEditor / Player Input)
 func client_try_edit_quad(quad_id: int, delta: float) -> void:
-	# ✅ Wenn kein Multiplayer läuft -> direkt lokal editieren
 	if multiplayer.multiplayer_peer == null:
-		terrain.edit_quad(quad_id, delta)
+		# singleplayer fallback
+		_apply_edit_local(quad_id, delta)
 		return
 
-	# ✅ Wenn wir der Server/Host sind -> direkt serverseitig anwenden (kein rpc nötig)
 	if multiplayer.is_server():
-		_server_apply_edit(multiplayer.get_unique_id(), quad_id, delta)
-		return
+		# host spielt auch -> direkt server-lokal
+		_server_handle_edit(multiplayer.get_unique_id(), quad_id, delta)
+	else:
+		# client -> request an host (meist ID = 1)
+		rpc_id(1, "rpc_request_edit_quad", quad_id, delta)
 
-	# ✅ Sonst: Client -> Request an Host (peer 1)
-	rpc_id(1, "_rpc_request_edit", quad_id, delta)
-
-
+# -----------------------------
+# SERVER: bekommt Requests
+# -----------------------------
 @rpc("any_peer", "reliable")
-func _rpc_request_edit(quad_id: int, delta: float) -> void:
+func rpc_request_edit_quad(quad_id: int, delta: float) -> void:
 	if !multiplayer.is_server():
 		return
-	var sender := multiplayer.get_remote_sender_id()
-	_server_apply_edit(sender, quad_id, delta)
 
-@rpc("authority", "reliable", "call_local")
-func _rpc_apply_edit(quad_id: int, delta: float) -> void:
-	terrain.edit_quad(quad_id, delta)
+	var sender_id := multiplayer.get_remote_sender_id()
+	_server_handle_edit(sender_id, quad_id, delta)
 
-
-
-func _server_apply_edit(sender_id: int, quad_id: int, delta: float) -> void:
-	# Optional: Turn check
-	if sender_id != turn.active_peer_id:
+func _server_handle_edit(sender_id: int, quad_id: int, delta: float) -> void:
+	if terrain == null:
 		return
-
-	# Optional: blocked check
+	if !terrain.has_quad(quad_id):
+		return
 	if terrain.is_quad_blocked(quad_id):
 		return
 
+	# optional: Turn check
+	if turn_manager and turn_manager.has_method("can_player_edit"):
+		if !turn_manager.call("can_player_edit", sender_id):
+			return
+
+	# ✅ Host ändert Terrain
 	terrain.edit_quad(quad_id, delta)
-	_rpc_apply_edit(quad_id, delta)
-	turn.server_next_turn()
 
+	# ✅ Broadcast an ALLE (inkl Host)
+	rpc("rpc_apply_edit_quad", quad_id, delta)
 
+	# optional: Turn advance
+	if turn_manager and turn_manager.has_method("advance_turn"):
+		turn_manager.call("advance_turn")
+
+# -----------------------------
+# CLIENTS: apply edit
+# -----------------------------
+@rpc("authority", "reliable", "call_local")
+func rpc_apply_edit_quad(quad_id: int, delta: float) -> void:
+	_apply_edit_local(quad_id, delta)
+
+func _apply_edit_local(quad_id: int, delta: float) -> void:
+	if terrain == null:
+		return
+	terrain.edit_quad(quad_id, delta)
