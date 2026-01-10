@@ -6,18 +6,61 @@ const GAME_SCENE := "res://main/game.tscn" # <- bei dir ist das der Pfad
 @onready var skin_input: LineEdit = $MainContainer/Menu/OptionSkin/SkinInput
 @onready var status_label: Label = $MainContainer/StatusLabel
 
-func _ready() -> void:
+
+@onready var menu := $MainContainer/Menu
+@onready var lobby := $MainContainer/Lobby
+
+@onready var ip_input: LineEdit = $MainContainer/Menu/OptionIP/AddressInput
+@onready var port_input: LineEdit = $MainContainer/Menu/OptionPort/PortInput
+
+@onready var player_list: ItemList = $MainContainer/Lobby/PlayerList
+@onready var team_a_label: Label = $MainContainer/Lobby/TeamsRow/TeamABox/TeamALabel
+@onready var team_b_label: Label = $MainContainer/Lobby/TeamsRow/TeamBBox/TeamBLabel
+@onready var team_a_list: ItemList = $MainContainer/Lobby/TeamsRow/TeamABox/TeamAList
+@onready var team_b_list: ItemList = $MainContainer/Lobby/TeamsRow/TeamBBox/TeamBList
+@onready var lobby_status: Label = $MainContainer/Lobby/LobbyStatusLabel
+
+@onready var start_btn: Button = $MainContainer/Lobby/LobbyButtons/StartGameButton
+@onready var back_btn: Button = $MainContainer/Lobby/LobbyButtons/BackButton
+
+@onready var host_btn: Button = $MainContainer/Menu/Buttons/HostButton
+@onready var join_btn: Button = $MainContainer/Menu/Buttons/JoinButton
+
+
+func _ready():
+	print("Net exists:", Net)
+	menu.visible = true
+	lobby.visible = false
+
+	start_btn.pressed.connect(_on_start_game_pressed)
+	back_btn.pressed.connect(_on_back_pressed)
+
+	Net.players_changed.connect(_refresh_lobby)
+	Net.lobby_started.connect(_open_lobby)
+	Net.start_game.connect(_enter_game)
 	print("MENU READY ✅")
 
-func _on_host_pressed() -> void:
-	print("HOST PRESSED ✅ (no network)")
-	_save_prefs()
-	_start_game()
+func _on_host_pressed():
+	var port := int(port_input.text)
+	var name := nick_input.text.strip_edges()
+	if name == "": name = "Host"
 
-func _on_join_pressed() -> void:
-	print("JOIN PRESSED ✅ (no network)")
-	_save_prefs()
-	_start_game()
+	var err = Net.host(port, name)
+	status_label.text = "HOST err=%s" % err
+	if err == OK:
+		_open_lobby()
+
+func _on_join_pressed():
+	join_btn.disabled = true
+	var port := int(port_input.text)
+	var ip := ip_input.text.strip_edges()
+	var name := nick_input.text.strip_edges()
+	if name == "": name = "Client"
+
+	var err = Net.join(ip, port, name)
+	status_label.text = "JOIN err=%s" % err
+	# lobby öffnet sich bei connected_to_server über Signal
+
 
 func _on_quit_pressed() -> void:
 	get_tree().quit()
@@ -63,112 +106,49 @@ func _save_prefs() -> void:
 	cfg.save("user://player.cfg")
 
 
-# extends Control
+func _open_lobby():
+	menu.visible = false
+	lobby.visible = true
+	_refresh_lobby()
 
-# const GAME_SCENE := "res://main/game.tscn" # <-- ggf. anpassen
-# const DEFAULT_IP := "127.0.0.1"
-# const DEFAULT_PORT := 12345
-# const MAX_PLAYERS := 4
+func _refresh_lobby():
+	player_list.clear()
+	team_a_list.clear()
+	team_b_list.clear()
 
-# @onready var host_btn: Button = $MainContainer/Menu/Buttons/HostButton
-# @onready var join_btn: Button = $MainContainer/Menu/Buttons/JoinButton
-# @onready var quit_btn: Button = $MainContainer/Menu/BottomRow/QuitButton
+	for id in Net.players.keys():
+		var pid := int(id)
+		var p: Dictionary = Net.players[id]
+		var nick := str(p.get("name", "Player"))
+		var team := str(p.get("team", "A"))
 
-# @onready var nick_input: LineEdit = $MainContainer/Menu/OptionNick/NickInput
-# @onready var skin_input: LineEdit = $MainContainer/Menu/OptionSkin/SkinInput
-# @onready var ip_input: LineEdit = $MainContainer/Menu/OptionIP/AddressInput
-# @onready var port_input: LineEdit = $MainContainer/Menu/OptionPort/PortInput
+		if pid == int(Net.host_id):
+			nick += " (host)"
 
-# @onready var status_label: Label = $MainContainer/StatusLabel
+		player_list.add_item("%s  (Team %s)" % [nick, team])
 
-# var peer: ENetMultiplayerPeer
+		if team == "A":
+			team_a_list.add_item(nick)
+		else:
+			team_b_list.add_item(nick)
 
-# func _ready() -> void:
-# 	print("MENU READY ✅")
+	start_btn.disabled = !Net.is_host() or !Net.can_start_game()
+	lobby_status.text = "Players: %d/4" % Net.players.size()
 
-# 	# Button signals per code (egal ob in .tscn verkabelt oder nicht)
-# 	host_btn.pressed.connect(_on_host_pressed)
-# 	join_btn.pressed.connect(_on_join_pressed)
-# 	quit_btn.pressed.connect(_on_quit_pressed)
 
-# 	# Multiplayer callbacks (für JOIN wichtig)
-# 	multiplayer.connected_to_server.connect(_on_connected_to_server)
-# 	multiplayer.connection_failed.connect(_on_connection_failed)
 
-# 	# Defaults
-# 	if ip_input.text.strip_edges() == "":
-# 		ip_input.text = DEFAULT_IP
-# 	if port_input.text.strip_edges() == "":
-# 		port_input.text = str(DEFAULT_PORT)
+func _on_start_game_pressed():
+	Net.request_start_game()
 
-# func _on_host_pressed() -> void:
-# 	print("HOST PRESSED ✅")
-# 	_save_prefs()
+func _enter_game():
+	# Menü ausblenden und main.gd starten lassen
+	visible = false
+	if get_tree().current_scene and get_tree().current_scene.has_method("on_multiplayer_menu_closed"):
+		get_tree().current_scene.on_multiplayer_menu_closed()
 
-# 	var port := _read_port()
-# 	status_label.text = "Hosting on port %d..." % port
 
-# 	peer = ENetMultiplayerPeer.new()
-# 	var err := peer.create_server(port, MAX_PLAYERS)
-# 	print("create_server err=", err)
-# 	if err != OK:
-# 		status_label.text = "Host failed: %s" % err
-# 		return
-
-# 	multiplayer.multiplayer_peer = peer
-# 	_go_to_game()
-
-# func _on_join_pressed() -> void:
-# 	print("JOIN PRESSED ✅")
-# 	_save_prefs()
-
-# 	var ip := ip_input.text.strip_edges()
-# 	if ip == "":
-# 		ip = DEFAULT_IP
-
-# 	var port := _read_port()
-# 	status_label.text = "Joining %s:%d..." % [ip, port]
-
-# 	peer = ENetMultiplayerPeer.new()
-# 	var err := peer.create_client(ip, port)
-# 	print("create_client err=", err)
-# 	if err != OK:
-# 		status_label.text = "Join failed: %s" % err
-# 		return
-
-# 	multiplayer.multiplayer_peer = peer
-# 	# Wechsel erst nach _on_connected_to_server()
-
-# func _on_connected_to_server() -> void:
-# 	print("CONNECTED ✅")
-# 	status_label.text = "Connected!"
-# 	_go_to_game()
-
-# func _on_connection_failed() -> void:
-# 	print("CONNECTION FAILED ❌")
-# 	status_label.text = "Connection failed."
-
-# func _on_quit_pressed() -> void:
-# 	get_tree().quit()
-
-# func _go_to_game() -> void:
-# 	print("GO TO GAME:", GAME_SCENE)
-# 	var err := get_tree().change_scene_to_file(GAME_SCENE)
-# 	print("change_scene err=", err)
-# 	if err != OK:
-# 		status_label.text = "Game scene not found."
-# 		push_error("Could not load: %s" % GAME_SCENE)
-
-# func _read_port() -> int:
-# 	var s := port_input.text.strip_edges()
-# 	if s.is_valid_int():
-# 		var p := int(s)
-# 		if p > 0 and p < 65536:
-# 			return p
-# 	return DEFAULT_PORT
-
-# func _save_prefs() -> void:
-# 	var cfg := ConfigFile.new()
-# 	cfg.set_value("player", "nickname", nick_input.text.strip_edges())
-# 	cfg.set_value("player", "skin", skin_input.text.strip_edges())
-# 	cfg.save("user://player.cfg")
+func _on_back_pressed():
+	# optional: disconnect
+	# Net.leave() -> wenn du das noch baust
+	menu.visible = true
+	lobby.visible = false

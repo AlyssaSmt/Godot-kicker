@@ -76,7 +76,7 @@ alignment = 1
 [node name="Label" type="Label" parent="MainContainer/Menu/OptionSkin"]
 layout_mode = 2
 theme_override_font_sizes/font_size = 35
-text = "Player Skin : "
+text = "Team color(Blue/Red) : "
 
 [node name="SkinInput" type="LineEdit" parent="MainContainer/Menu/OptionSkin"]
 layout_mode = 2
@@ -157,6 +157,66 @@ flat = true
 [node name="StatusLabel" type="Label" parent="MainContainer"]
 layout_mode = 2
 theme_override_font_sizes/font_size = 24
+
+[node name="Lobby" type="VBoxContainer" parent="MainContainer"]
+visible = false
+layout_mode = 2
+alignment = 1
+
+[node name="Lobby" type="Label" parent="MainContainer/Lobby"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 40
+text = "LOBBY"
+horizontal_alignment = 1
+
+[node name="PlayerList" type="ItemList" parent="MainContainer/Lobby"]
+layout_mode = 2
+
+[node name="TeamsRow" type="HBoxContainer" parent="MainContainer/Lobby"]
+layout_mode = 2
+alignment = 1
+
+[node name="TeamABox" type="VBoxContainer" parent="MainContainer/Lobby/TeamsRow"]
+layout_mode = 2
+
+[node name="TeamALabel" type="Label" parent="MainContainer/Lobby/TeamsRow/TeamABox"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 30
+text = "Team A"
+
+[node name="TeamAList" type="ItemList" parent="MainContainer/Lobby/TeamsRow/TeamABox"]
+layout_mode = 2
+
+[node name="TeamBBox" type="VBoxContainer" parent="MainContainer/Lobby/TeamsRow"]
+layout_mode = 2
+
+[node name="TeamBLabel" type="Label" parent="MainContainer/Lobby/TeamsRow/TeamBBox"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 30
+text = "Team B"
+
+[node name="TeamBList" type="ItemList" parent="MainContainer/Lobby/TeamsRow/TeamBBox"]
+layout_mode = 2
+
+[node name="LobbyStatusLabel" type="Label" parent="MainContainer/Lobby"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 20
+text = "Waiting…"
+horizontal_alignment = 1
+
+[node name="LobbyButtons" type="HBoxContainer" parent="MainContainer/Lobby"]
+layout_mode = 2
+alignment = 1
+
+[node name="StartGameButton" type="Button" parent="MainContainer/Lobby/LobbyButtons"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 25
+text = "START GAME"
+
+[node name="BackButton" type="Button" parent="MainContainer/Lobby/LobbyButtons"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 25
+text = "RETURN TO MENU"
 
 [connection signal="pressed" from="MainContainer/Menu/Buttons/HostButton" to="." method="_on_host_pressed"]
 [connection signal="pressed" from="MainContainer/Menu/Buttons/JoinButton" to="." method="_on_join_pressed"]
