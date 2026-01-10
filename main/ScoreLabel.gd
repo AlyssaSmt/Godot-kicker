@@ -1,6 +1,6 @@
 extends Label
 
-@onready var score_manager := get_node("/root/main/ScoreManager")
+@onready var score_manager := get_node_or_null("/root/main/ScoreManager")
 
 func _ready():
 	if score_manager == null:

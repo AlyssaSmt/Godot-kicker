@@ -10,8 +10,8 @@ var time_left: int
 var running := false
 var _accum := 0.0
 
-@onready var score_manager: Node = get_node(score_manager_path)
-@onready var ui: Node = get_node(ui_path)
+@onready var score_manager: Node = get_node_or_null(score_manager_path)
+@onready var ui: Node = get_node_or_null(ui_path)
 
 func _ready() -> void:
 	# NICHT automatisch starten – wartet auf Menü-Start
