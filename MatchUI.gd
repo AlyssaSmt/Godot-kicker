@@ -69,9 +69,9 @@ func show_end_screen(left_score: int, right_score: int, winner_text: String) -> 
 
 	# Gewinner optisch hervorheben (optional)
 	# If you use exact strings "Team Blue wins!" / "Team Red wins!":
-	if winner_text.find("Blue") != -1 or winner_text.find("Blau") != -1:
+	if winner_text.find("Blue") != -1:
 		title_label.modulate = Color(0.6, 0.75, 1.0) # leicht blau
-	elif winner_text.find("Red") != -1 or winner_text.find("Rot") != -1:
+	elif winner_text.find("Red") != -1:
 		title_label.modulate = Color(1.0, 0.65, 0.65) # leicht rot
 	else:
 		title_label.modulate = Color(1, 1, 1)

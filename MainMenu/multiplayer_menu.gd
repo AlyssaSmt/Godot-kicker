@@ -120,14 +120,14 @@ func _refresh_lobby():
 		var pid := int(id)
 		var p: Dictionary = Net.players[id]
 		var nick := str(p.get("name", "Player"))
-		var team := str(p.get("team", "A"))
+		var team := str(p.get("team", "Blue"))
 
 		if pid == int(Net.host_id):
 			nick += " (host)"
 
 		player_list.add_item("%s  (Team %s)" % [nick, team])
 
-		if team == "A":
+		if team == "Blue":
 			team_a_list.add_item(nick)
 		else:
 			team_b_list.add_item(nick)

@@ -6,7 +6,7 @@ signal request_forfeit(team_name: String)
 signal request_resume
 signal request_score_reset
 
-@export var team_name_local: String = "Team A"
+@export var team_name_local: String = "Team Blue"
 @export var score_manager_path: NodePath
 
 
@@ -92,10 +92,10 @@ func clear_votes() -> void:
 # Voting
 # =========================
 func _get_local_vote() -> bool:
-	return vote_a if team_name_local == "Team A" else vote_b
+	return vote_a if team_name_local == "Team Blue" else vote_b
 
 func _set_local_vote(value: bool) -> void:
-	if team_name_local == "Team A":
+	if team_name_local == "Team Blue":
 		vote_a = value
 	else:
 		vote_b = value
@@ -105,7 +105,7 @@ func _update_vote_text() -> void:
 	if vote_label:
 		var a_txt := "✅" if vote_a else "❌"
 		var b_txt := "✅" if vote_b else "❌"
-		vote_label.text = "Reset votes – Team A: %s | Team B: %s" % [a_txt, b_txt]
+		vote_label.text = "Reset votes – Team Blue: %s | Team Red: %s" % [a_txt, b_txt]
 
 	if reset_button:
 		reset_button.text = "Retract reset vote" if _get_local_vote() else "Vote reset"

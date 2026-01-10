@@ -1,6 +1,6 @@
 extends Area3D
 
-@export var team_name := "Team A"
+@export var team_name := "Team Blue"
 
 signal goal_scored(team_name: String)
 

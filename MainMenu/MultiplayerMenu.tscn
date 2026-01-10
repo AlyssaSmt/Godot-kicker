@@ -182,7 +182,7 @@ layout_mode = 2
 [node name="TeamALabel" type="Label" parent="MainContainer/Lobby/TeamsRow/TeamABox"]
 layout_mode = 2
 theme_override_font_sizes/font_size = 30
-text = "Team A"
+text = "Team Blue"
 
 [node name="TeamAList" type="ItemList" parent="MainContainer/Lobby/TeamsRow/TeamABox"]
 layout_mode = 2
@@ -193,7 +193,7 @@ layout_mode = 2
 [node name="TeamBLabel" type="Label" parent="MainContainer/Lobby/TeamsRow/TeamBBox"]
 layout_mode = 2
 theme_override_font_sizes/font_size = 30
-text = "Team B"
+text = "Team Red"
 
 [node name="TeamBList" type="ItemList" parent="MainContainer/Lobby/TeamsRow/TeamBBox"]
 layout_mode = 2

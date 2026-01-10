@@ -97,10 +97,10 @@ func forfeit(loser_team_name: String) -> void:
 
 	var winner_text := "Draw!"
 	# IMPORTANT: Adjust team names to YOUR game if needed
-	# Here: Team A = Blue, Team B = Red
-	if loser_team_name == "Team A":
+	# Here: Team Blue (formerly Team A) and Team Red (formerly Team B)
+	if loser_team_name == "Team Blue":
 		winner_text = "Team Red wins! (Forfeit)"
-	elif loser_team_name == "Team B":
+	elif loser_team_name == "Team Red":
 		winner_text = "Team Blue wins! (Forfeit)"
 	else:
 		winner_text = "Opponent wins! (Forfeit)"

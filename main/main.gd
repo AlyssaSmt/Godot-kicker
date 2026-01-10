@@ -100,7 +100,7 @@ func _on_goal_scored(team_name: String) -> void:
 
 func _on_help_pressed() -> void:
 	# (Optional) here you can set team_name_local:
-	# pause_menu.team_name_local = "Team A"  # or "Team B"
+	# pause_menu.team_name_local = "Team Blue"  # or "Team Red"
 
 	pause_menu.set_votes(reset_vote_a, reset_vote_b)
 	pause_menu.open_menu()
@@ -109,9 +109,9 @@ func _on_help_pressed() -> void:
 func _on_reset_requested(team_name: String, wants_reset: bool) -> void:
 	var t := team_name.strip_edges().to_upper()
 
-	if t == "TEAM A":
+	if t == "TEAM BLUE":
 		reset_vote_a = wants_reset
-	elif t == "TEAM B":
+	elif t == "TEAM RED":
 		reset_vote_b = wants_reset
 	else:
 		print("⚠️ Unknown team:", team_name)

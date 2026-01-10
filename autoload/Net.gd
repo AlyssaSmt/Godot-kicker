@@ -24,10 +24,10 @@ func host(port: int, my_name: String) -> int:
 	multiplayer.multiplayer_peer = peer
 	players.clear()
 
-	# host add self
+	# host add self (default to Team Blue)
 	var id := multiplayer.get_unique_id()
 	host_id = id
-	players[id] = {"name": my_name, "team": "A"}
+	players[id] = {"name": my_name, "team": "Blue"}
 	emit_signal("players_changed")
 
 	multiplayer.peer_connected.connect(_on_peer_connected)
@@ -78,23 +78,23 @@ func rpc_register(id: int, name: String) -> void:
 
 	# ✅ Wenn der Spieler schon existiert: nur Name updaten, Team behalten
 	if players.has(id):
-		var old_team := str(players[id].get("team", "A"))
+		var old_team := str(players[id].get("team", "Blue"))
 		players[id] = {"name": name, "team": old_team}
 		emit_signal("players_changed")
 		rpc("rpc_sync_players", players)
 		rpc("rpc_sync_host", host_id)
 		return
 
-	# team assignment: alternate A/B (nur beim ersten Mal!)
-	var count_a := 0
-	var count_b := 0
+	# team assignment: alternate Blue/Red (nur beim ersten Mal!)
+	var count_blue := 0
+	var count_red := 0
 	for k in players.keys():
-		if str(players[k].get("team","A")) == "A":
-			count_a += 1
+		if str(players[k].get("team","Blue")) == "Blue":
+			count_blue += 1
 		else:
-			count_b += 1
+			count_red += 1
 
-	var team := "A" if count_a <= count_b else "B"
+	var team := "Blue" if count_blue <= count_red else "Red"
 
 	players[id] = {"name": name, "team": team}
 	emit_signal("players_changed")

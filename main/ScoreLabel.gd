@@ -8,7 +8,7 @@ func _ready():
 		return
 
 	score_manager.connect("score_changed", Callable(self, "_update_score"))
-	_update_score(score_manager.score_team_a, score_manager.score_team_b)
+	_update_score(score_manager.get_left_score(), score_manager.get_right_score())
 
 func _update_score(a: int, b: int):
 	text = str(a, " : ", b)

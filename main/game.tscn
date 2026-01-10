@@ -65,7 +65,7 @@ quad_edit_controller_path = NodePath("../QuadEditController")
 [node name="ArenaBounds" parent="." instance=ExtResource("4_3opah")]
 
 [node name="BallNode" parent="." instance=ExtResource("5_f7tpv")]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.5, 0)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 3, 0)
 mass = 0.467
 
 [node name="FieldLinesDynamic" parent="." node_paths=PackedStringArray("terrain") instance=ExtResource("6_h47m8")]
@@ -86,7 +86,7 @@ transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1.2, -35.5)
 
 [node name="GoalDetectorRight" parent="." instance=ExtResource("9_dfc64")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1.2, 35.5)
-team_name = "Team B"
+team_name = "Team Red"
 
 [node name="ScoreManager" parent="." instance=ExtResource("10_811gj")]
 
@@ -235,7 +235,6 @@ text = "Reset terrain"
 [node name="ForfeitButton" type="Button" parent="HelpUI/PauseMenu/HelpPanel/Card/MarginContainer/VBoxContainer/HBoxContainer"]
 layout_mode = 2
 text = "Forfeit"
-
 
 [node name="VoteLabel" type="Label" parent="HelpUI/PauseMenu/HelpPanel/Card/MarginContainer/VBoxContainer"]
 layout_mode = 2
