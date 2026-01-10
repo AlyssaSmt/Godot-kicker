@@ -159,7 +159,6 @@ layout_mode = 2
 theme_override_font_sizes/font_size = 24
 
 [node name="Lobby" type="VBoxContainer" parent="MainContainer"]
-visible = false
 layout_mode = 2
 alignment = 1
 
@@ -171,6 +170,7 @@ horizontal_alignment = 1
 
 [node name="PlayerList" type="ItemList" parent="MainContainer/Lobby"]
 layout_mode = 2
+size_flags_vertical = 3
 
 [node name="TeamsRow" type="HBoxContainer" parent="MainContainer/Lobby"]
 layout_mode = 2
@@ -186,6 +186,7 @@ text = "Team Blue"
 
 [node name="TeamAList" type="ItemList" parent="MainContainer/Lobby/TeamsRow/TeamABox"]
 layout_mode = 2
+size_flags_vertical = 3
 
 [node name="TeamBBox" type="VBoxContainer" parent="MainContainer/Lobby/TeamsRow"]
 layout_mode = 2
@@ -197,6 +198,7 @@ text = "Team Red"
 
 [node name="TeamBList" type="ItemList" parent="MainContainer/Lobby/TeamsRow/TeamBBox"]
 layout_mode = 2
+size_flags_vertical = 3
 
 [node name="LobbyStatusLabel" type="Label" parent="MainContainer/Lobby"]
 layout_mode = 2
