@@ -69,22 +69,6 @@ placeholder_text = "YourNick"
 max_length = 20
 expand_to_text_length = true
 
-[node name="OptionSkin" type="HBoxContainer" parent="MainContainer/Menu"]
-layout_mode = 2
-alignment = 1
-
-[node name="Label" type="Label" parent="MainContainer/Menu/OptionSkin"]
-layout_mode = 2
-theme_override_font_sizes/font_size = 35
-text = "Team color(Blue/Red) : "
-
-[node name="SkinInput" type="LineEdit" parent="MainContainer/Menu/OptionSkin"]
-layout_mode = 2
-theme_override_font_sizes/font_size = 35
-placeholder_text = "blue"
-alignment = 1
-expand_to_text_length = true
-
 [node name="OptionIP" type="HBoxContainer" parent="MainContainer/Menu"]
 layout_mode = 2
 alignment = 1
@@ -160,6 +144,7 @@ theme_override_font_sizes/font_size = 24
 
 [node name="Lobby" type="VBoxContainer" parent="MainContainer"]
 layout_mode = 2
+size_flags_vertical = 3
 alignment = 1
 
 [node name="Lobby" type="Label" parent="MainContainer/Lobby"]
@@ -188,6 +173,10 @@ text = "Team Blue"
 layout_mode = 2
 size_flags_vertical = 3
 
+[node name="TeamAButton" type="Button" parent="MainContainer/Lobby/TeamsRow/TeamABox"]
+layout_mode = 2
+text = "Join Team Blue"
+
 [node name="TeamBBox" type="VBoxContainer" parent="MainContainer/Lobby/TeamsRow"]
 layout_mode = 2
 
@@ -199,6 +188,10 @@ text = "Team Red"
 [node name="TeamBList" type="ItemList" parent="MainContainer/Lobby/TeamsRow/TeamBBox"]
 layout_mode = 2
 size_flags_vertical = 3
+
+[node name="TeamBButton" type="Button" parent="MainContainer/Lobby/TeamsRow/TeamBBox"]
+layout_mode = 2
+text = "Join Team Red"
 
 [node name="LobbyStatusLabel" type="Label" parent="MainContainer/Lobby"]
 layout_mode = 2

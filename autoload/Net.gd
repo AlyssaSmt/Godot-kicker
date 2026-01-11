@@ -127,3 +127,50 @@ func request_start_game() -> void:
 @rpc("authority", "reliable", "call_local")
 func rpc_start_game() -> void:
 	emit_signal("start_game")
+
+
+func request_team_change(team: String) -> void:
+	if team != "A" and team != "B":
+		return
+
+	# Wenn Host: direkt ausführen
+	if is_host():
+		_server_set_team(multiplayer.get_unique_id(), team)
+		return
+
+	# Wenn Client: Host fragen (id 1)
+	rpc_id(1, "rpc_request_team_change", multiplayer.get_unique_id(), team)
+
+@rpc("any_peer", "reliable")
+func rpc_request_team_change(peer_id: int, team: String) -> void:
+	if !is_host():
+		return
+	if team != "A" and team != "B":
+		return
+
+	_server_set_team(peer_id, team)
+
+func _server_set_team(peer_id: int, team: String) -> void:
+	if !players.has(peer_id):
+		return
+
+	# Optional: Team-Limit (2v2)
+	var count_a := 0
+	var count_b := 0
+	for k in players.keys():
+		var t := str(players[k].get("team", "A"))
+		if t == "A": count_a += 1
+		else: count_b += 1
+
+	# Beispiel-Regel: max 2 pro Team
+	if team == "A" and count_a >= 2:
+		# optional: feedback an client
+		return
+	if team == "B" and count_b >= 2:
+		return
+
+	players[peer_id]["team"] = team
+
+	emit_signal("players_changed")
+	rpc("rpc_sync_players", players)
+	rpc("rpc_sync_host", host_id)

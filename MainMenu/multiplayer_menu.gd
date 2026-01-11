@@ -26,6 +26,9 @@ const GAME_SCENE := "res://main/game.tscn" # <- bei dir ist das der Pfad
 @onready var host_btn: Button = $MainContainer/Menu/Buttons/HostButton
 @onready var join_btn: Button = $MainContainer/Menu/Buttons/JoinButton
 
+@onready var team_a_btn: Button = $MainContainer/Lobby/TeamsRow/TeamABox/TeamAButton
+@onready var team_b_btn: Button = $MainContainer/Lobby/TeamsRow/TeamBBox/TeamBButton
+
 
 func _ready():
 	print("Net exists:", Net)
@@ -35,10 +38,17 @@ func _ready():
 	start_btn.pressed.connect(_on_start_game_pressed)
 	back_btn.pressed.connect(_on_back_pressed)
 
+	team_a_btn.pressed.connect(func(): Net.request_team_change("A"))
+	team_b_btn.pressed.connect(func(): Net.request_team_change("B"))
+
 	Net.players_changed.connect(_refresh_lobby)
 	Net.lobby_started.connect(_open_lobby)
 	Net.start_game.connect(_enter_game)
 	print("MENU READY ✅")
+
+	_force_itemlist_visible(player_list)
+	_force_itemlist_visible(team_a_list)
+	_force_itemlist_visible(team_b_list)
 
 func _on_host_pressed():
 	var port := int(port_input.text)
@@ -112,6 +122,7 @@ func _open_lobby():
 	_refresh_lobby()
 
 func _refresh_lobby():
+	player_list.visible = false # oder player_list.queue_free() wenn du willst
 	player_list.clear()
 	team_a_list.clear()
 	team_b_list.clear()
@@ -120,17 +131,21 @@ func _refresh_lobby():
 		var pid := int(id)
 		var p: Dictionary = Net.players[id]
 		var nick := str(p.get("name", "Player"))
-		var team := str(p.get("team", "Blue"))
+		var team := str(p.get("team", "A"))  # ✅ default A
 
+		var display := nick
 		if pid == int(Net.host_id):
-			nick += " (host)"
+			display += " (host)"
 
-		player_list.add_item("%s  (Team %s)" % [nick, team])
+		# ✅ nice UI name
+		var team_name := "Blue" if team == "A" else "Red"
+		player_list.add_item("%s  (Team %s)" % [display, team_name])
 
-		if team == "Blue":
-			team_a_list.add_item(nick)
+		# ✅ lists under Team A / Team B
+		if team == "A":
+			team_a_list.add_item(display)
 		else:
-			team_b_list.add_item(nick)
+			team_b_list.add_item(display)
 
 	start_btn.disabled = !Net.is_host() or !Net.can_start_game()
 	lobby_status.text = "Players: %d/4" % Net.players.size()
@@ -159,3 +174,17 @@ func _on_back_pressed():
 	# Net.leave() -> wenn du das noch baust
 	menu.visible = true
 	lobby.visible = false
+
+func _force_itemlist_visible(list: ItemList) -> void:
+	if list == null:
+		return
+
+	list.add_theme_color_override("font_color", Color(1,1,1))
+	list.add_theme_color_override("font_selected_color", Color(1,1,1))
+	list.add_theme_color_override("font_hover_color", Color(1,1,1))
+
+	# ↓ nur kleine Mindesthöhe, damit Buttons Platz haben
+	list.custom_minimum_size = Vector2(260, 90)
+
+	list.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	list.size_flags_vertical = Control.SIZE_EXPAND_FILL
