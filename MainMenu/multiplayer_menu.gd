@@ -70,6 +70,8 @@ func _on_join_pressed():
 	var err = Net.join(ip, port, name)
 	status_label.text = "JOIN err=%s" % err
 	# lobby öffnet sich bei connected_to_server über Signal
+	if err != OK:
+		join_btn.disabled = false
 
 
 func _on_quit_pressed() -> void:
@@ -174,6 +176,11 @@ func _on_back_pressed():
 	# Net.leave() -> wenn du das noch baust
 	menu.visible = true
 	lobby.visible = false
+	# Re-enable join/host buttons so user can try again
+	if join_btn:
+		join_btn.disabled = false
+	if host_btn:
+		host_btn.disabled = false
 
 func _force_itemlist_visible(list: ItemList) -> void:
 	if list == null:

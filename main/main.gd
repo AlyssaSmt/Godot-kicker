@@ -58,6 +58,7 @@ func _ready() -> void:
 	# PauseMenu Signale
 	pause_menu.request_reset.connect(_on_reset_requested)
 	pause_menu.request_forfeit.connect(_on_forfeit_requested)
+	pause_menu.request_resume.connect(_on_resume_requested)
 	
 	match_running = false
 
@@ -93,8 +94,12 @@ func _on_help_pressed() -> void:
 	# (Optional) here you can set team_name_local:
 	# pause_menu.team_name_local = "Team Blue"  # or "Team Red"
 
+	# Network-aware: ask host to open the pause menu for everyone
 	pause_menu.set_votes(reset_vote_a, reset_vote_b)
-	pause_menu.open_menu()
+	if multiplayer.multiplayer_peer != null:
+		rpc("_rpc_request_pause", true)
+	else:
+		pause_menu.open_menu()
 
 
 func _on_reset_requested(team_name: String, wants_reset: bool) -> void:
@@ -109,9 +114,12 @@ func _on_reset_requested(team_name: String, wants_reset: bool) -> void:
 
 	pause_menu.set_votes(reset_vote_a, reset_vote_b)
 
+	# If we're in multiplayer, send reset request to host (host will tally votes)
+	if multiplayer.multiplayer_peer != null:
+		rpc("_rpc_request_reset", team_name, wants_reset)
+		return
+
 	if reset_vote_a and reset_vote_b:
-		if multiplayer.multiplayer_peer != null and !multiplayer.is_server():
-			return
 		_do_full_reset()
 		_rpc_full_reset()
 
@@ -148,10 +156,25 @@ func _on_forfeit_requested(team_name: String) -> void:
 
 	pause_menu.close_menu()
 
+	# If we're in multiplayer, send request to host to execute forfeit for everyone
+	if multiplayer.multiplayer_peer != null:
+		rpc("_rpc_request_forfeit", t)
+		return
+
 	if match_manager:
 		match_manager.forfeit(t)
 	else:
-			push_warning("⚠️ MatchManager not found.")
+		push_warning("⚠️ MatchManager not found.")
+
+
+func _on_resume_requested() -> void:
+	# Ask host to resume for all players (host will broadcast)
+	if multiplayer.multiplayer_peer != null:
+		rpc("_rpc_request_resume")
+	else:
+		# singleplayer: just close locally
+		if pause_menu:
+			pause_menu.close_menu()
 
 
 
@@ -263,13 +286,82 @@ func _apply_team_camera() -> void:
 	# Team A schaut von "links" (z.B. von -Z Richtung +Z)
 	# Team B schaut von "rechts" (von +Z Richtung -Z)
 	if my_team == "A":
-		cam_root.global_position = Vector3(0, 18, -60)
+		cam_root.global_position = Vector3(0, 20, -50)
 		cam_root.look_at(Vector3(0, 0, 0), Vector3.UP)
 	else:
-		cam_root.global_position = Vector3(0, 18, 60)
+		cam_root.global_position = Vector3(0, 20, 50)
 		cam_root.look_at(Vector3(0, 0, 0), Vector3.UP)
 
 	print("Camera set for team:", my_team)
+
+# -------------------------
+# Networked UI actions (requests -> host -> broadcast)
+# -------------------------
+
+@rpc("any_peer", "reliable")
+func _rpc_request_forfeit(team_name: String) -> void:
+	# everyone can request; host is authoritative and will broadcast the forfeit
+	if not multiplayer.is_server():
+		return
+	rpc("_rpc_do_forfeit", team_name)
+
+
+@rpc("authority", "reliable", "call_local")
+func _rpc_do_forfeit(team_name: String) -> void:
+	if match_manager:
+		match_manager.forfeit(team_name)
+
+
+@rpc("any_peer", "reliable")
+func _rpc_request_pause(open: bool) -> void:
+	if not multiplayer.is_server():
+		return
+	rpc("_rpc_set_pause", open)
+
+
+@rpc("authority", "reliable", "call_local")
+func _rpc_set_pause(open: bool) -> void:
+	if pause_menu == null:
+		return
+	if open:
+		pause_menu.open_menu()
+	else:
+		pause_menu.close_menu()
+
+
+@rpc("any_peer", "reliable")
+func _rpc_request_resume() -> void:
+	if not multiplayer.is_server():
+		return
+	rpc("_rpc_set_pause", false)
+
+
+@rpc("any_peer", "reliable")
+func _rpc_request_reset(team_name: String, wants_reset: bool) -> void:
+	# Only host tallies votes and performs reset
+	if not multiplayer.is_server():
+		return
+
+	var t := team_name.strip_edges().to_upper()
+	if t == "TEAM BLUE":
+		reset_vote_a = wants_reset
+	elif t == "TEAM RED":
+		reset_vote_b = wants_reset
+	else:
+		print("⚠️ Unknown team in _rpc_request_reset:", team_name)
+
+	# Broadcast updated votes to all players
+	rpc("_rpc_set_votes", reset_vote_a, reset_vote_b)
+
+	if reset_vote_a and reset_vote_b:
+		_do_full_reset()
+		rpc("_rpc_full_reset")
+
+
+@rpc("authority", "reliable", "call_local")
+func _rpc_set_votes(a: bool, b: bool) -> void:
+	if pause_menu:
+		pause_menu.set_votes(a, b)
 
 
 @rpc("authority", "reliable", "call_local")
