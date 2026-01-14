@@ -3,6 +3,7 @@ extends CharacterBody3D
 @export var move_speed := 20.0
 @export var fast_speed := 60.0
 @export var look_sensitivity := 0.003
+@export var mouse_move_sensitivity := 0.08
 
 @export var vertical_speed := 20.0   # Space/Shift up/down
 @export var accel := 18.0            # how fast it accelerates to target speed
@@ -19,6 +20,8 @@ extends CharacterBody3D
 var rotating := false
 var pitch := 0.0
 var yaw := 0.0
+var prev_mouse_pos: Vector2 = Vector2.ZERO
+var prev_mouse_pos_set: bool = false
 
 # Store start transforms
 var start_root_transform: Transform3D
@@ -29,15 +32,36 @@ func _ready():
 	if cam:
 		cam.current = true
 
-	# Read start rotation
-	yaw = rotation_degrees.y
+	# Set initial orientation: yaw=0, camera pitched forward at -60 degrees
+	yaw = 0.0
+	rotation_degrees.y = 0.0
 	if cam:
-		pitch = cam.rotation_degrees.x
+		pitch = -60.0
+		cam.rotation_degrees = Vector3(-60.0, 0.0, 0.0)
 
-	# Remember start transforms
+	# Start with mouse visible (menu/UI)
+	rotating = false
+	Input.set_mouse_mode(Input.MOUSE_MODE_VISIBLE)
+
+	# Remember start transforms so reset_camera restores this pose
 	start_root_transform = global_transform
 	if cam:
 		start_cam_transform = cam.global_transform
+
+
+func set_capture_enabled(enabled: bool) -> void:
+	if enabled:
+		# save current mouse pos so we can restore when unpausing
+		if Input.get_mouse_mode() != Input.MOUSE_MODE_CAPTURED:
+			prev_mouse_pos = get_viewport().get_mouse_position()
+			prev_mouse_pos_set = true
+		Input.set_mouse_mode(Input.MOUSE_MODE_CAPTURED)
+	else:
+		Input.set_mouse_mode(Input.MOUSE_MODE_VISIBLE)
+		if prev_mouse_pos_set:
+			prev_mouse_pos_set = false
+
+	# (start transforms are set in _ready)
 
 
 func reset_camera():
@@ -51,14 +75,27 @@ func reset_camera():
 		pitch = cam.rotation_degrees.x
 
 
+func sync_orientation() -> void:
+	# Update internal yaw/pitch to match current node transforms without moving anything
+	yaw = rotation_degrees.y
+	if cam:
+		pitch = cam.rotation_degrees.x
+
+
 func _unhandled_input(event):
-	# Right mouse button to rotate
+	# Right mouse toggles capture (and ESC to release)
 	if event is InputEventMouseButton and event.button_index == MOUSE_BUTTON_RIGHT:
 		rotating = event.pressed
 		Input.set_mouse_mode(Input.MOUSE_MODE_CAPTURED if rotating else Input.MOUSE_MODE_VISIBLE)
 		return
 
-	# Rotate with mouse
+	# ESC to release mouse-capture
+	if event is InputEventKey and event.keycode == KEY_ESCAPE and event.pressed == false:
+		rotating = false
+		Input.set_mouse_mode(Input.MOUSE_MODE_VISIBLE)
+		return
+
+	# Rotate with mouse when captured/rotating
 	if event is InputEventMouseMotion and rotating:
 		yaw -= event.relative.x * look_sensitivity * 100.0
 		pitch -= event.relative.y * look_sensitivity * 100.0
@@ -69,9 +106,8 @@ func _unhandled_input(event):
 			cam.rotation_degrees.x = pitch
 		return
 
-	# Left click to edit quad (only when not rotating)
-	if event is InputEventMouseButton and event.button_index == MOUSE_BUTTON_LEFT and event.pressed and !rotating:
-		print("LEFT CLICK RECEIVED, rotating=", rotating)
+	# Left click to edit quad (allow while captured; will raycast from center)
+	if event is InputEventMouseButton and event.button_index == MOUSE_BUTTON_LEFT and event.pressed:
 		if quad_edit == null:
 			print("QuadEditController path not set!")
 			return
@@ -120,7 +156,12 @@ func _get_quad_id_under_mouse() -> int:
 	if cam == null or terrain == null:
 		return -1
 
-	var mouse_pos := get_viewport().get_mouse_position()
+	# When mouse is captured we treat the center of the viewport as the pointer
+	var mouse_pos := Vector2.ZERO
+	if Input.get_mouse_mode() == Input.MOUSE_MODE_CAPTURED:
+		mouse_pos = get_viewport().get_visible_rect().size * 0.5
+	else:
+		mouse_pos = get_viewport().get_mouse_position()
 	var from := cam.project_ray_origin(mouse_pos)
 	var to := from + cam.project_ray_normal(mouse_pos) * 5000.0
 

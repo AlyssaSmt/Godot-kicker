@@ -23,12 +23,16 @@ signal request_score_reset
 @onready var forfeit_confirm: ConfirmationDialog = $ForfeitConfirm
 @onready var score_manager := get_node_or_null(score_manager_path)
 
+@onready var dim: CanvasItem = get_node_or_null("Dim")
+@onready var help_panel: CanvasItem = get_node_or_null("HelpPanel")
+
 var vote_a := false
 var vote_b := false
 
 func _ready() -> void:
-	process_mode = Node.PROCESS_MODE_WHEN_PAUSED
-	visible = false
+	# We do NOT rely on global tree pause; keep the menu interactive at all times.
+	process_mode = Node.PROCESS_MODE_ALWAYS
+	_set_menu_visible(false)
 
 	if ui_root == null:
 		push_error("PauseMenu: ui_root_path incorrect: " + str(ui_root_path))
@@ -70,13 +74,32 @@ func _connect_button(btn: Button, cb: Callable, name_for_debug: String) -> void:
 # Public API
 # =========================
 func open_menu() -> void:
-	visible = true
-	get_tree().paused = true
+	open_menu_no_global_pause()
+
+
+func open_menu_no_global_pause() -> void:
+	_set_menu_visible(true)
+
 
 func close_menu() -> void:
-	visible = false
-	get_tree().paused = false
+	close_menu_no_global_pause()
+
+func close_menu_no_global_pause() -> void:
+	_set_menu_visible(false)
 	emit_signal("request_resume")
+
+
+func close_menu_silent() -> void:
+	# Used when the menu is being closed due to an RPC (avoid infinite resume loops)
+	_set_menu_visible(false)
+
+
+func _set_menu_visible(v: bool) -> void:
+	visible = v
+	if dim:
+		dim.visible = v
+	if help_panel:
+		help_panel.visible = v
 
 func set_votes(a: bool, b: bool) -> void:
 	vote_a = a
@@ -128,7 +151,8 @@ func _on_close_pressed() -> void:
 func _on_forfeit_confirmed() -> void:
 	emit_signal("request_score_reset")
 	emit_signal("request_forfeit", team_name_local)
-	close_menu()
+	# Don't emit resume when forfeiting; game is ending.
+	close_menu_silent()
 
 
 # (No built-in main-menu handler in PauseMenu anymore)

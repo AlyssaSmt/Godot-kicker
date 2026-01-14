@@ -41,7 +41,7 @@ ssao_enabled = true
 glow_enabled = true
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_n3o0a"]
-bg_color = Color(0.13333334, 0.13333334, 0.13333334, 1)
+bg_color = Color(0.133333, 0.133333, 0.133333, 1)
 corner_radius_top_left = 12
 corner_radius_top_right = 12
 corner_radius_bottom_right = 12
@@ -98,7 +98,7 @@ team_name = "Team Red"
 anchors_preset = -1
 anchor_right = 1.0
 anchor_bottom = 0.035
-offset_bottom = 0.3199997
+offset_bottom = 0.32
 grow_horizontal = 2
 theme_override_font_sizes/font_size = 26
 horizontal_alignment = 1
@@ -111,7 +111,7 @@ score_manager_path = NodePath("../ScoreManager")
 ui_path = NodePath("../MatchUI")
 
 [node name="EditorCameraRoot" type="CharacterBody3D" parent="."]
-transform = Transform3D(1, 0, 0, 0, 0.90708077, -0.42095664, 0, 0.42095664, 0.90708077, 0, 17.071884, 38.675117)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 17.0719, 38.6751)
 collision_layer = 2
 script = ExtResource("15_lbmwo")
 terrain_path = NodePath("../TerrainGeneration")
@@ -121,10 +121,10 @@ quad_edit_controller_path = NodePath("../QuadEditController")
 shape = SubResource("CapsuleShape3D_s758e")
 
 [node name="EditorCamera" type="Camera3D" parent="EditorCameraRoot"]
-transform = Transform3D(1, 0, 0, 0, 0.49999997, 0.86602545, 0, -0.86602545, 0.49999997, 0, 0, 0)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0)
 
 [node name="DirectionalLight3D" type="DirectionalLight3D" parent="."]
-transform = Transform3D(-0.11453849, 0.41783294, -0.90127504, -0.077132314, 0.90076643, 0.42739955, 0.9904199, 0.11847113, -0.070944026, -90.21393, 20.400438, 2.0428429)
+transform = Transform3D(-0.114538, 0.417833, -0.901275, -0.0771323, 0.900766, 0.4274, 0.99042, 0.118471, -0.070944, -90.2139, 20.4004, 2.04284)
 
 [node name="WorldEnvironment" type="WorldEnvironment" parent="."]
 environment = SubResource("Environment_ig7tw")
@@ -158,7 +158,7 @@ anchor_right = 1.0
 anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
-color = Color(0, 0, 0, 0.7019608)
+color = Color(0, 0, 0, 0.701961)
 
 [node name="HelpPanel" type="Panel" parent="HelpUI/PauseMenu"]
 layout_mode = 1
@@ -240,7 +240,6 @@ text = "Forfeit"
 layout_mode = 2
 
 [node name="ForfeitConfirm" type="ConfirmationDialog" parent="HelpUI/PauseMenu"]
-oversampling_override = 1.0
 size = Vector2i(427, 100)
 ok_button_text = "Forfeit?"
 dialog_text = "Do you really want to Forfeit? You will lose this game."

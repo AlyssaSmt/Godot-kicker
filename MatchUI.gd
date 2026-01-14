@@ -102,12 +102,22 @@ func hide_end_screen() -> void:
 	# hud.visible = true
 
 func _on_play_again() -> void:
+	var root := get_tree().current_scene
+	if root and root.has_method("request_play_again"):
+		root.call_deferred("request_play_again")
+		return
+	# Fallback (singleplayer/dev)
 	get_tree().paused = false
 	get_tree().reload_current_scene()
 
 func _on_main_menu() -> void:
-	get_tree().paused = false
 	Input.set_mouse_mode(Input.MOUSE_MODE_VISIBLE)
+	var root := get_tree().current_scene
+	if root and root.has_method("request_return_to_menu"):
+		root.call_deferred("request_return_to_menu")
+		return
+	# Fallback
+	get_tree().paused = false
 	var err := get_tree().change_scene_to_file("res://MainMenu/MultiplayerMenu.tscn")
 	if err != OK:
 		push_error("MatchUI: Could not open MultiplayerMenu.tscn: %s" % err)
@@ -121,6 +131,9 @@ func _format_time(total_seconds: int) -> String:
 func start_match_ui() -> void:
 	match_started = true
 	hud.visible = true
+	# Score is shown via main/ScoreLabel.gd (UI/ScoreLabel). Keep this HUD label hidden.
+	if score_label:
+		score_label.visible = false
 
 	# sofort sichtbar initialisieren
 	if timer_label.text.strip_edges() == "":

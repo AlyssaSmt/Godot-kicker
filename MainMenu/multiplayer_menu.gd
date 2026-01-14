@@ -32,6 +32,25 @@ const GAME_SCENE := "res://main/game.tscn" # <- bei dir ist das der Pfad
 
 func _ready():
 	print("Net exists:", Net)
+	get_tree().paused = false
+	# IMPORTANT: This scene is also instanced inside res://main/game.tscn.
+	# If we're embedded in the game, do NOT tear down networking here (it breaks multiplayer/ball sync).
+	var is_standalone_menu := (get_tree().current_scene == self)
+	if is_standalone_menu:
+		# Always start the main menu in a clean disconnected state.
+		if Net and Net.has_method("leave_local"):
+			Net.leave_local()
+		# Don't keep old join fields around between sessions.
+		if ip_input:
+			ip_input.text = ""
+		if port_input:
+			port_input.text = ""
+	# Reset UI state
+	status_label.text = ""
+	if join_btn:
+		join_btn.disabled = false
+	if host_btn:
+		host_btn.disabled = false
 	menu.visible = true
 	lobby.visible = false
 
@@ -43,6 +62,12 @@ func _ready():
 
 	Net.players_changed.connect(_refresh_lobby)
 	Net.lobby_started.connect(_open_lobby)
+	Net.connect_failed.connect(func():
+		status_label.text = "JOIN failed"
+		join_btn.disabled = false
+		if host_btn:
+			host_btn.disabled = false
+	)
 	Net.start_game.connect(_enter_game)
 	print("MENU READY ✅")
 
@@ -51,27 +76,50 @@ func _ready():
 	_force_itemlist_visible(team_b_list)
 
 func _on_host_pressed():
-	var port := int(port_input.text)
+	# safe port parsing: fallback to 12345 when input empty or invalid
+	var port := 12345
+	if port_input and port_input.text.strip_edges() != "":
+		port = int(port_input.text)
 	var name := nick_input.text.strip_edges()
 	if name == "": name = "Host"
 
 	var err = Net.host(port, name)
-	status_label.text = "HOST err=%s" % err
-	if err == OK:
-		_open_lobby()
+	if err != OK:
+		status_label.text = "HOST err=%s" % err
+		push_error("Net.host failed with err=%s on port %d" % [err, port])
+		# re-enable buttons so user can try again
+		if host_btn:
+			host_btn.disabled = false
+		if join_btn:
+			join_btn.disabled = false
+		return
+
+	status_label.text = "Hosting on %d" % port
+	_open_lobby()
 
 func _on_join_pressed():
 	join_btn.disabled = true
-	var port := int(port_input.text)
+	if host_btn:
+		host_btn.disabled = true
+	status_label.text = "Joining..."
+
+	var port := 12345
+	if port_input and port_input.text.strip_edges() != "":
+		port = int(port_input.text)
 	var ip := ip_input.text.strip_edges()
+	if ip == "":
+		ip = "127.0.0.1"
 	var name := nick_input.text.strip_edges()
 	if name == "": name = "Client"
 
 	var err = Net.join(ip, port, name)
-	status_label.text = "JOIN err=%s" % err
-	# lobby öffnet sich bei connected_to_server über Signal
 	if err != OK:
+		status_label.text = "JOIN err=%s" % err
+		push_error("Net.join failed with err=%s to %s:%d" % [err, ip, port])
 		join_btn.disabled = false
+		if host_btn:
+			host_btn.disabled = false
+		return
 
 
 func _on_quit_pressed() -> void:
@@ -97,13 +145,9 @@ func _start_game() -> void:
 			status_label.text = "Game scene not found."
 			push_error("multiplayer_menu: Could not load game scene: %s" % GAME_SCENE)
 			return
-		# If the scene changed successfully, wait one frame and inform the newly loaded game scene
-		if get_tree() == null:
-			return
-		await get_tree().process_frame
-		var new_game := get_tree().current_scene
-		if new_game and new_game.has_method("on_multiplayer_menu_closed"):
-			new_game.call_deferred("on_multiplayer_menu_closed")
+		# Defer notifying the newly loaded game scene from the Net autoload (menu node may be freed)
+		if Net and Net.has_method("call_current_scene_after_frame"):
+			Net.call_current_scene_after_frame("on_multiplayer_menu_closed")
 		return
 
 	# Otherwise, we're embedded in the running game scene -> notify it
@@ -162,18 +206,38 @@ func _enter_game():
 	set_process(false)
 	set_physics_process(false)
 
-	# wenn Menü als Overlay im Game liegt:
+	# If the menu is running as the current scene (standalone), change to the game scene.
 	var root := get_tree().current_scene
+	if root == self:
+		var err := get_tree().change_scene_to_file(GAME_SCENE)
+		if err != OK:
+			status_label.text = "Game scene not found."
+			push_error("multiplayer_menu: Could not load game scene: %s" % GAME_SCENE)
+			return
+		if Net and Net.has_method("call_current_scene_after_frame"):
+			Net.call_current_scene_after_frame("on_multiplayer_menu_closed")
+		return
+
+	# Otherwise, we're embedded in the running game scene -> notify it
 	if root and root.has_method("on_multiplayer_menu_closed"):
 		root.call_deferred("on_multiplayer_menu_closed")
 
-	# falls du irgendwann Menü als eigene Scene nutzt:
-	# get_tree().change_scene_to_file("res://main/game.tscn")
-
 
 func _on_back_pressed():
-	# optional: disconnect
-	# Net.leave() -> wenn du das noch baust
+	# Disconnect/stop hosting when leaving the lobby/menu.
+	if Net and Net.has_method("leave_local"):
+		Net.leave_local()
+
+	# If this menu is embedded inside the running game scene, leaving should unload the game.
+	# This avoids the "main menu + game at the same time" state.
+	var root := get_tree().current_scene
+	if root != self:
+		get_tree().paused = false
+		var err := get_tree().change_scene_to_file("res://MainMenu/MultiplayerMenu.tscn")
+		if err != OK:
+			push_error("multiplayer_menu: Could not open MultiplayerMenu.tscn: %s" % err)
+		return
+
 	menu.visible = true
 	lobby.visible = false
 	# Re-enable join/host buttons so user can try again
@@ -181,6 +245,11 @@ func _on_back_pressed():
 		join_btn.disabled = false
 	if host_btn:
 		host_btn.disabled = false
+	status_label.text = ""
+	if ip_input:
+		ip_input.text = ""
+	if port_input:
+		port_input.text = ""
 
 func _force_itemlist_visible(list: ItemList) -> void:
 	if list == null:

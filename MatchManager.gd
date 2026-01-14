@@ -49,10 +49,6 @@ func reset_round() -> void:
 	if score_manager and score_manager.has_method("reset_score"):
 		score_manager.reset_score()
 
-	# optional: reset HUD score
-	if ui and ui.has_method("set_score"):
-		ui.set_score(0, 0)
-
 func _process(delta: float) -> void:
 	if not running:
 		return
