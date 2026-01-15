@@ -111,7 +111,7 @@ func _update_ui_time() -> void:
 
 # ------------------------------------------------------------
 # Robust score fetch:
-# 1) Getter methods (recommended)
+# 1) Getter methods
 # 2) Fallback: known variable names via get_indexed()
 # ------------------------------------------------------------
 func _get_scores() -> Array[int]:
@@ -121,7 +121,7 @@ func _get_scores() -> Array[int]:
 	if score_manager == null:
 		return [0, 0]
 
-	# 1) Empfohlen: Getter
+	# 1) Getter methods
 	if score_manager.has_method("get_left_score"):
 		left_score = int(score_manager.call("get_left_score"))
 	if score_manager.has_method("get_right_score"):
@@ -149,10 +149,18 @@ func _try_get_int(obj: Object, names: Array[String]) -> int:
 
 
 func start_match() -> void:
-	# startet eine neue Runde nur wenn gerade nicht läuft
+	# Resume without resetting the timer.
 	if running:
 		return
-	start_round()
+
+	get_tree().paused = false
+	if time_left == round_seconds:
+		start_round()
+		return
+
+	# Resume
+	running = true
+	_update_ui_time()
 
 func stop_match() -> void:
 	running = false

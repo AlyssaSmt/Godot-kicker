@@ -121,7 +121,6 @@ quad_edit_controller_path = NodePath("../QuadEditController")
 shape = SubResource("CapsuleShape3D_s758e")
 
 [node name="EditorCamera" type="Camera3D" parent="EditorCameraRoot"]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0)
 
 [node name="DirectionalLight3D" type="DirectionalLight3D" parent="."]
 transform = Transform3D(-0.114538, 0.417833, -0.901275, -0.0771323, 0.900766, 0.4274, 0.99042, 0.118471, -0.070944, -90.2139, 20.4004, 2.04284)

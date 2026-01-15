@@ -410,9 +410,9 @@ func _apply_team_camera() -> void:
 		return
 
 	if my_team == "A":
-		cam_root.global_position = Vector3(0, 20, -50)
+		cam_root.global_position = Vector3(0, 20, 50)
 		# Root handles yaw only; rotate Blue by 180° around Y so it faces opposite direction
-		cam_root.rotation_degrees = Vector3(0.0, 180.0, 0.0)
+		cam_root.rotation_degrees = Vector3(0.0, 0.0, 0.0)
 		var child_cam := cam_root.get_node_or_null("EditorCamera")
 		if child_cam:
 				child_cam.rotation_degrees = Vector3(-37.5, 0.0, 0.0)
@@ -420,9 +420,9 @@ func _apply_team_camera() -> void:
 		if cam_root.has_method("sync_orientation"):
 			cam_root.sync_orientation()
 	else:
-		cam_root.global_position = Vector3(0, 20, 50)
+		cam_root.global_position = Vector3(0, 20, -50)
 		# Root yaw for Red team (face opposite of Blue)
-		cam_root.rotation_degrees = Vector3(0.0, 0.0, 0.0)
+		cam_root.rotation_degrees = Vector3(0.0, 180.0, 0.0)
 		var child_cam := cam_root.get_node_or_null("EditorCamera")
 		if child_cam:
 				child_cam.rotation_degrees = Vector3(-37.5, 0.0, 0.0)
