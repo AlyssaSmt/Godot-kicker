@@ -1,5 +1,4 @@
 extends CharacterBody3D
-class_name EditorSpectator
 
 @export var move_speed := 20.0
 @export var fast_speed := 60.0
@@ -33,19 +32,36 @@ func _ready():
 	if cam:
 		cam.current = true
 
+	# Set initial orientation: yaw=0, camera pitched forward at -60 degrees
 	yaw = 0.0
 	rotation_degrees.y = 0.0
 	if cam:
 		pitch = -60.0
 		cam.rotation_degrees = Vector3(-60.0, 0.0, 0.0)
 
-	# Start with mouse visible
+	# Start with mouse visible (menu/UI)
 	rotating = false
 	Input.set_mouse_mode(Input.MOUSE_MODE_VISIBLE)
 
+	# Remember start transforms so reset_camera restores this pose
 	start_root_transform = global_transform
 	if cam:
 		start_cam_transform = cam.global_transform
+
+
+func set_capture_enabled(enabled: bool) -> void:
+	if enabled:
+		# save current mouse pos so we can restore when unpausing
+		if Input.get_mouse_mode() != Input.MOUSE_MODE_CAPTURED:
+			prev_mouse_pos = get_viewport().get_mouse_position()
+			prev_mouse_pos_set = true
+		Input.set_mouse_mode(Input.MOUSE_MODE_CAPTURED)
+	else:
+		Input.set_mouse_mode(Input.MOUSE_MODE_VISIBLE)
+		if prev_mouse_pos_set:
+			prev_mouse_pos_set = false
+
+	# (start transforms are set in _ready)
 
 
 func reset_camera():
@@ -60,13 +76,14 @@ func reset_camera():
 
 
 func sync_orientation() -> void:
+	# Update internal yaw/pitch to match current node transforms without moving anything
 	yaw = rotation_degrees.y
 	if cam:
 		pitch = cam.rotation_degrees.x
 
 
 func _unhandled_input(event):
-	# Right mouse toggles capture 
+	# Right mouse toggles capture (and ESC to release)
 	if event is InputEventMouseButton and event.button_index == MOUSE_BUTTON_RIGHT:
 		rotating = event.pressed
 		Input.set_mouse_mode(Input.MOUSE_MODE_CAPTURED if rotating else Input.MOUSE_MODE_VISIBLE)
@@ -77,8 +94,8 @@ func _unhandled_input(event):
 		rotating = false
 		Input.set_mouse_mode(Input.MOUSE_MODE_VISIBLE)
 		return
- 
-	# Rotate with mouse when captured
+
+	# Rotate with mouse when captured/rotating
 	if event is InputEventMouseMotion and rotating:
 		yaw -= event.relative.x * look_sensitivity * 100.0
 		pitch -= event.relative.y * look_sensitivity * 100.0
@@ -89,7 +106,7 @@ func _unhandled_input(event):
 			cam.rotation_degrees.x = pitch
 		return
 
-	# Left click to edit quad
+	# Left click to edit quad (allow while captured; will raycast from center)
 	if event is InputEventMouseButton and event.button_index == MOUSE_BUTTON_LEFT and event.pressed:
 		if quad_edit == null:
 			print("QuadEditController path not set!")
@@ -98,6 +115,7 @@ func _unhandled_input(event):
 		var quad_id := _get_quad_id_under_mouse()
 		if quad_id != -1:
 			print("quad_edit is null? ", quad_edit == null)
+#			quad_edit.client_try_edit_quad(quad_id, 1.0) # delta wie bei dir
 
 
 func _physics_process(delta):
@@ -138,6 +156,7 @@ func _get_quad_id_under_mouse() -> int:
 	if cam == null or terrain == null:
 		return -1
 
+	# When mouse is captured we treat the center of the viewport as the pointer
 	var mouse_pos := Vector2.ZERO
 	if Input.get_mouse_mode() == Input.MOUSE_MODE_CAPTURED:
 		mouse_pos = get_viewport().get_visible_rect().size * 0.5
@@ -152,6 +171,7 @@ func _get_quad_id_under_mouse() -> int:
 	q.collide_with_bodies = true
 	q.collide_with_areas = true
 
+	# eigenen CharacterBody ignorieren
 	q.exclude = [self]
 
 	var hit := get_world_3d().direct_space_state.intersect_ray(q)
@@ -161,6 +181,7 @@ func _get_quad_id_under_mouse() -> int:
 
 	print("RAY HIT collider=", hit["collider"], " face=", hit.get("face_index", -1))
 
+	# nur Terrain akzeptieren
 	if terrain.mesh_instance == null:
 		return -1
 
@@ -172,6 +193,7 @@ func _get_quad_id_under_mouse() -> int:
 	if terrain.mesh_instance == null:
 		return -1
 
+	# akzeptiere mesh_instance selbst ODER irgendein child/grandchild davon (StaticBody3D etc.)
 	if n != terrain.mesh_instance and !terrain.mesh_instance.is_ancestor_of(n):
 		return -1
 

@@ -1,22 +1,26 @@
-[gd_scene load_steps=24 format=3 uid="uid://b1phcfq8ugp1"]
+[gd_scene load_steps=28 format=3 uid="uid://bdlnu0wb8bc8m"]
 
-[ext_resource type="Script" uid="uid://dyp1c3w3r6ivu" path="res://main/main.gd" id="1_0i4oc"]
-[ext_resource type="Script" uid="uid://bs2rvlnxas6f5" path="res://Procedural Generation/TerrainGeneration.gd" id="2_bsumw"]
-[ext_resource type="Script" uid="uid://d1fgwrejxjecb" path="res://Procedural Generation/terrain_editor.gd" id="3_fwcvl"]
-[ext_resource type="PackedScene" path="res://ArenaBounds.tscn" id="4_s758e"]
-[ext_resource type="PackedScene" uid="uid://cpliy7cur5dlm" path="res://Ball/Ball.tscn" id="5_73k8k"]
-[ext_resource type="PackedScene" uid="uid://dvuyvxo73o3ou" path="res://Goal/GoalDetector.tscn" id="6_5xyti"]
-[ext_resource type="Script" uid="uid://d3pj55mw2jk1k" path="res://main/HockeyGoals.gd" id="8_0i4oc"]
-[ext_resource type="PackedScene" uid="uid://ccvq3f0fbtwcw" path="res://ScoreManager/ScoreManager.tscn" id="9_0i4oc"]
-[ext_resource type="PackedScene" uid="uid://d0cw6utfkuysq" path="res://FieldLines/FieldLinesDynamic.tscn" id="9_4hmqs"]
-[ext_resource type="PackedScene" uid="uid://hhgmst8lx8ua" path="res://FieldLines/RinkWalls.tscn" id="9_bsumw"]
-[ext_resource type="PackedScene" path="res://GoalOverlay.tscn" id="10_73k8k"]
-[ext_resource type="Script" uid="uid://q5aau2vkm2be" path="res://main/ScoreLabel.gd" id="10_bsumw"]
-[ext_resource type="Script" path="res://main/HelpUI.gd" id="12_fwcvl"]
-[ext_resource type="PackedScene" path="res://MatchUI.tscn" id="12_n3o0a"]
-[ext_resource type="Script" path="res://main/PauseMenu.gd" id="13_na0o7"]
-[ext_resource type="PackedScene" path="res://MatchManager.tscn" id="13_s758e"]
-[ext_resource type="Script" uid="uid://bv55wicwyt1u5" path="res://main/EditorSpectator.gd" id="15_s758e"]
+[ext_resource type="Script" uid="uid://dyp1c3w3r6ivu" path="res://main/main.gd" id="1_yu8fu"]
+[ext_resource type="Script" uid="uid://bs2rvlnxas6f5" path="res://Procedural Generation/TerrainGeneration.gd" id="2_kpj3s"]
+[ext_resource type="Script" uid="uid://d1fgwrejxjecb" path="res://Procedural Generation/terrain_editor.gd" id="3_6gqxg"]
+[ext_resource type="PackedScene" uid="uid://cwehbugq1vwsc" path="res://ArenaBounds.tscn" id="4_3opah"]
+[ext_resource type="PackedScene" uid="uid://cpliy7cur5dlm" path="res://Ball/Ball.tscn" id="5_f7tpv"]
+[ext_resource type="PackedScene" uid="uid://d0cw6utfkuysq" path="res://FieldLines/FieldLinesDynamic.tscn" id="6_h47m8"]
+[ext_resource type="Script" uid="uid://d3pj55mw2jk1k" path="res://main/HockeyGoals.gd" id="7_d2f2p"]
+[ext_resource type="PackedScene" uid="uid://hhgmst8lx8ua" path="res://FieldLines/RinkWalls.tscn" id="8_ygnxu"]
+[ext_resource type="PackedScene" uid="uid://dvuyvxo73o3ou" path="res://Goal/GoalDetector.tscn" id="9_dfc64"]
+[ext_resource type="PackedScene" uid="uid://ccvq3f0fbtwcw" path="res://ScoreManager/ScoreManager.tscn" id="10_811gj"]
+[ext_resource type="PackedScene" uid="uid://eyve4dhb0hn7" path="res://GoalOverlay.tscn" id="11_4jhqd"]
+[ext_resource type="Script" uid="uid://q5aau2vkm2be" path="res://main/ScoreLabel.gd" id="12_48bxr"]
+[ext_resource type="PackedScene" uid="uid://b3ki156fnwd7b" path="res://MatchUI.tscn" id="13_vpphe"]
+[ext_resource type="PackedScene" uid="uid://doofjcirvchnj" path="res://MatchManager.tscn" id="14_35v4i"]
+[ext_resource type="Script" uid="uid://bv55wicwyt1u5" path="res://main/EditorSpectator.gd" id="15_lbmwo"]
+[ext_resource type="Script" uid="uid://b0u5nbb15qyqn" path="res://main/HelpUI.gd" id="16_jqkc0"]
+[ext_resource type="Script" uid="uid://u4ritpjdhwlo" path="res://main/PauseMenu.gd" id="17_er0nc"]
+[ext_resource type="Script" uid="uid://48vyr7do5nxi" path="res://net/NetworkManager.gd" id="18_xfm3h"]
+[ext_resource type="Script" uid="uid://0iaeq7n4op5y" path="res://main/TurnManager.gd" id="19_mnj0e"]
+[ext_resource type="Script" uid="uid://ds5p8cuw6okmg" path="res://net/QuadEditController.gd" id="20_175s1"]
+[ext_resource type="PackedScene" uid="uid://bu18toot6v8df" path="res://MainMenu/MultiplayerMenu.tscn" id="21_yu8fu"]
 
 [sub_resource type="FastNoiseLite" id="FastNoiseLite_ig7tw"]
 
@@ -37,56 +41,56 @@ ssao_enabled = true
 glow_enabled = true
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_n3o0a"]
-bg_color = Color(0.13333334, 0.13333334, 0.13333334, 1)
+bg_color = Color(0.133333, 0.133333, 0.133333, 1)
 corner_radius_top_left = 12
 corner_radius_top_right = 12
 corner_radius_bottom_right = 12
 corner_radius_bottom_left = 12
 
 [node name="main" type="Node3D"]
-script = ExtResource("1_0i4oc")
+script = ExtResource("1_yu8fu")
 
 [node name="TerrainGeneration" type="Node3D" parent="."]
-script = ExtResource("2_bsumw")
+script = ExtResource("2_kpj3s")
 size_width = 88
 edit_height = 2.0
 noise = SubResource("FastNoiseLite_ig7tw")
 quads_x = 8
-forbidden_quads = null
 
 [node name="TerrainEditor" type="Node3D" parent="." node_paths=PackedStringArray("terrain")]
-script = ExtResource("3_fwcvl")
+script = ExtResource("3_6gqxg")
 terrain = NodePath("../TerrainGeneration")
+quad_edit_controller_path = NodePath("../QuadEditController")
 
-[node name="ArenaBounds" parent="." instance=ExtResource("4_s758e")]
+[node name="ArenaBounds" parent="." instance=ExtResource("4_3opah")]
 
-[node name="BallNode" parent="." instance=ExtResource("5_73k8k")]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.5, 0)
+[node name="BallNode" parent="." instance=ExtResource("5_f7tpv")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 3, 0)
 mass = 0.467
 
-[node name="FieldLinesDynamic" parent="." node_paths=PackedStringArray("terrain") instance=ExtResource("9_4hmqs")]
+[node name="FieldLinesDynamic" parent="." node_paths=PackedStringArray("terrain") instance=ExtResource("6_h47m8")]
 terrain = NodePath("../TerrainGeneration")
 
 [node name="HockeyGoalLeft" type="Node3D" parent="."]
-script = ExtResource("8_0i4oc")
+script = ExtResource("7_d2f2p")
 team = 1
 
 [node name="HockeyGoalRight" type="Node3D" parent="."]
-script = ExtResource("8_0i4oc")
+script = ExtResource("7_d2f2p")
 
-[node name="RinkWalls" parent="." groups=["walls"] instance=ExtResource("9_bsumw")]
+[node name="RinkWalls" parent="." groups=["walls"] instance=ExtResource("8_ygnxu")]
 visible = false
 
-[node name="GoalDetectorLeft" parent="." instance=ExtResource("6_5xyti")]
+[node name="GoalDetectorLeft" parent="." instance=ExtResource("9_dfc64")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1.2, -35.5)
 
-[node name="GoalDetectorRight" parent="." instance=ExtResource("6_5xyti")]
+[node name="GoalDetectorRight" parent="." instance=ExtResource("9_dfc64")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1.2, 35.5)
-team_name = "Team B"
+team_name = "Team Red"
 
-[node name="ScoreManager" parent="." instance=ExtResource("9_0i4oc")]
+[node name="ScoreManager" parent="." instance=ExtResource("10_811gj")]
 
-[node name="GoalOverlay" parent="." instance=ExtResource("10_73k8k")]
+[node name="GoalOverlay" parent="." instance=ExtResource("11_4jhqd")]
 
 [node name="UI" type="CanvasLayer" parent="."]
 
@@ -94,37 +98,38 @@ team_name = "Team B"
 anchors_preset = -1
 anchor_right = 1.0
 anchor_bottom = 0.035
-offset_bottom = 0.3199997
+offset_bottom = 0.32
 grow_horizontal = 2
-theme_override_font_sizes/font_size = 26
+theme_override_font_sizes/font_size = 40
 horizontal_alignment = 1
-script = ExtResource("10_bsumw")
+script = ExtResource("12_48bxr")
 
-[node name="MatchUI" parent="." instance=ExtResource("12_n3o0a")]
+[node name="MatchUI" parent="." instance=ExtResource("13_vpphe")]
 
-[node name="MatchManager" parent="." instance=ExtResource("13_s758e")]
+[node name="MatchManager" parent="." instance=ExtResource("14_35v4i")]
 score_manager_path = NodePath("../ScoreManager")
 ui_path = NodePath("../MatchUI")
 
 [node name="EditorCameraRoot" type="CharacterBody3D" parent="."]
-transform = Transform3D(1, 0, 0, 0, 0.90708077, -0.42095664, 0, 0.42095664, 0.90708077, 0, 17.071884, 38.675117)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 17.0719, 38.6751)
 collision_layer = 2
-script = ExtResource("15_s758e")
+script = ExtResource("15_lbmwo")
+terrain_path = NodePath("../TerrainGeneration")
+quad_edit_controller_path = NodePath("../QuadEditController")
 
 [node name="CollisionShape3D" type="CollisionShape3D" parent="EditorCameraRoot"]
 shape = SubResource("CapsuleShape3D_s758e")
 
 [node name="EditorCamera" type="Camera3D" parent="EditorCameraRoot"]
-transform = Transform3D(1, 0, 0, 0, 0.49999997, 0.86602545, 0, -0.86602545, 0.49999997, 0, 0, 0)
 
 [node name="DirectionalLight3D" type="DirectionalLight3D" parent="."]
-transform = Transform3D(-0.11453849, 0.41783294, -0.90127504, -0.077132314, 0.90076643, 0.42739955, 0.9904199, 0.11847113, -0.070944026, -90.21393, 20.400438, 2.0428429)
+transform = Transform3D(-0.114538, 0.417833, -0.901275, -0.0771323, 0.900766, 0.4274, 0.99042, 0.118471, -0.070944, -90.2139, 20.4004, 2.04284)
 
 [node name="WorldEnvironment" type="WorldEnvironment" parent="."]
 environment = SubResource("Environment_ig7tw")
 
 [node name="HelpUI" type="CanvasLayer" parent="."]
-script = ExtResource("12_fwcvl")
+script = ExtResource("16_jqkc0")
 
 [node name="HelpButton" type="Button" parent="HelpUI"]
 anchors_preset = 1
@@ -134,6 +139,7 @@ offset_left = -120.0
 offset_bottom = 40.0
 grow_horizontal = 0
 focus_mode = 0
+theme_override_font_sizes/font_size = 36
 text = "Pause"
 
 [node name="PauseMenu" type="Control" parent="HelpUI"]
@@ -143,7 +149,7 @@ anchor_right = 1.0
 anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
-script = ExtResource("13_na0o7")
+script = ExtResource("17_er0nc")
 
 [node name="Dim" type="ColorRect" parent="HelpUI/PauseMenu"]
 layout_mode = 1
@@ -152,7 +158,7 @@ anchor_right = 1.0
 anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
-color = Color(0, 0, 0, 0.7019608)
+color = Color(0, 0, 0, 0.701961)
 
 [node name="HelpPanel" type="Panel" parent="HelpUI/PauseMenu"]
 layout_mode = 1
@@ -234,7 +240,19 @@ text = "Forfeit"
 layout_mode = 2
 
 [node name="ForfeitConfirm" type="ConfirmationDialog" parent="HelpUI/PauseMenu"]
-oversampling_override = 1.0
 size = Vector2i(427, 100)
 ok_button_text = "Forfeit?"
 dialog_text = "Do you really want to Forfeit? You will lose this game."
+
+[node name="NetworkManager" type="Node" parent="."]
+script = ExtResource("18_xfm3h")
+
+[node name="TurnManager" type="Node" parent="."]
+script = ExtResource("19_mnj0e")
+
+[node name="QuadEditController" type="Node" parent="."]
+script = ExtResource("20_175s1")
+terrain_path = NodePath("../TerrainGeneration")
+turn_manager_path = NodePath("../TurnManager")
+
+[node name="MultiplayerMenu" parent="." instance=ExtResource("21_yu8fu")]

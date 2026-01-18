@@ -2,9 +2,7 @@
 class_name TerrainGeneration
 extends Node3D
 
-# =========================
-# EXPORTS / SETTINGS
-# =========================
+
 @export var size_width : int = 110
 @export var size_depth : int = 135
 @export var edit_height : float = 1.5
@@ -30,7 +28,7 @@ extends Node3D
 	30,31,32,23,22,21
 ]
 
-# Field dimensions (for _is_inside_field)
+# Field dimensions
 const FIELD_W := 68.0
 const FIELD_L := 105.0
 
@@ -39,9 +37,8 @@ signal terrain_changed
 var mesh_instance: MeshInstance3D
 var data := MeshDataTool.new()
 
-# =========================
-# SHADER (Checkerboard per UV)
-# =========================
+# shader code for the field material
+
 const FIELD_SHADER_CODE := """
 shader_type spatial;
 render_mode cull_back, depth_draw_opaque;
@@ -68,22 +65,19 @@ void fragment() {
 
 var field_shader_material: ShaderMaterial
 
-# =========================
-# HIGHLIGHT
-# =========================
+# Highlight
 var highlight_mesh: MeshInstance3D
 var highlight_mat: StandardMaterial3D
 var highlight_quad_id := -1
 
-const HIGHLIGHT_OK := Color(1, 1, 1, 0.22)         # weiß
-const HIGHLIGHT_FORBID := Color(1, 0.10, 0.10, 0.28) # rot
+const HIGHLIGHT_OK := Color(1, 1, 1, 0.22)
+const HIGHLIGHT_FORBID := Color(1, 0.10, 0.10, 0.28)
 
 func _ready() -> void:
 	generate()
 
-# =========================
-# MATERIAL HELPERS
-# =========================
+# material management
+
 func _ensure_field_material() -> void:
 	if field_material:
 		return
@@ -117,9 +111,8 @@ func _apply_field_material() -> void:
 	_sync_shader_params()
 	mesh_instance.set_surface_override_material(0, field_shader_material)
 
-# =========================
-# GENERATE TERRAIN
-# =========================
+# Terrain generation
+
 func generate() -> void:
 	_ensure_field_material()
 
@@ -139,7 +132,7 @@ func generate() -> void:
 	data = MeshDataTool.new()
 	data.create_from_surface(base_mesh, 0)
 
-	# flach machen
+	# flatten borders
 	for i in range(data.get_vertex_count()):
 		var v: Vector3 = data.get_vertex(i)
 		v.y = 0.0
@@ -147,7 +140,6 @@ func generate() -> void:
 
 	_apply_outer_border_height()
 
-	# commit
 	var new_mesh := ArrayMesh.new()
 	data.commit_to_surface(new_mesh)
 
@@ -163,27 +155,55 @@ func generate() -> void:
 
 	_create_highlight()
 
-	print("Terrain generated – first vertex:", data.get_vertex(0))
 
-# =========================
-# TERRAIN EDITING
-# =========================
+func reset_field() -> void:
+	# reset the field to its initial state.
+	generate()
+	# Recreate collider
+	if mesh_instance:
+		mesh_instance.create_trimesh_collision()
+
+	# Update field lines
+	for node in get_tree().get_nodes_in_group("field_lines"):
+		node.redraw_all_lines()
+
+	# Adjust ball
+	_fix_ball_safely()
+
+	emit_signal("terrain_changed")
+
+#multiplayer helpers
+
+func has_quad(quad_id: int) -> bool:
+	return quad_id >= 0 and quad_id < (quads_x * quads_z)
+
+func is_quad_blocked(quad_id: int) -> bool:
+	if _is_quad_forbidden(quad_id):
+		return true
+	if _is_quad_locked_border(quad_id) and not border_exception_quads.has(quad_id):
+		return true
+	return false
+
+# multiplayer terrain editing
+func apply_quad_delta(quad_id: int, delta: float) -> void:
+	edit_quad(quad_id, delta)
+
+#terrain editing 
+
 func edit_quad(quad_id: int, delta: float) -> void:
 	if quad_id < 0:
 		return
 
-	# Forbidden blocken
 	if _is_quad_forbidden(quad_id):
 		return
 
-	# Rand sperren
 	if _is_quad_locked_border(quad_id):
 		if border_exception_quads.has(quad_id):
 			if debug_locked_border:
-				print("✅ Border exception quad allowed:", quad_id)
+				print("Border exception quad allowed:", quad_id)
 		else:
 			if debug_locked_border:
-				print("⛔ Border locked quad:", quad_id)
+				print("Border locked quad:", quad_id)
 			return
 
 	_apply_quad_deformation(quad_id, delta)
@@ -205,7 +225,6 @@ func edit_quad(quad_id: int, delta: float) -> void:
 	mesh_instance.create_trimesh_collision()
 	_fix_ball_safely()
 
-	# Highlight rebuild (falls aktiv)
 	if highlight_quad_id == quad_id:
 		show_quad_highlight(quad_id, false)
 
@@ -248,9 +267,8 @@ func _is_inside_field(x: float, z: float) -> bool:
 		z > -FIELD_L / 2.0 and z < FIELD_L / 2.0
 	)
 
-# =========================
-# BALL FIXING
-# =========================
+#ball adjustment
+
 func _fix_ball_safely() -> void:
 	var ball := get_tree().get_first_node_in_group("ball")
 	if ball == null:
@@ -282,53 +300,10 @@ func _fix_ball_safely() -> void:
 		pos.y = terrain_y + 0.3
 		rb.global_transform.origin = pos
 
-# =========================
-# RESET
-# =========================
-func reset_field() -> void:
-	for i in range(data.get_vertex_count()):
-		var v: Vector3 = data.get_vertex(i)
-		v.y = 0.0
-		data.set_vertex(i, v)
-
-	_apply_outer_border_height()
-
-	var new_mesh := ArrayMesh.new()
-	data.commit_to_surface(new_mesh)
-	mesh_instance.mesh = new_mesh
-	_apply_field_material()
-
-	for child in mesh_instance.get_children():
-		if child is StaticBody3D:
-			child.queue_free()
-
-	await get_tree().process_frame
-	await get_tree().process_frame
-
-	mesh_instance.create_trimesh_collision()
-	_fix_ball_safely()
-
-	# Highlight neu setzen falls aktiv
-	if highlight_quad_id != -1:
-		show_quad_highlight(highlight_quad_id, is_quad_forbidden(highlight_quad_id))
-
-	emit_signal("terrain_changed")
-
-# =========================
-# FORBIDDEN / BORDER (Public API)
-# =========================
-func is_quad_forbidden(quad_id: int) -> bool:
-	return _is_quad_forbidden(quad_id)
+# forbidden quads, locked borders, outer border height
 
 func _is_quad_forbidden(quad_id: int) -> bool:
 	return forbidden_quads.has(quad_id)
-
-func is_quad_blocked(quad_id: int) -> bool:
-	if _is_quad_forbidden(quad_id):
-		return true
-	if _is_quad_locked_border(quad_id) and not border_exception_quads.has(quad_id):
-		return true
-	return false
 
 func _get_border_height() -> float:
 	return max_height + border_extra
@@ -383,9 +358,8 @@ func _is_quad_locked_border(quad_id: int) -> bool:
 
 	return _is_in_locked_border(center)
 
-# =========================
-# HIGHLIGHT
-# =========================
+# highlight management
+
 func _create_highlight() -> void:
 	if highlight_mesh and is_instance_valid(highlight_mesh):
 		return
@@ -399,10 +373,8 @@ func _create_highlight() -> void:
 	highlight_mat.emission_enabled = true
 	highlight_mat.no_depth_test = true
 
-	# default white
 	highlight_mat.albedo_color = HIGHLIGHT_OK
 	highlight_mat.emission = Color(1, 1, 1)
-	highlight_mat.emission_energy_multiplier = 1.0
 
 	highlight_mesh.material_override = highlight_mat
 	highlight_mesh.visible = false
@@ -412,13 +384,15 @@ func show_quad_highlight(quad_id: int, forbidden := false) -> void:
 		hide_quad_highlight()
 		return
 
+	_create_highlight()
+
 	var face_a := quad_id * 2
 	var face_b := face_a + 1
 	if face_b >= data.get_face_count():
 		hide_quad_highlight()
 		return
 
-	# Unique Vertex-IDs sammeln
+	# collect vertex ids
 	var ids: Array[int] = []
 	for i in 3:
 		ids.append(data.get_face_vertex(face_a, i))
@@ -434,25 +408,26 @@ func show_quad_highlight(quad_id: int, forbidden := false) -> void:
 		hide_quad_highlight()
 		return
 
-	# Punkte holen
+	# collect vertex positions
 	var pts: Array[Vector3] = []
 	for id in unique:
 		pts.append(data.get_vertex(id))
 
-	# Mittelpunkt
+	# center point
 	var center := Vector3.ZERO
 	for p in pts:
 		center += p
 	center /= float(pts.size())
 
-	# Winkel sortieren im XZ
+	# sort angles in XZ
 	pts.sort_custom(func(a: Vector3, b: Vector3) -> bool:
 		var aa := atan2(a.z - center.z, a.x - center.x)
 		var bb := atan2(b.z - center.z, b.x - center.x)
 		return aa < bb
 	)
 
-	# Mesh bauen
+	# create mesh
+
 	var up := Vector3.UP * 0.03
 	var st := SurfaceTool.new()
 	st.begin(Mesh.PRIMITIVE_TRIANGLES)
@@ -467,7 +442,7 @@ func show_quad_highlight(quad_id: int, forbidden := false) -> void:
 
 	highlight_mesh.mesh = st.commit()
 
-	# ✅ Farbe setzen
+	# set color
 	if highlight_mat:
 		if forbidden:
 			highlight_mat.albedo_color = HIGHLIGHT_FORBID
@@ -481,7 +456,7 @@ func show_quad_highlight(quad_id: int, forbidden := false) -> void:
 	highlight_mesh.visible = true
 	highlight_quad_id = quad_id
 
-	# Auto-unhighlight nach 4s
+	# Auto-unhighlight after 4s
 	if highlight_mesh.has_meta("hide_tween"):
 		var old_t: Tween = highlight_mesh.get_meta("hide_tween")
 		if old_t:
@@ -492,15 +467,15 @@ func show_quad_highlight(quad_id: int, forbidden := false) -> void:
 	t.tween_interval(4.0)
 	t.tween_callback(Callable(self, "hide_quad_highlight"))
 
+
 func hide_quad_highlight() -> void:
 	if highlight_mesh:
 		highlight_mesh.visible = false
 	highlight_quad_id = -1
 
 
-# =========================
-# HEIGHT SAMPLING
-# =========================
+# height query
+
 func get_height_at_position(x: float, z: float) -> float:
 	if data == null:
 		return 0.0

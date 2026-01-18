@@ -10,37 +10,43 @@ var time_left: int
 var running := false
 var _accum := 0.0
 
-@onready var score_manager: Node = get_node(score_manager_path)
-@onready var ui: Node = get_node(ui_path)
+@onready var score_manager: Node = get_node_or_null(score_manager_path)
+@onready var ui: Node = get_node_or_null(ui_path)
 
 func _ready() -> void:
-	start_round()
+	# don't start immediately
+	running = false
+	_accum = 0.0
+	time_left = round_seconds
+	_update_ui_time()
 
 func start_round() -> void:
 	get_tree().paused = false
 	time_left = round_seconds
 	running = true
 	_accum = 0.0
+	# Make sure HUD is visible and will accept updates
+	if ui and ui.has_method("start_match_ui"):
+		ui.start_match_ui()
 	_update_ui_time()
 
 func reset_round() -> void:
-	# Reset timer + UI (e.g. for forfeit or "Play again" without scene reload)
+	# Reset timer + UI 
 	get_tree().paused = false
 	time_left = round_seconds
 	running = true
 	_accum = 0.0
+	# Make sure HUD is visible and will accept updates
+	if ui and ui.has_method("start_match_ui"):
+		ui.start_match_ui()
 	_update_ui_time()
 
 	if ui and ui.has_method("hide_end_screen"):
 		ui.hide_end_screen()
 
-	# optional: reset score if available
+	# Reset scores
 	if score_manager and score_manager.has_method("reset_score"):
 		score_manager.reset_score()
-
-	# optional: reset HUD score
-	if ui and ui.has_method("set_score"):
-		ui.set_score(0, 0)
 
 func _process(delta: float) -> void:
 	if not running:
@@ -85,11 +91,10 @@ func forfeit(loser_team_name: String) -> void:
 	var right_score := scores[1]
 
 	var winner_text := "Draw!"
-	# IMPORTANT: Adjust team names to YOUR game if needed
-	# Here: Team A = Blue, Team B = Red
-	if loser_team_name == "Team A":
+
+	if loser_team_name == "Team Blue":
 		winner_text = "Team Red wins! (Forfeit)"
-	elif loser_team_name == "Team B":
+	elif loser_team_name == "Team Red":
 		winner_text = "Team Blue wins! (Forfeit)"
 	else:
 		winner_text = "Opponent wins! (Forfeit)"
@@ -102,11 +107,8 @@ func _update_ui_time() -> void:
 	if ui and ui.has_method("set_time_left"):
 		ui.set_time_left(time_left)
 
-# ------------------------------------------------------------
-# Robust score fetch:
-# 1) Getter methods (recommended)
-# 2) Fallback: known variable names via get_indexed()
-# ------------------------------------------------------------
+
+
 func _get_scores() -> Array[int]:
 	var left_score := 0
 	var right_score := 0
@@ -114,15 +116,12 @@ func _get_scores() -> Array[int]:
 	if score_manager == null:
 		return [0, 0]
 
-	# 1) Empfohlen: Getter
 	if score_manager.has_method("get_left_score"):
 		left_score = int(score_manager.call("get_left_score"))
 	if score_manager.has_method("get_right_score"):
 		right_score = int(score_manager.call("get_right_score"))
 
-	# 2) Fallback: Variables (without has_variable/has_property)
-	# get_indexed("prop") raises an error if it doesn't exist,
-	# therefore try/catch via "has_method" won't work here. We use a safe helper:
+
 	if left_score == 0:
 		left_score = _try_get_int(score_manager, ["score_left", "left_score", "blue_score", "score_blue"])
 	if right_score == 0:
@@ -131,11 +130,27 @@ func _get_scores() -> Array[int]:
 	return [left_score, right_score]
 
 func _try_get_int(obj: Object, names: Array[String]) -> int:
-	# Tries several property names; if none exist -> 0
 	for n in names:
-		# Object.get() exists but without default. If property doesn't exist,
-		# it returns null.
+
 		var v = obj.get(n)
 		if v != null:
 			return int(v)
 	return 0
+
+
+func start_match() -> void:
+	# Resume without resetting the timer.
+	if running:
+		return
+
+	get_tree().paused = false
+	if time_left == round_seconds:
+		start_round()
+		return
+
+	# Resume
+	running = true
+	_update_ui_time()
+
+func stop_match() -> void:
+	running = false

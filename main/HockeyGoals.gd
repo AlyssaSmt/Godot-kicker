@@ -3,9 +3,9 @@ class_name FootballGoal
 extends Node3D
 
 # goal dimensions
-@export var goal_width: float = 14    # Goal width
-@export var goal_height: float = 5  # Height
-@export var goal_depth: float = 4    # Depth
+@export var goal_width: float = 16    # Goal width
+@export var goal_height: float = 8  # Height
+@export var goal_depth: float = 8.5    # Depth
 
 # wall thicknesses
 @export var post_thickness: float = 0.12     # Post
@@ -44,7 +44,7 @@ func _create_box(size: Vector3, pos: Vector3):
 	mesh.mesh = box
 	mesh.position = pos
 
-	# ✅ set material correctly
+	# set material correctly
 	var mat := StandardMaterial3D.new()
 	mat.albedo_color = _get_team_color()
 	mat.roughness = 0.5
