@@ -1,9 +1,9 @@
 extends Control
 
-const GAME_SCENE := "res://main/game.tscn" # <- bei dir ist das der Pfad
+const GAME_SCENE := "res://main/game.tscn" # Path to the game scene
 
 @onready var nick_input: LineEdit = $MainContainer/Menu/OptionNick/NickInput
-@onready var skin_input: LineEdit = $MainContainer/Menu/OptionSkin/SkinInput
+
 @onready var status_label: Label = $MainContainer/StatusLabel
 
 
@@ -33,8 +33,6 @@ const GAME_SCENE := "res://main/game.tscn" # <- bei dir ist das der Pfad
 func _ready():
 	print("Net exists:", Net)
 	get_tree().paused = false
-	# IMPORTANT: This scene is also instanced inside res://main/game.tscn.
-	# If we're embedded in the game, do NOT tear down networking here (it breaks multiplayer/ball sync).
 	var is_standalone_menu := (get_tree().current_scene == self)
 	if is_standalone_menu:
 		# Always start the main menu in a clean disconnected state.
@@ -69,14 +67,14 @@ func _ready():
 			host_btn.disabled = false
 	)
 	Net.start_game.connect(_enter_game)
-	print("MENU READY ✅")
+	print("MENU READY")
 
 	_force_itemlist_visible(player_list)
 	_force_itemlist_visible(team_a_list)
 	_force_itemlist_visible(team_b_list)
 
 func _on_host_pressed():
-	# safe port parsing: fallback to 12345 when input empty or invalid
+	# safe port parsing, port 12345 when input empty or invalid
 	var port := 12345
 	if port_input and port_input.text.strip_edges() != "":
 		port = int(port_input.text)
@@ -126,31 +124,28 @@ func _on_quit_pressed() -> void:
 	get_tree().quit()
 
 func _start_game() -> void:
-	# wirklich ohne Multiplayer erstmal
+	# Disconnect multiplayer peer to avoid issues when returning to menu later
 	multiplayer.multiplayer_peer = null
 
 	visible = false
 	set_process(false)
 	set_physics_process(false)
 
-	# optional: Maus freigeben — standardmäßig sichtbar, Nutzer kann später fangen
 	Input.set_mouse_mode(Input.MOUSE_MODE_VISIBLE)
 
-	# Game informieren (falls du was aktivieren willst)
 	var game := get_tree().current_scene
-	# If the menu is running as the current scene (standalone), change to the game scene.
+	# If the menu is running as the current scene, change to the game scene.
 	if game == self:
 		var err := get_tree().change_scene_to_file(GAME_SCENE)
 		if err != OK:
 			status_label.text = "Game scene not found."
 			push_error("multiplayer_menu: Could not load game scene: %s" % GAME_SCENE)
 			return
-		# Defer notifying the newly loaded game scene from the Net autoload (menu node may be freed)
+		# Defer notifying the newly loaded game scene from the Net autoload
 		if Net and Net.has_method("call_current_scene_after_frame"):
 			Net.call_current_scene_after_frame("on_multiplayer_menu_closed")
 		return
 
-	# Otherwise, we're embedded in the running game scene -> notify it
 	if game and game.has_method("on_multiplayer_menu_closed"):
 		game.on_multiplayer_menu_closed()
 
@@ -158,7 +153,6 @@ func _start_game() -> void:
 func _save_prefs() -> void:
 	var cfg := ConfigFile.new()
 	cfg.set_value("player", "nickname", nick_input.text.strip_edges())
-	cfg.set_value("player", "skin", skin_input.text.strip_edges())
 	cfg.save("user://player.cfg")
 
 
@@ -168,7 +162,7 @@ func _open_lobby():
 	_refresh_lobby()
 
 func _refresh_lobby():
-	player_list.visible = false # oder player_list.queue_free() wenn du willst
+	player_list.visible = false
 	player_list.clear()
 	team_a_list.clear()
 	team_b_list.clear()
@@ -177,17 +171,15 @@ func _refresh_lobby():
 		var pid := int(id)
 		var p: Dictionary = Net.players[id]
 		var nick := str(p.get("name", "Player"))
-		var team := str(p.get("team", "A"))  # ✅ default A
+		var team := str(p.get("team", "A")) 
 
 		var display := nick
 		if pid == int(Net.host_id):
 			display += " (host)"
 
-		# ✅ nice UI name
 		var team_name := "Blue" if team == "A" else "Red"
 		player_list.add_item("%s  (Team %s)" % [display, team_name])
 
-		# ✅ lists under Team A / Team B
 		if team == "A":
 			team_a_list.add_item(display)
 		else:
@@ -218,18 +210,15 @@ func _enter_game():
 			Net.call_current_scene_after_frame("on_multiplayer_menu_closed")
 		return
 
-	# Otherwise, we're embedded in the running game scene -> notify it
 	if root and root.has_method("on_multiplayer_menu_closed"):
 		root.call_deferred("on_multiplayer_menu_closed")
 
 
 func _on_back_pressed():
-	# Disconnect/stop hosting when leaving the lobby/menu.
+	# Disconnect/stop hosting when leaving the lobby/menu
 	if Net and Net.has_method("leave_local"):
 		Net.leave_local()
 
-	# If this menu is embedded inside the running game scene, leaving should unload the game.
-	# This avoids the "main menu + game at the same time" state.
 	var root := get_tree().current_scene
 	if root != self:
 		get_tree().paused = false
@@ -240,7 +229,7 @@ func _on_back_pressed():
 
 	menu.visible = true
 	lobby.visible = false
-	# Re-enable join/host buttons so user can try again
+	# Reset UI state
 	if join_btn:
 		join_btn.disabled = false
 	if host_btn:
@@ -259,7 +248,6 @@ func _force_itemlist_visible(list: ItemList) -> void:
 	list.add_theme_color_override("font_selected_color", Color(1,1,1))
 	list.add_theme_color_override("font_hover_color", Color(1,1,1))
 
-	# ↓ nur kleine Mindesthöhe, damit Buttons Platz haben
 	list.custom_minimum_size = Vector2(260, 90)
 
 	list.size_flags_horizontal = Control.SIZE_EXPAND_FILL

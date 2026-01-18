@@ -7,7 +7,7 @@ var score_team_red: int = 0
 signal score_changed(a: int, b: int)
 
 
-# ❗️NUR HOST ruft das direkt auf
+# only call on the server/host
 func add_goal(team: String) -> void:
 	match team:
 		"Team Blue":
@@ -18,7 +18,7 @@ func add_goal(team: String) -> void:
 			push_warning("Unknown Team: %s" % team)
 			return
 
-	# 🔥 Score an alle syncen (inkl. Host)
+	# Sync to all clients
 	rpc("_rpc_sync_score", score_team_blue, score_team_red)
 
 

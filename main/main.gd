@@ -38,11 +38,9 @@ func _ready() -> void:
 		push_error("❌ PauseMenu NOT found! Check path.")
 		return
 
-	# --- Multiplayer init ---
 	if multiplayer.multiplayer_peer != null:
 		print("MP active. is_server=", multiplayer.is_server(), " my_id=", multiplayer.get_unique_id())
-		# If start_game fired while transitioning scenes (e.g., standalone menu -> game.tscn),
-		# ensure the new game scene actually starts for this peer.
+
 		if has_node("/root/Net"):
 			if not Net.start_game.is_connected(_on_net_start_game):
 				Net.start_game.connect(_on_net_start_game)
@@ -54,7 +52,6 @@ func _ready() -> void:
 				_server_force_return_to_menu()
 		)
 
-		# Host setzt Turn-Reihenfolge
 		if has_node("TurnManager") and multiplayer.is_server():
 			$TurnManager.server_rebuild_order()
 
@@ -77,7 +74,7 @@ func _ready() -> void:
 	if help_btn:
 		help_btn.text = "Pause"
 
-	# PauseMenu Signale
+	# PauseMenu signals
 	pause_menu.request_reset.connect(_on_reset_requested)
 	pause_menu.request_forfeit.connect(_on_forfeit_requested)
 	pause_menu.request_resume.connect(_on_resume_requested)
@@ -91,13 +88,11 @@ func _ready() -> void:
 
 
 func _on_net_start_game() -> void:
-	# Fallback: if for any reason the menu didn't call on_multiplayer_menu_closed,
-	# starting the game should still hide the lobby UI and unpause the round.
+	# Game is starting, hide menu and begin match
 	call_deferred("on_multiplayer_menu_closed")
 
 
 func request_return_to_menu() -> void:
-	# Called by UI (e.g. end screen Main Menu button). Ensures everyone leaves together.
 	if multiplayer.multiplayer_peer == null:
 		_go_to_main_menu_local()
 		return
@@ -113,7 +108,6 @@ func request_return_to_menu() -> void:
 
 
 func _go_to_main_menu_local() -> void:
-	# Ensure we never carry a paused tree into the menu (can look like a gray freeze)
 	get_tree().paused = false
 	# Hide any in-game overlays that might still be visible
 	if pause_menu and pause_menu.has_method("close_menu_silent"):
@@ -132,12 +126,12 @@ func _go_to_main_menu_local() -> void:
 
 
 func _server_force_return_to_menu() -> void:
-	# Broadcast to everyone (includes host via call_local).
+	# Broadcast to everyone
 	rpc("_rpc_return_to_menu")
 
 
 func request_play_again() -> void:
-	# Called from the end screen. Keeps same teams; resets the match for everyone.
+	# Called from the end screen. Keeps same teams, resets the match for everyone.
 	if multiplayer.multiplayer_peer == null:
 		_do_rematch_local()
 		return
@@ -196,31 +190,28 @@ func _rpc_start_rematch() -> void:
 
 
 func _input(event: InputEvent) -> void:
-	# Pause hotkeys disabled — handled via UI only
+	# Pause hotkeys disabled
 	return
 
 
-# -------------------------
+
 # Goals
-# -------------------------
 
 func _on_goal_scored(team_name: String) -> void:
-	# Nur der Server/Host entscheidet und führt aus
+	# only the server/host processes goals
 	if multiplayer.multiplayer_peer != null and !multiplayer.is_server():
 		return
 
 	$ScoreManager.add_goal(team_name)
 
-	# ✅ an alle replizieren (inkl. Host via call_local)
+	# Broadcast goal event + resets to all clients (incl. host)
 	rpc("_rpc_show_goal", team_name)
 	rpc("_rpc_reset_ball")
 	rpc("_rpc_reset_field")
 	rpc("_rpc_reset_camera")
 
 
-# -------------------------
 # Pause / Help Menu
-# -------------------------
 
 func _on_help_pressed() -> void:
 	# Ensure PauseMenu knows this player's team so its local button text updates correctly
@@ -232,7 +223,6 @@ func _on_help_pressed() -> void:
 
 	pause_menu.set_votes(reset_vote_a, reset_vote_b)
 	if multiplayer.multiplayer_peer != null:
-		# If we're the host, call the request handler locally (rpc() won't execute on the caller)
 		if multiplayer.is_server():
 			_rpc_request_pause(true)
 		else:
@@ -246,7 +236,6 @@ func _on_help_pressed() -> void:
 
 
 func _on_reset_requested(team_name: String, wants_reset: bool) -> void:
-	# Determine local player's team reliably from Net.players (fallback to incoming team_name)
 	var my_team_str := "TEAM BLUE"
 	var my_id := multiplayer.get_unique_id()
 	if has_node("/root/Net") and Net.players.has(my_id):
@@ -269,7 +258,6 @@ func _on_reset_requested(team_name: String, wants_reset: bool) -> void:
 
 	# MP: send reset request to host with authoritative team string
 	if multiplayer.multiplayer_peer != null:
-		# If we're the server, call the handler directly so server-side state and broadcasts run
 		if multiplayer.is_server():
 			_rpc_request_reset(my_team_str, wants_reset)
 			return
@@ -277,7 +265,7 @@ func _on_reset_requested(team_name: String, wants_reset: bool) -> void:
 		rpc("_rpc_request_reset", my_team_str, wants_reset)
 		return
 
-	# SP fallback: if both agree, perform reset
+	# if both agree, perform reset
 	if reset_vote_a and reset_vote_b:
 		_do_full_reset()
 		_rpc_full_reset()
@@ -297,7 +285,6 @@ func _on_forfeit_requested(team_name: String) -> void:
 		pause_menu.close_menu_no_global_pause()
 
 	if multiplayer.multiplayer_peer != null:
-		# If we're the host, call the request handler locally (rpc() won't execute on the caller)
 		if multiplayer.is_server():
 			_rpc_request_forfeit(t)
 		else:
@@ -347,7 +334,7 @@ func _do_full_reset() -> void:
 
 	reset_ball()
 
-	# Reapply team camera pose instead of using EditorSpectator's stored start transforms
+	# Reapply team camera pose
 	_apply_team_camera()
 
 	pause_menu.close_menu()
@@ -376,9 +363,8 @@ func reset_ball() -> void:
 # Match start hook (called when multiplayer menu closes)
 # -------------------------
 
+
 func on_multiplayer_menu_closed() -> void:
-	# When game.tscn is loaded from the standalone menu, it includes an embedded MultiplayerMenu
-	# instance by default. Ensure it's hidden/disabled once the match starts.
 	var embedded_menu := get_node_or_null("MultiplayerMenu")
 	if embedded_menu:
 		embedded_menu.visible = false
@@ -395,8 +381,7 @@ func on_multiplayer_menu_closed() -> void:
 	_apply_team_camera()
 
 	# Do not force mouse centering or automatic capture here.
-	# Players can enable camera capture manually (right-click) or via UI.
-	print("Game started ✅")
+	print("Game started")
 
 
 func _apply_team_camera() -> void:

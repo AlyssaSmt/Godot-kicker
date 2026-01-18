@@ -1,9 +1,6 @@
 extends CanvasLayer
 class_name MatchUI
 
-# =========================
-# NODES (passen zu deinem Tree)
-# =========================
 @onready var hud: Control = $HUD
 @onready var timer_label: Label = $HUD/TimerLabel
 @onready var score_label: Label = $HUD/ScoreLabel
@@ -20,14 +17,13 @@ class_name MatchUI
 
 var match_started := false
 
-# Optional: if you don't have a MainMenu yet
 @export var disable_main_menu_button: bool = true
 
 func _ready() -> void:
 	process_mode = Node.PROCESS_MODE_ALWAYS
 	end_screen.mouse_filter = Control.MOUSE_FILTER_STOP
 
-	# Buttons verbinden
+	# connect buttons
 	play_again_btn.pressed.connect(_on_play_again)
 	main_menu_btn.pressed.connect(_on_main_menu)
 
@@ -35,7 +31,6 @@ func _ready() -> void:
 		main_menu_btn.disabled = true
 		main_menu_btn.tooltip_text = "Main menu coming soon"
 
-	# START-ZUSTAND: noch nicht gestartet
 	match_started = false
 	hud.visible = false
 	hide_end_screen()
@@ -63,31 +58,24 @@ func show_end_screen(left_score: int, right_score: int, winner_text: String) -> 
 		main_menu_btn.disabled = false
 		main_menu_btn.tooltip_text = ""
 
-	# Text setzen
+	# Set result texts
 	title_label.text = "Game Over"
 	result_label.text = "Final score: %d : %d\n%s" % [left_score, right_score, winner_text]
 
-	# Gewinner optisch hervorheben (optional)
-	# If you use exact strings "Team Blue wins!" / "Team Red wins!":
+	# Highlight winner visually
 	if winner_text.find("Blue") != -1:
-		title_label.modulate = Color(0.6, 0.75, 1.0) # leicht blau
+		title_label.modulate = Color(0.6, 0.75, 1.0) 
 	elif winner_text.find("Red") != -1:
-		title_label.modulate = Color(1.0, 0.65, 0.65) # leicht rot
+		title_label.modulate = Color(1.0, 0.65, 0.65)
 	else:
 		title_label.modulate = Color(1, 1, 1)
-
-	# Optional: hide HUD
-	# hud.visible = false
 
 	# Initial values for animation
 	end_screen.modulate.a = 0.0
 	card.scale = Vector2(0.95, 0.95)
 
-	# If you use Dim as a ColorRect: control alpha
-	# (You can also set the Dim color in the Inspector)
 	dim.color = Color(0, 0, 0, 0.70)
 
-	# Animation: Fade + Pop-in
 	var t := create_tween()
 	t.set_trans(Tween.TRANS_SINE)
 	t.set_ease(Tween.EASE_OUT)
@@ -99,14 +87,14 @@ func hide_end_screen() -> void:
 	end_screen.modulate.a = 1.0
 	card.scale = Vector2(1, 1)
 	title_label.modulate = Color(1, 1, 1)
-	# hud.visible = true
+
 
 func _on_play_again() -> void:
 	var root := get_tree().current_scene
 	if root and root.has_method("request_play_again"):
 		root.call_deferred("request_play_again")
 		return
-	# Fallback (singleplayer/dev)
+	
 	get_tree().paused = false
 	get_tree().reload_current_scene()
 
@@ -131,11 +119,11 @@ func _format_time(total_seconds: int) -> String:
 func start_match_ui() -> void:
 	match_started = true
 	hud.visible = true
-	# Score is shown via main/ScoreLabel.gd (UI/ScoreLabel). Keep this HUD label hidden.
+	# Score is shown only when match is running
 	if score_label:
 		score_label.visible = false
 
-	# sofort sichtbar initialisieren
+	# Initialize timer display
 	if timer_label.text.strip_edges() == "":
 		timer_label.text = "00:00"
 

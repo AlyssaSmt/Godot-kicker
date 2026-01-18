@@ -10,7 +10,6 @@ class_name ArenaBounds
 @export var visible_walls := false
 @export var wall_material: Material
 
-# ✅ New: Collision Layer/Mask for the walls
 @export_flags_3d_physics var wall_collision_layer: int = 1
 @export_flags_3d_physics var wall_collision_mask: int = 0
 
@@ -23,7 +22,7 @@ func _clear():
 		c.queue_free()
 
 func _build():
-	# Links / Rechts
+	# left / right
 	_create_wall(
 		Vector3(wall_thickness, height, length),
 		Vector3(-width/2 - wall_thickness/2, height/2, 0)
@@ -33,7 +32,7 @@ func _build():
 		Vector3(width/2 + wall_thickness/2, height/2, 0)
 	)
 
-	# Vorne / Hinten
+	# front / back
 	_create_wall(
 		Vector3(width, height, wall_thickness),
 		Vector3(0, height/2, -length/2 - wall_thickness/2)
@@ -43,7 +42,7 @@ func _build():
 		Vector3(0, height/2, length/2 + wall_thickness/2)
 	)
 
-	# Decke (optional)
+	# top
 	_create_wall(
 		Vector3(width, wall_thickness, length),
 		Vector3(0, height + wall_thickness/2, 0)
@@ -54,7 +53,7 @@ func _create_wall(size: Vector3, pos: Vector3) -> void:
 	add_child(body)
 	body.position = pos
 
-	# ✅ Important: set Layer/Mask (otherwise collisions may not work)
+	# Set collision layers/masks
 	body.collision_layer = wall_collision_layer
 	body.collision_mask = wall_collision_mask
 

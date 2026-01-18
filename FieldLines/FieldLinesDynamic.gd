@@ -18,7 +18,7 @@ func _ready() -> void:
 		terrain.connect("terrain_changed", Callable(self, "redraw_all_lines"))
 	redraw_all_lines()
 
-# TYPED helper function
+# HELPER FUNCTIONS
 
 func draw_dynamic_line(im: ImmediateMesh, x1: float, z1: float, x2: float, z2: float) -> void:
 	var count: int = resolution - 1
@@ -61,11 +61,11 @@ func redraw_all_lines() -> void:
 	var half_w: float = field_width / 2.0
 
 
-	# CENTER LINE
+	# center line
 	draw_dynamic_line(im, -half_w, 0.0, half_w, 0.0)
 
 
-	# CENTER CIRCLE
+	# center circle
 	var radius: float = 9.0
 	var steps: int = 80
 
@@ -86,7 +86,7 @@ func redraw_all_lines() -> void:
 
 
 
-	# GOAL LINES - ACROSS FULL FIELD WIDTH
+	# goal lines
 
 	# top goal line
 	draw_dynamic_line(im, -half_w, -goal_z -7, half_w, -goal_z -7)
@@ -96,8 +96,7 @@ func redraw_all_lines() -> void:
 
 
 
-	# 16-METER AREAS AROUND THE GOALS
-
+	# 16-meter areas around the goals
 	var half_zone_w: float = goal_zone_width / 2.0
 	var depth: float = goal_zone_depth
 

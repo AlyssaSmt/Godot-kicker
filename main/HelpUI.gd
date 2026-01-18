@@ -20,15 +20,10 @@ func _ready() -> void:
 
 	_disable_focus_recursive(self)
 
-	# Main game script manages PauseMenu (including multiplayer sync).
-	# Keep HelpUI passive to avoid double-handling and accidental global pauses.
-
-	# Optional: clicking the dark background closes
 	dim.mouse_filter = Control.MOUSE_FILTER_STOP
-	# Do not allow closing by clicking outside; only the X button should close.
+
 
 func _on_help_pressed() -> void:
-	# Deprecated path (kept for safety): do not globally pause.
 	pause_menu.visible = true
 	dim.visible = true
 	help_panel.visible = true
@@ -37,10 +32,8 @@ func _on_close_pressed() -> void:
 	help_panel.visible = false
 	dim.visible = false
 	pause_menu.visible = false
-	# Deprecated path (kept for safety): do not globally pause.
 
 func _on_dim_input(event: InputEvent) -> void:
-	# Intentionally ignored (see _ready)
 	return
 
 func _disable_focus_recursive(node: Node) -> void:

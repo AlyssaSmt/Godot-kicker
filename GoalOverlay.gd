@@ -14,7 +14,7 @@ func _ready() -> void:
 func show_goal(team_name: String) -> void:
 	label.text = "GOAL FOR %s!" % team_name
 
-	# Reset (important if a previous tween was running)
+	# Reset
 	label.modulate.a = 0.0
 	visible = true
 

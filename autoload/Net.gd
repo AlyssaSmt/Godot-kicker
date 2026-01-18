@@ -21,8 +21,6 @@ var _is_returning_to_menu: bool = false
 const MAX_PLAYERS := 4
 
 func call_current_scene_after_frame(method_name: StringName, args: Array = []) -> void:
-	# Safe helper for UI/menu scripts that might be freed during scene changes.
-	# Runs after the next frame, then calls the method on the current scene if it exists.
 	call_deferred("_call_current_scene_after_frame_deferred", method_name, args)
 
 func _call_current_scene_after_frame_deferred(method_name: StringName, args: Array) -> void:
@@ -174,7 +172,6 @@ func rpc_register(id: int, name: String) -> void:
 		return
 
 	print("Net.rpc_register: registering peer", id, "name=", name)
-	# ✅ Wenn der Spieler schon existiert: nur Name updaten, Team behalten
 	if players.has(id):
 		var old_team := str(players[id].get("team", "Blue"))
 		players[id] = {"name": name, "team": old_team}
@@ -184,7 +181,7 @@ func rpc_register(id: int, name: String) -> void:
 		print("Net.rpc_register: updated existing player", id, "team=", old_team)
 		return
 
-	# team assignment: alternate Blue/Red (nur beim ersten Mal!)
+	# team assignment: alternate Blue/Red
 	var count_blue := 0
 	var count_red := 0
 	for k in players.keys():
@@ -236,12 +233,10 @@ func request_team_change(team: String) -> void:
 	if team != "A" and team != "B":
 		return
 
-	# Wenn Host: direkt ausführen
 	if is_host():
 		_server_set_team(multiplayer.get_unique_id(), team)
 		return
 
-	# Wenn Client: Host fragen (id 1)
 	rpc_id(1, "rpc_request_team_change", multiplayer.get_unique_id(), team)
 
 @rpc("any_peer", "reliable")
@@ -256,8 +251,7 @@ func rpc_request_team_change(peer_id: int, team: String) -> void:
 func _server_set_team(peer_id: int, team: String) -> void:
 	if !players.has(peer_id):
 		return
-
-	# Optional: Team-Limit (2v2)
+	# Team balance check
 	var count_a := 0
 	var count_b := 0
 	for k in players.keys():
@@ -265,9 +259,7 @@ func _server_set_team(peer_id: int, team: String) -> void:
 		if t == "A": count_a += 1
 		else: count_b += 1
 
-	# Beispiel-Regel: max 2 pro Team
 	if team == "A" and count_a >= 2:
-		# optional: feedback an client
 		return
 	if team == "B" and count_b >= 2:
 		return

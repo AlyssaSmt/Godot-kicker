@@ -44,7 +44,7 @@ func _create_box(size: Vector3, pos: Vector3):
 	mesh.mesh = box
 	mesh.position = pos
 
-	# ✅ set material correctly
+	# set material correctly
 	var mat := StandardMaterial3D.new()
 	mat.albedo_color = _get_team_color()
 	mat.roughness = 0.5

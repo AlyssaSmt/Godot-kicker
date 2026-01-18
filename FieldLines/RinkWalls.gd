@@ -4,7 +4,7 @@ extends Node3D
 
 @export var field_width: float = 64.0        # inner field (like FIELD_W)
 @export var field_length: float = 110.0      # inner field (like FIELD_L)
-@export var wall_height: float = 10.0         # visible height above ground
+@export var wall_height: float = 10.0        # visible height above ground
 @export var wall_thickness: float = 0.5
 @export var corner_radius: float = 8.0       # corner rounding
 @export var segments_per_corner: int = 12    # higher = rounder
@@ -28,7 +28,7 @@ func _create_rink() -> void:
 
 	
 
-	# 1) Straight walls top/bottom (by the goals)
+	# 1) Straight walls top/bottom
 	_create_wall_segment(
 		Vector3(-w + corner_radius, 0.0, -l),
 		Vector3( w - corner_radius, 0.0, -l),
@@ -52,14 +52,14 @@ func _create_rink() -> void:
 		Vector3( w, 0.0,  l - corner_radius)
 	)
 
-	# 3) Corners (quarter circles)
-	# Top-Right (oben rechts)
+	# 3) Corners
+	# Top Right 
 	_create_corner(Vector3( w - corner_radius, 0.0, -l + corner_radius), 270.0)
-	# Bottom-Right (unten rechts)
+	# Bottom Right 
 	_create_corner(Vector3( w - corner_radius, 0.0,  l - corner_radius),   0.0)
-	# Bottom-Left (unten links)
+	# Bottom Left
 	_create_corner(Vector3(-w + corner_radius, 0.0,  l - corner_radius),  90.0)
-	# Top-Left (oben links)
+	# Top Left 
 	_create_corner(Vector3(-w + corner_radius, 0.0, -l + corner_radius), 180.0)
 
 
@@ -84,12 +84,11 @@ func _create_wall_segment(a: Vector3, b: Vector3, do_rotate: bool = true) -> voi
 			Vector3.UP
 		)
 	else:
-		# don't rotate -> default along Z
 		wall_mesh.rotation = Vector3.ZERO
 
 	add_child(wall_mesh)
 
-	# Physik
+	# Collision
 	var body := StaticBody3D.new()
 	var shape := CollisionShape3D.new()
 	var col := BoxShape3D.new()

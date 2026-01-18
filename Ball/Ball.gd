@@ -8,7 +8,7 @@ var _kick_timer := 0.0
 @export var send_rate_hz := 20.0          # 15–30 ist ok
 @export var snap_pos_lerp := 22.0         # höher = schneller einrasten
 @export var snap_rot_lerp := 18.0
-@export var hard_snap_dist := 2.0         # wenn zu weit weg -> teleport
+@export var hard_snap_dist := 2.0      
 
 var _accum := 0.0
 var _has_target := false
@@ -34,7 +34,7 @@ func _ready() -> void:
 	mat.friction = 0.01
 	physics_material_override = mat
 
-	# --- Networking mode: host simulates, clients follow ---
+	# Networking setup
 	if multiplayer.multiplayer_peer == null:
 		# Singleplayer
 		freeze = false
@@ -92,17 +92,13 @@ func rpc_ball_state(pos: Vector3, rot: Quaternion, lv: Vector3, av: Vector3) -> 
 	_t_rot = rot
 	_has_target = true
 
-	# Optional: velocities kannst du für Effekte/Prediction nutzen.
-	# Für "freeze follow" brauchen wir sie nicht zwingend.
-	# linear_velocity = lv
-	# angular_velocity = av
 
 func _integrate_forces(state: PhysicsDirectBodyState3D) -> void:
-	# ✅ nur Host simuliert Kräfte & Wall-Kick
+	# only host simulates physics
 	if multiplayer.multiplayer_peer != null and !multiplayer.is_server():
 		return
 
-	# Fallgeschwindigkeit begrenzen
+	# velocity 
 	if state.linear_velocity.y < -50.0:
 		state.linear_velocity.y = -10.0
 

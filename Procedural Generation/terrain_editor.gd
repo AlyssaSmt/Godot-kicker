@@ -16,11 +16,11 @@ func _unhandled_input(event):
 		push_error("TerrainEditor: terrain not set!")
 		return
 
-	# Left-click → select quad
+	# Left-click = select quad
 	if event is InputEventMouseButton and event.pressed and event.button_index == MOUSE_BUTTON_LEFT:
 		_select_quad()
 
-	# Q / E → edit terrain
+	# Q / E = edit terrain
 	if event is InputEventKey and event.pressed:
 		if event.as_text() == raise_key:
 			_request_edit(+terrain.edit_height)
