@@ -1,6 +1,6 @@
 [gd_scene load_steps=2 format=3 uid="uid://cwehbugq1vwsc"]
 
-[ext_resource type="Script" uid="uid://d4a75nyw0bc83" path="res://ArenaBounds.gd" id="1_igrnx"]
+[ext_resource type="Script" uid="uid://d4a75nyw0bc83" path="res://rest/ArenaBounds.gd" id="1_igrnx"]
 
 [node name="ArenaBounds" type="Node3D"]
 script = ExtResource("1_igrnx")

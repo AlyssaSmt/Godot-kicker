@@ -1,6 +1,6 @@
 [gd_resource type="ShaderMaterial" load_steps=2 format=3 uid="uid://blkduy6ci5bmg"]
 
-[ext_resource type="Shader" uid="uid://c3e1mqhuffvig" path="res://GrassShader.gdshader" id="1_daxjp"]
+[ext_resource type="Shader" uid="uid://c3e1mqhuffvig" path="res://rest/GrassShader.gdshader" id="1_daxjp"]
 
 [resource]
 render_priority = 0

@@ -1,6 +1,6 @@
 [gd_scene load_steps=2 format=3 uid="uid://eyve4dhb0hn7"]
 
-[ext_resource type="Script" uid="uid://exg8466a0jr3" path="res://GoalOverlay.gd" id="1_wxy26"]
+[ext_resource type="Script" uid="uid://exg8466a0jr3" path="res://rest/GoalOverlay.gd" id="1_wxy26"]
 
 [node name="GoalOverlay" type="CanvasLayer"]
 layer = 10
