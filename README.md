@@ -31,9 +31,8 @@ Procedural hockey rink with editable terrain, ball physics, and goal detection.
 | Raise camera                 | Space                 |
 | Lower camera                 | Shift                 |
 
-## ToDo / Improvements
-- Multiplayer implementation
-- UI for controls and goals
-- Undo / Redo / timer for terrain editing
-- Terrain editing affecting rink and goals
-- Terrain color changes by height
+## Exe
+- Download 'export' folder
+- keep both Godot-kicker.exe and Godot-kicker.pck in the same folder
+- run Godot-kicker.exe
+
